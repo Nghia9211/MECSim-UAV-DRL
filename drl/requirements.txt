@@ -1,0 +1,5 @@
+stable-baselines3==2.6.0
+gymnasium==1.1.1
+# CPU is sufficient for the small MLP; a compatible existing torch install is OK.
+torch>=2.3,<3
+numpy>=1.20,<3

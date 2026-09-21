@@ -100,13 +100,16 @@ public class PureEdgeSim {
 	 * @see #terminate()
 	 */
 	public void start() {
+		try {
 		EnvironmentConstants.entitiesList.forEach(e -> e.startInternal());
 		simDone = false;
 		while (runClockTickAndProcessFutureEvents(Double.MAX_VALUE) && isRunning) {
 			// All the processing happens inside the method called above
 		}
-		// Iteration finished 
+		} finally {
+		// Also release entities when an interactive episode is reset or aborted.
 		EnvironmentConstants.entitiesList.clear();
+		}
 	}
 
 	/**

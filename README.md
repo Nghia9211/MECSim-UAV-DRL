@@ -1,5 +1,29 @@
 # MECSim
 
+## UAV: environment theo arXiv:2501.15305v1
+
+Đánh giá mở rộng bằng RescueNet + Alibaba trong cùng paper environment:
+[hướng dẫn dataset](PureEdgeSim/uav/DATASET_EVALUATION.md).
+
+```powershell
+.\scripts\run-paper-datasets.ps1 -Mode evaluate -Seeds 30 -Offline
+```
+
+Hướng hiện tại là tái lập bài toán kéo dài thời gian sống của 12 thiết bị edge
+bị mất nguồn/mất liên lạc bằng một UAV. Xem [bản đối chiếu bài báo](PureEdgeSim/uav/PAPER_ALIGNMENT.md)
+để biết phần đã có, phần còn thiếu và các quy ước chưa được tác giả xác nhận.
+
+```powershell
+mvn compile exec:java "-Dexec.mainClass=uav.PaperSimulation" "-Dexec.classpathScope=compile"
+mvn test
+```
+
+Đã có Gymnasium adapter và DQN/PPO/A2C chạy trực tiếp trên môi trường Java.
+Xem [hướng dẫn DRL](PureEdgeSim/uav/DRL.md) để train, lưu/nạp và đánh giá model.
+Pilot đã chạy; chưa tái lập đầy đủ lưới thực nghiệm của bài báo.
+Không cần dataset để chạy mô hình chính. RescueNet + Alibaba là chế độ đánh giá
+mở rộng. Các demo milestone cũ đã được gỡ; xem [hướng dẫn UAV](PureEdgeSim/uav/README.md).
+
 MECSim: A Comprehensive Simulation Platform for Multi-Access Edge Computing
 
 # Please cite it as (Kindly do not use the github link):
@@ -137,7 +161,29 @@ The simplest and recommended method to run this project is to use an IDE like Ec
 
 ### Via Command Line
 
-Assuming that git  and maven  are already installed, MECSim can be run from the command line as follows:
-1.    First, the project source code must be downloaded by cloning the repository via the command `git clone https://github.com/CharafeddineMechalikh/PureEdgeSim.git`. 
-2.    Now that the project is cloned, it can be built using Maven by executing the  `mvn clean install ` command in the directory where it was cloned.
-3.    Now, the examples can be executed on Windows, Linux, or Mac operating systems, using the command  `mvn exec:java -Dexec.mainClass="package.Class_Name" `. For instance, to execute “Example1”, the command is  `mvn exec:java -Dexec.mainClass="examples.Example1" `
+Install JDK 17 and Maven, then open a terminal in the `MECSim` directory
+(the directory containing `pom.xml`). Verify the environment with `java -version`
+and `mvn -version`, then run:
+
+```powershell
+mvn compile exec:java "-Dexec.mainClass=applications.Main" "-Dexec.classpathScope=compile"
+```
+
+The entry point in this repository is `PureEdgeSim/applications/Main.java`;
+`examples.Example1` is not included. Maven compiles sources from `PureEdgeSim`,
+and `compile` must run before `exec:java` on the first run or after source changes.
+The compile classpath includes the bundled system-scope JARs under `PureEdgeSim/libs`.
+Run from the project directory so relative settings and dataset paths resolve correctly.
+
+The default configuration runs ReMEC with the bundled synthetic DAG dataset.
+Settings are in `PureEdgeSim/sim_settings/simulation_parameters.properties`,
+and infrastructure XML files are in `PureEdgeSim/applications/remec/settings/`.
+Results are printed to the terminal. The output directory is
+`PureEdgeSim/applications/remec/output/`; enable `save_log_file=true` to save logs.
+Real-time charts are disabled and previous output is preserved by default.
+
+To use another algorithm, update both the settings/output paths in
+`applications/Main.java` and `orchestration_algorithms` in the properties file.
+Enable exactly one dataset option: `iot_dataset`, `scientific_workflow`, or
+`synthetic_tasks`. The IoT dataset is not bundled; its two files must be provided
+at the configured paths before enabling it.
