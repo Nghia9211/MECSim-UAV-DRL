@@ -27,6 +27,57 @@ Java/`mvn clean` khi đang huấn luyện vì JVM đọc class từ `target/clas
 
 ## Huấn luyện DQN
 
+### Server Linux qua SSH
+
+Cần JDK 17, Maven, Python 3.11 có module `venv`. Clone repo private bằng tài
+khoản GitHub đã được cấp quyền; không copy `.venv-drl` hoặc `target` từ Windows.
+Script luôn build classpath/JDK path trên server trước khi train.
+
+```bash
+git clone https://github.com/Nghia9211/MECSim-UAV-DRL.git
+cd MECSim-UAV-DRL
+# Nếu đã clone: git pull --ff-only
+bash scripts/train-paper-server.sh synthetic --setup
+```
+
+`--setup` tạo venv và cài dependency, sau đó build/train. Mặc định: DQN,
+1.000.000 steps, reward paper, learning seed0, layout42, 8 thiết bị còn nguồn,
+8 còn kết nối, CPU một thread. Các seed/layout và cấu hình outage là lựa chọn
+thực nghiệm, không phải một seed duy nhất được tác giả công bố. Script kiểm tra
+MLP64–64 ReLU, LR .0071, gamma .98, batch16, epsilon1→.05/35% trước khi chạy.
+
+Để tiến trình tiếp tục khi ngắt SSH, dùng `tmux` (nếu đã cài trên server):
+
+```bash
+tmux new -s uav-dqn
+bash scripts/train-paper-server.sh synthetic --setup
+# Ctrl+B rồi D để detach; nối lại bằng: tmux attach -t uav-dqn
+```
+
+Output tự tạo ở `target/drl-server-*`; log console ở file cùng tên thêm `.log`.
+`best_model.zip`, `final_model.zip`, CSV validation/evaluation nằm trong run.
+Không dùng `mvn clean` khi cần giữ kết quả. Tải kết quả về trước khi xóa máy/job.
+Script không tự resume run bị ngắt; checkpoint ZIP có thể nạp để evaluate,
+nhưng không đồng nghĩa đã lưu đầy đủ trạng thái để resume y hệt từng bước.
+
+Chạy cấu hình khác của Table6 hoặc dataset extension:
+
+```bash
+POWERED=6 CONNECTED=6 SEED=1 LAYOUT_SEED=1 bash scripts/train-paper-server.sh synthetic
+POWERED=10 CONNECTED=8 SEED=2 LAYOUT_SEED=2 bash scripts/train-paper-server.sh synthetic
+bash scripts/train-paper-server.sh datasets
+```
+
+Đối với `datasets`, cần **copy raw dataset lên server** theo các đường dẫn phía
+dưới vì GitHub đã ignore dữ liệu. Không cần tải lại nếu đã có bản local. Chế độ
+mixed giữ hyperparameters DQN nhưng thay workload/CPU model; không gọi đó là
+workload gốc của paper. `--dry-run` chỉ in lệnh; `OFFLINE=1` dùng Maven offline
+sau khi dependency đã được cache. `PYTHON=/path/to/python3.11` chọn Python khi
+setup; `OUT_DIR=target/my-run` chọn thư mục mới. Mỗi lần chạy train một model,
+không tự chạy toàn bộ lưới Table5/6.
+
+### Máy Windows hoặc gọi trực tiếp Python
+
 Synthetic, theo workload gốc của paper:
 
 ```powershell
