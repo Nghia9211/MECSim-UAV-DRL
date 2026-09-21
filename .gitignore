@@ -1,5 +1,33 @@
+# Build, test reports, experiment outputs and local backups
 /target/
 /archives/
-/.venv-drl/
-__pycache__/
 /PureEdgeSim/applications/*/output/
+/jacoco.xml
+*.exec
+*.log
+*.class
+
+# Python environments and generated caches/reports
+/.venv*/
+/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local IDE settings
+/.idea/
+/.vscode/
+*.iml
+
+# Machine-local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Raw/processed datasets are excluded by datasets/.gitignore.
+# Keep test SOURCE, scripts, bundled JARs and example input datasets tracked.
