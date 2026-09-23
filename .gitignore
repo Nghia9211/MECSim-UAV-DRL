@@ -1,6 +1,11 @@
 # Build, test reports, experiment outputs and local backups
 /target/
 /archives/
+# Results copied/downloaded from training servers
+/result/
+/result.zip
+/drl-server-*/
+/drl-server-*.zip
 /PureEdgeSim/applications/*/output/
 /jacoco.xml
 *.exec
