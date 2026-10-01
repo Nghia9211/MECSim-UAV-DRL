@@ -44,6 +44,7 @@ public final class PaperGymBridge {
         info.put("slots",manager.slotsElapsed()); info.put("seconds",engine.clock());
         info.put("reason",manager.reason()); info.put("uav_battery_j",energy.getBatteryLevel()*3600);
         info.put("uav_compute_j",energy.getComputeWh()*3600);
+        if(manager.measuresRuntime()) info.put("kernel_nanos",manager.kernelNanos());
         info.put("position",new double[]{p.getXPos(),p.getYPos(),p.getAltitude()});
         info.put("images_submitted",manager.imageSubmitted()); info.put("images_delivered",manager.imageDelivered());
         info.put("cpu_submitted",manager.cpuSubmitted()); info.put("cpu_completed",manager.cpuCompleted());

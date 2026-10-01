@@ -27,6 +27,20 @@ public final class PaperSimulation {
     @FunctionalInterface public interface Policy { int choose(double[] observation); }
     public enum Baseline { ROUND_ROBIN, OLDEST_DATA, RANDOM }
 
+    /** Diagnostic controls; defaults preserve the paper run. Scales are assumptions, not calibration. */
+    public record DiagnosticOptions(double maxSlotSeconds, double localRateScale, boolean measureRuntime) {
+        public DiagnosticOptions {
+            if (!Double.isFinite(maxSlotSeconds) || maxSlotSeconds <= 0
+                    || !Double.isFinite(localRateScale) || localRateScale <= 0)
+                throw new IllegalArgumentException("Diagnostic cap and local rate scale must be finite and positive");
+        }
+        public static DiagnosticOptions fromProperties() {
+            return new DiagnosticOptions(Double.parseDouble(System.getProperty("paper.slotCapSeconds", "600")),
+                    Double.parseDouble(System.getProperty("paper.localRateScale", "1")),
+                    Boolean.parseBoolean(System.getProperty("paper.measureRuntime", "false")));
+        }
+    }
+
     public static List<DeviceSpec> layout(long seed, int poweredCount, int connectedCount) {
         if (poweredCount < 0 || poweredCount > DEVICES || connectedCount < 0 || connectedCount > DEVICES)
             throw new IllegalArgumentException("Availability counts must be in [0,12]");
@@ -69,6 +83,8 @@ public final class PaperSimulation {
         private final Random taskRandom;
         private final long taskSeed;
         private final PaperDatasetWorkload dataset;
+        private final DiagnosticOptions diagnostics;
+        private long kernelNanos;
         private PaperDatasetWorkload.CpuPlan cpuPlan;
         private PaperDatasetWorkload.ImageTask[] imageTasks;
         private double[] localRequired;
@@ -101,11 +117,16 @@ public final class PaperSimulation {
         }
         public Manager(PureEdgeSim engine, List<DeviceSpec> devices, long taskSeed, Policy policy, int maxSlots,
                        PaperDatasetWorkload dataset) {
+            this(engine, devices, taskSeed, policy, maxSlots, dataset, DiagnosticOptions.fromProperties());
+        }
+        public Manager(PureEdgeSim engine, List<DeviceSpec> devices, long taskSeed, Policy policy, int maxSlots,
+                       PaperDatasetWorkload dataset, DiagnosticOptions diagnostics) {
             super(null, engine, 1, 1, new Scenario(DEVICES, 0, 0));
             if (devices.size() != DEVICES || maxSlots <= 0)
                 throw new IllegalArgumentException("Use 12 devices and a positive slot safety limit");
             this.devices = List.copyOf(devices); this.taskRandom = new Random(taskSeed);
             this.taskSeed=taskSeed; this.dataset=dataset;
+            this.diagnostics=Objects.requireNonNull(diagnostics);
             this.policy = Objects.requireNonNull(policy); this.maxSlots = maxSlots;
             for (int i = 0; i < DEVICES; i++) battery[i] = devices.get(i).capacityJ();
             var motion = new UAVMobilityModel(this, new Location3D(0, 0, ALTITUDE_M), SPEED_MPS, AREA_M, AREA_M);
@@ -124,6 +145,8 @@ public final class PaperSimulation {
         public boolean truncated() { return truncated; }
         public String reason() { return reason; }
         public double lastReward() { return reward; }
+        public long kernelNanos() { return kernelNanos; }
+        public boolean measuresRuntime() { return diagnostics.measureRuntime(); }
         public List<String> slotRows() { return List.copyOf(slots); }
         public List<String> deviceRows() { return List.copyOf(deviceRows); }
         public List<String> cpuRows() { return List.copyOf(cpuRows); }
@@ -141,6 +164,8 @@ public final class PaperSimulation {
         }
         private void beginSlot() {
             action = policy.choose(observation());
+            // Excludes policy callback (and blocking Python IPC); trace formatting is included if enabled.
+            long measuredStart = diagnostics.measureRuntime() ? System.nanoTime() : 0;
             if (action < 0 || action >= DEVICES) throw new IllegalArgumentException("Action must be in [0,11]");
             start = getSimulation().clock();
             selectedAge = ages[action]; oldestAge = Arrays.stream(ages).max().orElse(0);
@@ -148,7 +173,7 @@ public final class PaperSimulation {
             var destination = new Location3D(target.x(), target.y(), ALTITUDE_M);
             uav.getMobilityModel().setDestination(destination);
             flight = uav.getMobilityModel().getRemainingDistance() / SPEED_MPS;
-            duration = flight; capped = 0;
+            duration = Math.min(flight, diagnostics.maxSlotSeconds()); capped = 0;
             workBytes = new double[DEVICES]; activeStart = new double[DEVICES];
             activeDuration = new double[DEVICES]; activePower = new double[DEVICES]; candidates = new boolean[DEVICES];
             imageTasks=new PaperDatasetWorkload.ImageTask[DEVICES]; localRequired=new double[DEVICES];
@@ -157,21 +182,21 @@ public final class PaperSimulation {
                 DeviceSpec d = devices.get(i);
                 workBytes[i] = MIN_TASK_BYTES + taskRandom.nextDouble() * (MAX_TASK_BYTES - MIN_TASK_BYTES);
                 if(dataset!=null) { imageTasks[i]=dataset.image(taskSeed,slot,i); workBytes[i]=imageTasks[i].metadata().bytes(); }
-                localRequired[i]=workBytes[i]/bytesPerSecond(d.hardware(),d.task());
+                localRequired[i]=workBytes[i]/bytesPerSecond(d.hardware(),d.task())/diagnostics.localRateScale();
                 double distance = destination.distanceTo(new Location3D(d.x(), d.y(), 0));
                 candidates[i] = distance <= RANGE_M;
                 activeStart[i] = candidates[i] ? flight : 0;
                 double requested = candidates[i] ? workBytes[i] * 8 / rateBps(distance)
                         : localRequired[i];
                 if(dataset!=null && candidates[i])cpuJobs.add(new PaperDatasetWorkload.Job("RESCUENET",i,imageTasks[i].index(),flight+requested,imageTasks[i].computeMi()));
-                activeDuration[i] = Math.min(requested, MAX_SLOT_S - activeStart[i]);
+                activeDuration[i] = Math.min(requested, Math.max(0, diagnostics.maxSlotSeconds() - activeStart[i]));
                 if (activeDuration[i] < requested) capped++;
                 activePower[i] = candidates[i] ? TRANSMIT_W : activeW(d.hardware(), d.task());
-                duration = Math.max(duration, activeStart[i] + activeDuration[i]);
+                duration = Math.min(diagnostics.maxSlotSeconds(), Math.max(duration, activeStart[i] + activeDuration[i]));
             }
             if(dataset!=null) {
                 cpuPlan=new PaperDatasetWorkload.CpuPlan(cpuJobs,dataset.config().uavMips());
-                duration=Math.min(MAX_SLOT_S,Math.max(duration,cpuPlan.finish()));
+                duration=Math.min(diagnostics.maxSlotSeconds(),Math.max(duration,cpuPlan.finish()));
             }
             // Stop at the first physical battery failure, even within a slot.
             double uavJ = uav.getEnergyModel().getBatteryLevel() * 3600;
@@ -182,6 +207,7 @@ public final class PaperSimulation {
             for (int i = 0; i < DEVICES; i++) if (!devices.get(i).powered())
                 duration = Math.min(duration, timeToEmpty(i));
             schedule(this, duration, END_SLOT);
+            if (diagnostics.measureRuntime()) kernelNanos += System.nanoTime() - measuredStart;
         }
         private double energyAt(int i, double elapsed) {
             return standbyW(devices.get(i).hardware()) * elapsed
@@ -196,6 +222,7 @@ public final class PaperSimulation {
             return activeStart[i] + activeDuration[i] + (energy - busyPower * activeDuration[i]) / standby;
         }
         private void endSlot() {
+            long measuredStart = diagnostics.measureRuntime() ? System.nanoTime() : 0;
             if(dataset==null)uav.advanceTo(getSimulation().clock());
             else cpuPlan.advance(uav,start,duration,dataset.config().cpuPowerW());
             slot++;
@@ -244,10 +271,14 @@ public final class PaperSimulation {
                     Arrays.stream(ages).max().orElse(0), completed, capped, reward, terminated, truncated, reason));
             if (terminated || truncated) getSimulation().setSimDone(true);
             else schedule(this, 0.0, START_SLOT);
+            if (diagnostics.measureRuntime()) kernelNanos += System.nanoTime() - measuredStart;
         }
         public void save(Path dir) throws IOException {
             if (!recordTrace) throw new IllegalStateException("Enable trace at reset before saving an episode");
             Files.createDirectories(dir);
+            Files.writeString(dir.resolve("diagnostics.txt"), diagnostics.toString()+"\n"
+                    +"Timing covers beginSlot after action callback and endSlot, not engine dispatch/IPC/startup.\n"
+                    +"Local rate scaling changes duration at fixed active W; exploratory sensitivity, not measured calibration.\n");
             Files.write(dir.resolve("slots.csv"), slots); Files.write(dir.resolve("devices.csv"), deviceRows);
             List<String> inventory = new ArrayList<>(List.of("device,x_m,y_m,hardware,vision_task,capacity_j,powered,connected"));
             for (int i = 0; i < DEVICES; i++) {
@@ -285,7 +316,7 @@ public final class PaperSimulation {
                 + "seed=" + seed + " taskSeed=" + (seed + 1) + " policySeed=" + (seed + 2)
                 + " powered=" + powered + " connected=" + connected + " policy=" + baseline + " maxSlots=" + maxSlots
                 + "\nConventions: PAPER_ALIGNMENT.md; decimal bytes; literal beta0 dBm; slant range; parallel dedicated links; "
-                + "600s clipped work; no 1kB terrestrial output-link cost; epsilon=1e-6 reward.\n"
+                + "slot cap/local rate: diagnostics.txt; no 1kB terrestrial output-link cost; epsilon=1e-6 reward.\n"
                 + (dataset==null ? "Compute: negligible UAV computation; synthetic task volumes.\n"
                    : "Compute: finite FIFO UAV CPU shared by image and background tasks; completion-based data age; see dataset-config.txt.\n"));
         System.out.println("Paper environment baseline: slots=" + manager.slotsElapsed() + " reason=" + manager.reason()

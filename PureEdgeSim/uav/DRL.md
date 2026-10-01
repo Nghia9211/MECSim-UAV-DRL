@@ -261,6 +261,55 @@ ROUND_ROBIN/RANDOM đều 10.0. Đây là dấu hiệu pilot chưa tổng quát 
 mới, không được chỉ báo cáo bảng cùng layout rồi kết luận DQN tốt hơn baseline.
 Các lần evaluate tách riêng bằng trường `unseen_layouts` trong `evaluation.json`.
 
-Chưa chạy đủ 1.000.000 bước/model, nhiều independent training seeds hoặc toàn
-lưới Table5/6. Các thông số và kết quả này chỉ xác nhận pipeline thực sự chạy/học,
-không chứng minh tái lập kết quả paper hay ưu thế của DRL.
+Phần trên ghi lại pilot ngày 21/09. Sau đó đã có **5 DQN mixed runs, seeds 0–4,
+1.000.000 bước/model** trong `result/target/drl-server-*`. Chưa hoàn tất lưới
+Table5/6 hoặc đối chứng PPO/A2C cùng ngân sách. Kết quả cập nhật và chẩn đoán
+same/unseen layout xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md); không dùng pilot
+hoặc run mixed để tuyên bố tái lập kết quả paper.
+
+## Chẩn đoán tuần 1–2
+
+Từ thư mục repo, build trước khi chạy. Runner đọc 5 `best_model.zip` và config
+trong `result/target/drl-server-*`; cần raw RescueNet và Alibaba như đã cấu hình.
+Mỗi stage từ chối ghi đè output cũ. Chạy tuần tự, đặc biệt không đo runtime
+đồng thời với training/build. Dùng một đường dẫn output mới để chạy lại:
+
+```powershell
+.\.venv-drl\Scripts\python.exe -m drl.diagnostics --output target/week12-new --stage evaluate
+.\.venv-drl\Scripts\python.exe -m drl.diagnostics --output target/week12-new --stage runtime
+.\.venv-drl\Scripts\python.exe -m drl.diagnostics --output target/week12-new --stage permutation
+.\.venv-drl\Scripts\python.exe -m drl.diagnostics --output target/week12-new --stage sensitivity
+.\.venv-drl\Scripts\python.exe -m drl.diagnostics --output target/week12-new --stage pilot
+.\.venv-drl\Scripts\python.exe -m drl.summarize_diagnostics target/week12-new
+```
+
+Linux: thay đường dẫn Python bằng `.venv-drl/bin/python`.
+
+- `evaluate`: 5 checkpoint × 30 task seeds × 2 chế độ layout × 4 policies;
+  đối chiếu 600 same-layout records với kết quả gốc, lưu toàn bộ trace.
+- `runtime`: cùng 512 observations, warm-up 128 calls, 7 block đo; Torch CPU một
+  thread. Tách inference, bridge step, Java event handlers, episode/reset/startup.
+  Pool được lấy từ evaluation; đây là microbenchmark, không phải real-time guarantee.
+- `permutation`: identity, reverse và 4 shuffle trên 3 layout × 5 checkpoint.
+  Ghép pin/age theo cùng permutation và giải mã action về thiết bị vật lý gốc.
+  Java không đổi ID vật lý, vì thế layout, workload và tie-breaking CPU giữ nguyên.
+- `sensitivity`: 9 cấu hình × 3 layout × 3 task seeds, DQN 5 seed; baseline chỉ
+  tính một lần trên từng case. Frozen-policy stress test, không retrain mỗi cấu hình.
+- `pilot`: train mới 3 seed cho mỗi synthetic/mixed, **20.000 bước/model**, cùng
+  observation/action/hyperparameters, validate 5 episode mỗi 5.000 bước; best
+  validation được test trên layout42 và 30 unseen layouts. Đây là đối chứng nhỏ,
+  không phải ngân sách paper 1 triệu bước.
+
+Các tùy chọn chẩn đoán Java: `paper.slotCapSeconds` (mặc định 600),
+`paper.localRateScale` (1), `paper.measureRuntime` (false). Rate scale đổi thời
+gian local ở cùng active power, là giả định sensitivity, không phải hiệu chuẩn
+hardware. Timer chỉ bao gồm `beginSlot` sau callback chọn action và `endSlot`;
+không bao gồm engine dispatch, bridge JSON/IPC, load dataset, startup hay save trace.
+`kernel_nanos` trong bridge info là thời gian tích lũy, chỉ có khi bật timer.
+Mặc định 600/1 giữ hành vi cũ; không sửa chính sách drop/reset của workload.
+
+Kiểm thử bổ sung:
+
+```powershell
+.\.venv-drl\Scripts\python.exe -m unittest drl.test_diagnostics -v
+```

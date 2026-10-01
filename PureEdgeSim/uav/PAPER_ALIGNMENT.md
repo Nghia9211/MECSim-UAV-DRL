@@ -15,7 +15,10 @@ to Managing Heterogeneous Edge Devices**, Azfar, Huang và Ke. Đối chiếu ng
 Stable-Baselines3, PPO/A2C, 11 reward của Table 6, train/save/load/evaluate và
 runner lưới Table 5/6. Dùng trực tiếp kernel Java cho cả synthetic lẫn mixed.
 Xem [DRL.md](DRL.md) về tham số được công bố, lựa chọn bổ sung và lệnh chạy.
-Đã chạy pilot; chưa chạy trọn lưới 1 triệu bước/model, chưa có SUMO case study.
+**Cập nhật 01/10/2026:** đã có 5 mixed DQN runs đủ 1 triệu bước/model (seeds 0–4).
+Chẩn đoán và đối chứng nhỏ xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md).
+Chưa chạy trọn lưới Table5/6, chưa có SUMO case study hoặc bằng chứng tái lập
+toàn bộ kết quả paper trên synthetic.
 
 **Cập nhật 21/09/2026:** theo yêu cầu mở rộng đánh giá, đã tích hợp RescueNet và
 Alibaba vào cùng `PaperSimulation.Manager` qua chế độ `paper.workload=datasets`.
@@ -52,7 +55,7 @@ vào legacy `DataCentersManager`/ReMEC network graph.
 | `UAVMobilityTest`, `UAVEnergyTest` | Kiểm thử class dùng chung | Giữ kiểm tra thành phần; tích hợp engine được kiểm tra trong paper tests |
 | ReMEC DAG, replica, pricing, Cloud và Ground Edge server | Là tính năng MECSim gốc, không phải hệ thống §3–4 | Không kích hoạt trong paper run; không xóa framework |
 | Power/communication outage, pin từng thiết bị, data age | Thiếu trong các milestone cũ, là cốt lõi bài | Đã thêm trong `PaperSimulation` |
-| DQN/Gym, PPO/A2C và nhiều reward | Đã có luồng huấn luyện | Pilot đã chạy; lưới Table 5/6 đầy đủ chưa chạy |
+| DQN/Gym, PPO/A2C và nhiều reward | Đã có luồng huấn luyện | 5 DQN mixed runs × 1 triệu bước; PPO/A2C mới smoke test; chưa đủ lưới Table 5/6 |
 | SUMO, trọng số traffic, tần suất thiết bị hỏng đầu tiên | Chưa có | Chỉ cần cho case study §5.1, Table 7 |
 
 Các thư mục output `target/uav-milestone*/`, `target/uav-alibaba-*` và log thử

@@ -13,7 +13,11 @@ Hướng dẫn cài đặt, train/evaluate và đọc model: [DRL.md](DRL.md).
 ```
 
 Mặc định DQN theo hyperparameters công bố; các tham số bổ sung được ghi rõ.
-Pilot đã chạy không đồng nghĩa tái lập đầy đủ số liệu paper.
+Đã có 5 DQN mixed runs × 1 triệu bước. Kết quả, runtime, kiểm tra layout/ID và
+độ nhạy: [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md). Các run này không đồng nghĩa
+tái lập đầy đủ số liệu paper.
+
+Kế hoạch triển khai và thí nghiệm tiếp theo: [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## RescueNet + Alibaba
 

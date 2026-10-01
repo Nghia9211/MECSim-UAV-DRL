@@ -124,9 +124,10 @@ episode. Cần đọc cùng lifetime, số task và failure reason; không dùng
 riêng để khẳng định thuật toán tốt hơn. Synthetic→dataset còn thay đổi compute và
 quy tắc completion nên không thể quy toàn bộ chênh lệch cho dữ liệu ảnh.
 
-Đây là đánh giá các heuristic trên môi trường mở rộng của bài; chưa có DQN được
-huấn luyện nên chưa thể kết luận thuật toán DQN trong bài hoạt động ra sao trên
-RescueNet/Alibaba. Không cần tải dataset mới cho giai đoạn này.
+Runner ở đây đánh giá heuristic trên môi trường mở rộng. **Cập nhật 01/10/2026:**
+đã có 5 DQN mixed runs với 1.000.000 bước/model, seeds 0–4; kết quả và chẩn đoán
+xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md). Cần phân biệt implementation mixed
+với workload paper gốc. Không cần tải dataset mới cho giai đoạn này.
 
 ## Kết quả đã kiểm chứng ngày 21/09/2026
 
