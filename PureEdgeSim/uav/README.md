@@ -1,6 +1,36 @@
 # UAV simulation
 
+**Bắt đầu ở đây:** [Tổng quan dự án, những phần đã làm và kế hoạch tiếp theo](PROJECT_OVERVIEW.md).
+
 Chạy từ thư mục `uav/MECSim`, Java 17 và Maven.
+
+## Hướng hiện tại: offloading + task scheduling
+
+Đã có đường local/UAV, CPU/queue/pin từng source và dự báo theo queue/scheduler.
+Đọc [OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md) để xem mô hình, policy,
+giả định và lệnh benchmark. Đây là extension, không phải reproduce paper/DRL cũ.
+Kết quả đã kiểm chứng: [OFFLOADING_RESULTS.md](OFFLOADING_RESULTS.md).
+
+```powershell
+.\scripts\run-uav-offloading.ps1 -Seeds 30 -Output target/offloading-new -Offline
+python scripts/verify-uav-offloading.py target/offloading-new
+```
+
+## Benchmark nền tảng: scheduling với offloading cố định
+
+Đã có queue bền, deadline tính theo giây và baseline FIFO/EDF/Priority trên
+RescueNet + Alibaba. Hướng dẫn, phạm vi và kết quả270 episode:
+[SCHEDULING.md](SCHEDULING.md).
+Scheduler xét deadline/pin/aging, đối chứng SPT và ablation:
+[SCHEDULING_AGING_RESULTS.md](SCHEDULING_AGING_RESULTS.md).
+
+```powershell
+.\scripts\run-uav-scheduling.ps1 -Seeds 30 -Output target/scheduling-new -Offline
+python scripts/verify-uav-scheduling.py target/scheduling-new
+```
+
+Đây là luồng task scheduling mới, UAV/offloading cố định; phần DRL bên dưới
+thuộc baseline paper chọn thứ tự thiết bị phục vụ.
 
 ## DRL: DQN / PPO / A2C
 
@@ -18,6 +48,11 @@ Mặc định DQN theo hyperparameters công bố; các tham số bổ sung đư
 tái lập đầy đủ số liệu paper.
 
 Kế hoạch triển khai và thí nghiệm tiếp theo: [NEXT_STEPS.md](NEXT_STEPS.md).
+P0 đã có scenario kiểm soát và snapshot trước quyết định:
+[FEATURE_CONTRACT.md](FEATURE_CONTRACT.md), [P0_RESULTS.md](P0_RESULTS.md).
+P1 đã chạy estimator, SERVICE_AWARE và ablation: [P1_RESULTS.md](P1_RESULTS.md).
+Policy mới cải thiện nhẹ synthetic nhưng chưa vượt Oldest Data trên mixed;
+chưa train DRL mới hoặc xác nhận lợi ích trên final test.
 
 ## RescueNet + Alibaba
 

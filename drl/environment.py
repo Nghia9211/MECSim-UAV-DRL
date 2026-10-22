@@ -16,6 +16,18 @@ import gymnasium as gym
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+SCENARIO_MODES = ("legacy", "position", "hardware_task", "capacity", "power", "connectivity", "outage", "full")
+
+
+def validate_scenario(mode, shift_seed, decision_state):
+    if mode not in SCENARIO_MODES:
+        raise ValueError(f"Unknown scenario mode: {mode}")
+    if type(shift_seed) is not int or not -(2**63) <= shift_seed < 2**63:
+        raise ValueError("shift_seed must be a signed 64-bit integer")
+    if type(decision_state) is not bool:
+        raise ValueError("decision_state must be a boolean")
+
+
 REWARDS = ("paper", "age", "uptime", "min_battery", "negative_oldest",
            "sum", "log_age", "log_uptime", "log_min_battery", "negative_log_oldest", "log_sum")
 DATASET_PROPERTIES = {
@@ -38,12 +50,16 @@ class EnvConfig:
     max_slots: int = 200
     reward: str = "paper"
     properties: dict[str, str] = field(default_factory=dict)
+    scenario_mode: str = "legacy"
+    shift_seed: int = 0
+    decision_state: bool = False
 
     def __post_init__(self):
         if not 0 <= self.powered <= 12 or not 0 <= self.connected <= 12 or self.max_slots <= 0:
             raise ValueError("Invalid availability counts or max_slots")
         if self.reward not in REWARDS:
             raise ValueError(f"Unknown reward: {self.reward}")
+        validate_scenario(self.scenario_mode, self.shift_seed, self.decision_state)
 
 
 def reward_value(name, before, action, after, slots, paper_reward):
@@ -133,17 +149,22 @@ class PaperEnv(gym.Env):
         return self._receive()
 
     def reset(self, *, seed=None, options=None):
+        options = options or {}
+        mode = options.get("scenario_mode", self.config.scenario_mode)
+        shift = options.get("shift_seed", self.config.shift_seed)
+        decision = options.get("decision_state", self.config.decision_state)
+        validate_scenario(mode, shift, decision)
         super().reset(seed=seed)
         if self._process is None:
             self._messages = queue.Queue()
             self._start()
-        options = options or {}
         # Reserve >=1,000,000 for validation/test; automatic resets never sample them.
         task_seed = int(options.get("task_seed", self.np_random.integers(0, 1_000_000)))
         layout_seed = int(options.get("layout_seed", self.config.layout_seed))
         result = self._request({"cmd": "reset", "layout_seed": layout_seed, "task_seed": task_seed,
             "powered": self.config.powered, "connected": self.config.connected,
-            "max_slots": self.config.max_slots, "trace": bool(options.get("trace", False))})
+            "max_slots": self.config.max_slots, "trace": bool(options.get("trace", False)),
+            "scenario_mode": mode, "shift_seed": shift, "decision_state": decision})
         self._observation = np.asarray(result["observation"], dtype=np.float32)
         self._done = False
         return self._observation.copy(), {**result["info"], "layout_seed": layout_seed, "task_seed": task_seed}
@@ -167,6 +188,12 @@ class PaperEnv(gym.Env):
         if self._process is None:
             raise RuntimeError("No episode to save")
         self._request({"cmd": "save", "path": str(Path(directory).resolve())})
+
+    def service_estimates(self):
+        """Read-only pre-action forecast; use declared pool prior, never future samples."""
+        if self._process is None or self._done:
+            raise RuntimeError("RESET before requesting a service estimate")
+        return self._request({"cmd": "estimate"})
 
     def close(self):
         process = self._process

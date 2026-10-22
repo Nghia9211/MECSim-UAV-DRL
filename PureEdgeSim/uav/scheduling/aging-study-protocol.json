@@ -1,0 +1,31 @@
+{
+  "schema": "feasible-aging-study-v1",
+  "status": "locked design before validation and evaluation",
+  "primary": "mean of 0.75*RescueNet_DVR + 0.25*Alibaba_DVR across fixed load/battery cases",
+  "primary_weights": {"RESCUENET": 0.75, "ALIBABA": 0.25},
+  "empty_source_dvr_for_selection": 0,
+  "aging_fraction_candidates": [0.25, 0.5, 0.75],
+  "baselines": ["FIFO", "EDF", "PRIORITY", "SPT"],
+  "selection": "min validation mean primary loss; ties smaller aging fraction",
+  "validation_first_seed": 31000,
+  "validation_seeds": 10,
+  "evaluation_first_seed": 32000,
+  "evaluation_seeds": 30,
+  "loads": [
+    {"name": "light", "image_rate_s": 0.08, "background_rate_s": 0.02},
+    {"name": "medium", "image_rate_s": 0.14, "background_rate_s": 0.06},
+    {"name": "overload", "image_rate_s": 0.24, "background_rate_s": 0.10}
+  ],
+  "battery_j": [1600000, 30000],
+  "mechanism": [
+    "Consider ready tasks. Prefer those whose estimated service fits deadline, horizon and battery while paying hover+CPU power.",
+    "Among feasible tasks waiting >= alpha*(deadline-ready), choose EDF with FIFO ties.",
+    "Otherwise maximize priority/[service_seconds*(1+max(0,deadline-now-service)/(deadline-ready))], with FIFO ties.",
+    "If no feasible candidate, run shortest service with FIFO ties. No rejection, idling, preemption or model changes."
+  ],
+  "ablations": ["NO_AGING", "NO_ENERGY_GUARD", "NO_DEADLINE_GUARD"],
+  "ablation_weights": "same selected alpha as FULL; not independently retuned",
+  "secondary": ["per-source DVR", "on-time counts", "completed-only latency", "total UAV energy", "J per on-time task", "dispatch runtime"],
+  "scope": "development mechanism pilot; shared source pools and fixed spatial layout; no source holdout, final test, DRL or novelty claim",
+  "inference": "paired mean differences with seed-cluster bootstrap across all six fixed scenarios; descriptive pilot intervals only"
+}

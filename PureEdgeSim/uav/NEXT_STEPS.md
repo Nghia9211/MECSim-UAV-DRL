@@ -1,6 +1,21 @@
 # Kế hoạch tiếp theo: từ chẩn đoán đến cơ chế cải tiến
 
-Ngày: 01/10/2026. Trạng thái: **kế hoạch chưa triển khai**. Căn cứ:
+**Cập nhật 22/10/2026:** đã bổ sung local/UAV offloading kết hợp queue scheduling.
+Đọc [OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md) trước; các kế hoạch bên
+dưới là lịch sử, không tự chạy tiếp lifetime P2 hoặc train DQN cũ.
+
+**Cập nhật21/10/2026:** người dùng chọn tập trung task scheduling. Task model,
+persistent queue, physical-time workload, FIFO/EDF/Priority và benchmark270
+episode đã triển khai/verify: [SCHEDULING.md](SCHEDULING.md).
+Đã thử thêm cơ chế deadline/pin/aging, SPT và ablation bằng validation riêng:
+[SCHEDULING_AGING_RESULTS.md](SCHEDULING_AGING_RESULTS.md). Full vượt bốn baseline
+theo primary pilot, nhưng NO_AGING có primary tốt hơn full; chưa chốt thuật toán cuối.
+Kế hoạch lifetime P0/P1/P2 bên dưới là nhánh nghiên cứu trước; không tự động
+chạy tiếp P2 hoặc retrain checkpoint24D cho queue mới.
+
+Ngày: 01/10/2026. Trạng thái: **P0 và P1 prototype/development đã hoàn tất; P2 chưa bắt đầu**.
+P1 chưa đạt cải thiện objective trên mixed: [P1_RESULTS.md](P1_RESULTS.md).
+Kết quả: [P0_RESULTS.md](P0_RESULTS.md); API: [FEATURE_CONTRACT.md](FEATURE_CONTRACT.md). Căn cứ:
 [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md). Phạm vi trước mắt: tuần 3–6;
 tuần 7–9 là giai đoạn xác nhận và đóng gói, không phải kết quả đã có.
 
@@ -41,19 +56,22 @@ nguyên nhân duy nhất hoặc phương pháp của tác giả thất bại nó
 
 Ưu tiên làm ngay, trước khi train thêm.
 
-- [ ] Tạo manifest cho scenario và seed split; lưu tọa độ, hardware/task,
+- [x] Tạo manifest cho scenario và development seed split; lưu tọa độ, hardware/task,
   capacity, powered/connected masks, nguồn workload và hash cấu hình.
-- [ ] Tạo fixture với các biến thể: giữ nguyên; chỉ đổi tọa độ; chỉ đổi
+- [x] Tạo fixture với các biến thể: giữ nguyên; chỉ đổi tọa độ; chỉ đổi
   hardware/task; chỉ đổi capacity; chỉ đổi outage; đổi toàn bộ; chỉ relabel ID.
   Các nhóm dùng chung task sequence khi kiểm tra một yếu tố.
-- [ ] Viết bảng feature contract: tên, đơn vị, thời điểm quan sát, nguồn,
+- [x] Viết bảng feature contract: tên, đơn vị, thời điểm quan sát, nguồn,
   measured/estimated, và policy nào được quyền dùng.
-- [ ] Xác nhận default fixture tái hiện kết quả cũ; đổi một yếu tố không kéo
+- [x] Xác nhận default fixture tái hiện kết quả cũ; đổi một yếu tố không kéo
   theo thay đổi yếu tố khác qua cùng một RNG. Dùng RNG stream tách biệt.
 
 Điểm đặt code: `PaperSimulation.java` (layout/decision state),
 `PaperGymBridge.java` và `drl/environment.py` (giao thức phiên bản mới nếu cần).
-Fixture/scenario generator và các tests mới sẽ được thêm khi triển khai.
+Đã thêm `PaperScenario`, `drl/scenarios.py`, protocol JSON và các tests mới.
+Relabel ID tiếp tục dùng policy adapter của `drl.diagnostics`, giữ Java physical
+IDs; `hardware_task` là một nhóm, chưa tách riêng hai thuộc tính. Development
+protocol đã khóa; collision audit/freeze final study vẫn là việc cần làm sau.
 
 **Thông tin nhân quả:** hiện task của slot được sinh sau khi chọn action. Vì
 vậy policy mới không được đọc task RNG seed, ảnh/job tương lai, realized CPU
@@ -69,27 +87,30 @@ kiện hoàn thành: có thể chứng minh mỗi phép thử chỉ thay đúng 
 
 Tên làm việc: `SERVICE_AWARE` — tên kỹ thuật, không phải tuyên bố thuật toán mới.
 
-- [ ] Viết estimator thuần, không thay trạng thái/RNG của simulator. Với mỗi
+- [x] Viết estimator thuần, không thay trạng thái/RNG của simulator. Với mỗi
   điểm đến, ước lượng flight, coverage, truyền, CPU/local completion và năng
   lượng dựa trên feature contract. Tái sử dụng công thức vật lý hiện có.
-- [ ] Chấm điểm lợi ích cập nhật của **tất cả thiết bị** trong vùng phục vụ,
+- [x] Chấm điểm lợi ích cập nhật của **tất cả thiết bị** trong vùng phục vụ,
   trừ những cập nhật dự kiến tự hoàn thành local; không chỉ xét thiết bị đích.
-- [ ] Bản đầu dùng urgency `1 / max(1, 10 − age)` nhân lợi ích cập nhật dự kiến,
+- [x] Bản đầu dùng urgency `1 / max(1, 10 − age)` nhân lợi ích cập nhật dự kiến,
   trừ chi phí năng lượng chuẩn hóa theo pin còn lại và thời gian theo cap600.
   Chuẩn hóa, hệ số và cách ước lượng phải được ghi trong config, chưa chốt từ
   kết quả final test. Lưới nhỏ hệ số trên validation, chẳng hạn {0; 0,1; 1}.
-- [ ] Không hard-mask vĩnh viễn thiết bị đắt/khó phục vụ. Khi không có lựa chọn
+- [x] Không hard-mask vĩnh viễn thiết bị đắt/khó phục vụ. Khi không có lựa chọn
   có lợi ích dự kiến, fallback Oldest Data và log lý do. Quy tắc tie-break
   dựa trên thuộc tính vật lý ổn định khi relabel; nếu đối xứng hoàn toàn thì
   chọn ngẫu nhiên có seed, kiểm tra tính tương đương theo phân phối.
-- [ ] Kiểm thử tình huống: dữ liệu sắp hết hạn; upload quá cap dù trong range;
+- [x] Kiểm thử tình huống: dữ liệu sắp hết hạn; upload quá cap dù trong range;
   local tự hoàn thành; nhiều thiết bị cùng coverage; pin gần cạn; mọi lựa chọn
   dự kiến không khả thi; relabel nhất quán.
 
-Code dự kiến: class policy/estimator mới cạnh `PaperSimulation.java`; giữ
+Code đã có: `ServiceEstimator.java`, `drl/service_policy.py` và runner
+`drl/service_experiment.py`; giữ
 API/baseline cũ. Không dùng shadow rollout đọc workload tương lai làm estimator.
 Chi phí đánh giá N điểm đến × N thiết bị có thể O(N²), cộng chi phí ước lượng
-CPU; phải đo thực tế, bao gồm estimator và feature preparation.
+CPU; bản mixed hiện có O(N³) worst-case vì quét completion theo device.
+Runtime đã đo gồm estimator RPC, không gồm chi phí telemetry thực địa;
+chi tiết và ranh giới đo trong báo cáo P1.
 
 Đối chứng development: Random, Round Robin, Oldest Data, nearest-device,
 urgency-only với cùng feature set, và SERVICE_AWARE. Ablation bỏ riêng completion,
@@ -99,6 +120,13 @@ energy hoặc urgency; cả full policy và ablation dùng cùng protocol tuning
 có đủ failure traces và variance. Chỉ chuyển sang nghiên cứu học máy nếu thấy
 cấu trúc có ích hoặc hạn chế cụ thể mà learning có thể giải quyết. Kết quả không
 cải thiện vẫn được báo cáo; không đổi simulator để ép vượt Oldest Data.
+
+**Kết quả gate:** kiểm thử/parity và benchmark đã đạt; chưa đạt cải thiện mixed.
+Đã chạy660 validation +1320 development episodes. Service +3.66% synthetic nhưng
+−2.55% mixed so với Oldest; 9 mixed episodes vi phạm age thuộc3 fixture.
+Hệ số chọn trên validation là energy1/time0 cho cả hai workload.
+Không tune lại theo development. P1.1 đề xuất kiểm tra cơ chế tránh bỏ sót
+thiết bị/khả năng phục vụ trước hạn, có ablation riêng; chưa triển khai.
 
 ## 5. P2 — Tách nguyên nhân trong DRL
 
@@ -179,13 +207,13 @@ server. Đánh giá novelty/SOTA cần literature review mới trước khi tuy�
 góp; hiện mới có cơ chế dự kiến. Không cần tải dataset mới cho P0/P1. Khi cần
 source holdout lớn hơn hoặc SUMO case study, sẽ có hướng dẫn tải riêng.
 
-**Việc triển khai kế tiếp cụ thể:** P0 feature contract và fixture tách các loại
-shift, sau đó P1 estimator/heuristic. Chưa chạy thêm hàng loạt seed cho policy
-cũ mà không thay thiết kế thí nghiệm.
+**Việc triển khai kế tiếp cụ thể:** P1.1 tránh bỏ sót thiết bị dựa trên failure
+traces P1, khóa protocol trước khi đánh giá. Chưa chạy thêm hàng loạt DRL seeds;
+chưa mở final test hoặc tuyên bố novelty.
 
 ## 8. Trạng thái và tự kiểm tra kế hoạch
 
-Kế hoạch này chưa phải kết quả cải tiến. Đã rà soát nội bộ về causal features,
+P0 hoàn tất chưa phải kết quả cải tiến thuật toán. Đã rà soát nội bộ về causal features,
 fairness, đơn vị thống kê và tính khả thi; không phải peer review bên ngoài.
 Các rủi ro còn mở: estimator sai, thêm thông tin gây so sánh lệch, workload chưa
 hiệu chuẩn, budget không đủ và lợi ích không bền. Mỗi rủi ro có đối chứng/gate

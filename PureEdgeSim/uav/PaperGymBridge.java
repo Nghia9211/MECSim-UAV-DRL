@@ -19,6 +19,8 @@ public final class PaperGymBridge {
     private final PrintStream output = System.out;
     private PaperSimulation.Manager manager;
     private PureEdgeSim engine;
+    private boolean includeDecisionState;
+    private Map<String,Object> scenarioManifest;
     private static final class Control extends RuntimeException {
         final Map<String,Object> command;
         Control(Map<String,Object> command) { super(null,null,false,false); this.command=command; }
@@ -50,16 +52,27 @@ public final class PaperGymBridge {
         info.put("cpu_submitted",manager.cpuSubmitted()); info.put("cpu_completed",manager.cpuCompleted());
         double latency=manager.deliveredLatencyMean();
         info.put("mean_delivered_latency_s",Double.isFinite(latency)?latency:null);
+        if(includeDecisionState) info.put("decision_state",manager.decisionState());
         send(Map.of("observation",manager.observation(),"reward",manager.lastReward(),
                 "terminated",manager.terminated(),"truncated",manager.truncated(),"info",info));
     }
     private Map<String,Object> command() {
         while(true) {
             var c=read();
+            if("estimate".equals(c.get("cmd"))) {
+                try {
+                    if(manager==null)throw new IllegalStateException("RESET first");
+                    send(manager.serviceEstimates());
+                } catch(Exception e) { send(Map.of("error",e.toString())); }
+                continue;
+            }
             if(!"save".equals(c.get("cmd"))) return c;
             try {
                 if(manager==null) throw new IllegalStateException("RESET first");
-                manager.save(Path.of((String)c.get("path"))); send(Map.of("saved",true));
+                Path path=Path.of((String)c.get("path"));
+                manager.save(path);
+                json.writerWithDefaultPrettyPrinter().writeValue(path.resolve("scenario.json").toFile(),scenarioManifest);
+                send(Map.of("saved",true));
             } catch(Exception e) { send(Map.of("error",e.toString())); }
         }
     }
@@ -89,7 +102,14 @@ public final class PaperGymBridge {
             int powered=(int)number(c,"powered",8), connected=(int)number(c,"connected",8);
             int maxSlots=(int)number(c,"max_slots",200);
             // Validate before creating/registering simulation entities.
-            var layout=PaperSimulation.layout(layoutSeed,powered,connected);
+            var scenarioMode=PaperScenario.Mode.valueOf((String)c.getOrDefault("scenario_mode","legacy"));
+            long shiftSeed=number(c,"shift_seed",0);
+            var layout=PaperScenario.layout(layoutSeed,powered,connected,scenarioMode,shiftSeed);
+            scenarioManifest=new LinkedHashMap<>(PaperScenario.manifest(layoutSeed,powered,connected,scenarioMode,shiftSeed,layout));
+            scenarioManifest.put("task_seed",taskSeed); scenarioManifest.put("workload_mode",mode);
+            scenarioManifest.put("max_slots",maxSlots);
+            scenarioManifest.put("diagnostics",PaperSimulation.DiagnosticOptions.fromProperties().toString());
+            includeDecisionState=Boolean.TRUE.equals(c.get("decision_state"));
             if(maxSlots<=0) throw new IllegalArgumentException("max_slots must be positive");
             engine=new PureEdgeSim();
             manager=new PaperSimulation.Manager(engine,layout,taskSeed,this::action,maxSlots,dataset);

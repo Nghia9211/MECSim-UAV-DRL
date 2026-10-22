@@ -1,5 +1,32 @@
 # MECSim
 
+**Đọc lại dự án từ đầu:** [Tổng quan, kết quả đã kiểm chứng và việc làm tiếp](PureEdgeSim/uav/PROJECT_OVERVIEW.md).
+
+## Hướng hiện tại: offloading + task scheduling
+
+Đã bổ sung quyết định local/UAV, CPU/queue/pin thiết bị mặt đất và dự báo queue
+theo scheduler UAV. Mô hình, giới hạn và lệnh chạy:
+[OFFLOADING_SCHEDULING.md](PureEdgeSim/uav/OFFLOADING_SCHEDULING.md).
+Kết quả và verification: [OFFLOADING_RESULTS.md](PureEdgeSim/uav/OFFLOADING_RESULTS.md).
+
+```powershell
+.\scripts\run-uav-offloading.ps1 -Seeds 30 -Output target/offloading-new -Offline
+python scripts/verify-uav-offloading.py target/offloading-new
+```
+
+## Benchmark nền tảng: UAV task scheduling, fixed offloading
+
+Scheduling tác vụ phân tích ảnh thiên tai dưới tải nền: queue bền, deadline,
+FIFO/EDF/Priority, dùng RescueNet + Alibaba. Mô hình, cách chạy và kết quả:
+[SCHEDULING.md](PureEdgeSim/uav/SCHEDULING.md).
+Kết quả cơ chế deadline/pin/aging và ablation:
+[SCHEDULING_AGING_RESULTS.md](PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md).
+
+```powershell
+.\scripts\run-uav-scheduling.ps1 -Seeds 30 -Output target/scheduling-new -Offline
+python scripts/verify-uav-scheduling.py target/scheduling-new
+```
+
 ## UAV: environment theo arXiv:2501.15305v1
 
 Đánh giá mở rộng bằng RescueNet + Alibaba trong cùng paper environment:
@@ -9,7 +36,7 @@
 .\scripts\run-paper-datasets.ps1 -Mode evaluate -Seeds 30 -Offline
 ```
 
-Hướng hiện tại là tái lập bài toán kéo dài thời gian sống của 12 thiết bị edge
+Nhánh đối chiếu paper mô phỏng bài toán kéo dài thời gian sống của 12 thiết bị edge
 bị mất nguồn/mất liên lạc bằng một UAV. Xem [bản đối chiếu bài báo](PureEdgeSim/uav/PAPER_ALIGNMENT.md)
 để biết phần đã có, phần còn thiếu và các quy ước chưa được tác giả xác nhận.
 

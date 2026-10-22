@@ -139,7 +139,51 @@ public final class PaperSimulation {
             for (int i = 0; i < DEVICES; i++) { state[i] = battery[i] / devices.get(i).capacityJ(); state[DEVICES + i] = ages[i]; }
             return state;
         }
+        /** Opt-in causal telemetry snapshot at an action boundary; never samples workload.
+         * Not a replacement for the paper's 24D observation. Seeds/next tasks are excluded.
+         */
+        public Map<String,Object> decisionState() {
+            var state=new LinkedHashMap<String,Object>();
+            state.put("schema","paper-decision-v1");
+            state.put("time_s",getSimulation().clock()); state.put("slots_completed",slot);
+            state.put("action_allowed",!terminated&&!truncated);
+            state.put("slot_cap_s",diagnostics.maxSlotSeconds()); state.put("data_age_limit_slots",DATA_AGE_LIMIT);
+            state.put("workload_mode",dataset==null?"synthetic":"datasets");
+            var p=uav.getMobilityModel().getCurrentLocation();
+            state.put("uav",Map.of("x_m",p.getXPos(),"y_m",p.getYPos(),"h_m",p.getAltitude(),
+                    "battery_j",uav.getEnergyModel().getBatteryLevel()*3600,
+                    "capacity_j",UAV_BATTERY_J,"speed_mps",SPEED_MPS,"range_m",RANGE_M,
+                    "flight_w",FLIGHT_W,"hover_w",HOVER_W));
+            var records=new ArrayList<Map<String,Object>>();
+            for(int i=0;i<DEVICES;i++) {
+                var d=devices.get(i); var row=new LinkedHashMap<String,Object>();
+                row.put("physical_id",i); row.put("x_m",d.x()); row.put("y_m",d.y()); row.put("h_m",0);
+                row.put("hardware",d.hardware().name()); row.put("vision_task",d.task().name());
+                row.put("capacity_j",d.capacityJ()); row.put("battery_j",battery[i]);
+                row.put("data_age_slots",ages[i]); row.put("powered",d.powered()); row.put("connected",d.connected());
+                row.put("local_rate_bytes_s",bytesPerSecond(d.hardware(),d.task())*diagnostics.localRateScale());
+                row.put("standby_w",standbyW(d.hardware())); row.put("active_w",activeW(d.hardware(),d.task()));
+                records.add(row);
+            }
+            state.put("devices",records);
+            // Constants/declared settings, not a look-ahead CPU plan or next image/job.
+            state.put("compute",Map.of("finite_cpu",dataset!=null,"uav_mips",dataset==null?0:dataset.config().uavMips(),
+                    "cpu_power_w",dataset==null?0:dataset.config().cpuPowerW(),"carry_over",false));
+            return state;
+        }
         public UAVEdgeNode getUav() { return uav; }
+        public Map<String,Object> serviceEstimates() {
+            if(terminated||truncated)throw new IllegalStateException("No decision after episode end");
+            var prior=dataset==null?ServiceEstimator.Prior.synthetic():dataset.servicePrior();
+            var p=uav.getMobilityModel().getCurrentLocation();
+            var priorFields=Map.of("input_bytes",prior.inputBytes(),"image_mi",prior.imageMi(),
+                "background_mi",prior.backgroundMi(),"mips",prior.mips(),"cpu_w",prior.cpuW(),"finite_cpu",prior.finiteCpu());
+            return Map.of("schema","paper-service-estimate-v1","prior",priorFields,
+                "assumption","Plug-in mean of declared training pool; no next samples; shared train/test source pools.",
+                "state",decisionState(),"candidates",ServiceEstimator.estimate(devices,battery,ages,
+                    p.getXPos(),p.getYPos(),uav.getEnergyModel().getBatteryLevel()*3600,
+                    diagnostics.maxSlotSeconds(),diagnostics.localRateScale(),prior));
+        }
         public int slotsElapsed() { return slot; }
         public boolean terminated() { return terminated; }
         public boolean truncated() { return truncated; }

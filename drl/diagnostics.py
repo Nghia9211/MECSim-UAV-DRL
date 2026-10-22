@@ -68,9 +68,9 @@ class Policy:
         raise ValueError(self.name)
 
 
-def rollout(env, policy, layout_seed, task_seed, trace=None, measured=False, states=None):
+def rollout(env, policy, layout_seed, task_seed, trace=None, measured=False, states=None, reset_options=None):
     started = time.perf_counter_ns()
-    obs, info = env.reset(seed=task_seed, options={"layout_seed": layout_seed,
+    obs, info = env.reset(seed=task_seed, options={**(reset_options or {}), "layout_seed": layout_seed,
         "task_seed": task_seed, "trace": trace is not None})
     reset_ns = time.perf_counter_ns() - started
     loop_start = time.perf_counter_ns()

@@ -1,0 +1,21 @@
+{
+  "schema": "paper-controlled-development-v1",
+  "status": "locked P0 development protocol; final study not run",
+  "base_layout_seed": 42,
+  "shift_seeds": [2100000, 2100001, 2100002],
+  "task_seeds": [2000000, 2000001, 2000002],
+  "modes": ["legacy", "position", "hardware_task", "capacity", "power", "connectivity", "outage", "full"],
+  "powered": 8,
+  "connected": 8,
+  "max_slots": 200,
+  "primary_objective": "lifetime_slots with cap600 and age_limit10",
+  "workloads": ["synthetic", "datasets"],
+  "policy_information": "24 battery/age floats only; decision-v1 snapshots archived separately",
+  "reserved_future_test": {
+    "status": "reserved, not opened by this runner; collision audit required before final freeze",
+    "layout_range_inclusive": [3000000, 3000029],
+    "task_range_inclusive": [4000000, 4000002]
+  },
+  "source_holdout": false,
+  "note": "Paired developmental counterfactuals anchored to layout42; not independent samples for a general causal claim. hardware_task changes two related attributes together; power/connectivity modes isolate outage components."
+}

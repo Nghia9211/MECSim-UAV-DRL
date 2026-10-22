@@ -71,12 +71,19 @@ public final class PaperDatasetWorkload {
     private final AlibabaWorkload.Sample alibaba;
     private final Config config;
     private final Path source;
+    private final ServiceEstimator.Prior servicePrior;
     public PaperDatasetWorkload(List<RescueNetWorkload.Metadata> images,AlibabaWorkload.Sample alibaba,Config config,Path source) {
         this.images=List.copyOf(images); this.alibaba=Objects.requireNonNull(alibaba);
         this.config=Objects.requireNonNull(config); this.source=Objects.requireNonNull(source);
         if(images.isEmpty()||alibaba.rows().isEmpty())throw new IllegalArgumentException("Both dataset pools required");
+        double bytes=this.images.stream().mapToDouble(RescueNetWorkload.Metadata::bytes).average().orElseThrow();
+        double mi=this.images.stream().mapToDouble(m->m.width()*(double)m.height()/1_000_000*config.imageMiPerMegapixel()).average().orElseThrow();
+        double background=alibaba.rows().stream().mapToDouble(r->(r.end()-r.start())*r.planCpu()/100
+                *config.referenceMips()*config.durationScale()*config.backgroundScale()).average().orElseThrow()*config.backgroundTasksPerSlot();
+        servicePrior=new ServiceEstimator.Prior(bytes,mi,background,config.uavMips(),config.cpuPowerW(),true);
     }
     public Config config() { return config; }
+    public ServiceEstimator.Prior servicePrior() { return servicePrior; }
     public int imageCount() { return images.size(); }
     public int backgroundCount() { return alibaba.rows().size(); }
     public PaperDatasetWorkload withBackgroundScale(double scale) {
