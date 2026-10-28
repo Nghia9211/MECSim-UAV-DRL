@@ -35,22 +35,25 @@ public final class OffloadingSimulation extends SimulationManager {
     private static void nonnegative(double x) { if (!Double.isFinite(x) || x < 0) throw new IllegalArgumentException("Expected nonnegative finite value"); }
     public enum Route { UNDECIDED, LOCAL, UAV, BACKGROUND }
     public enum Status { FUTURE, TRANSFERRING, WAITING, RUNNING, COMPLETED_ON_TIME,
-        COMPLETED_LATE, EXPIRED_WAITING, DROPPED_UAV_BATTERY, DROPPED_DEVICE_BATTERY, UNFINISHED_HORIZON }
+        COMPLETED_LATE, EXPIRED_WAITING, DROPPED_UAV_BATTERY, DROPPED_DEVICE_BATTERY, UNFINISHED_HORIZON, DROPPED_DEADLINE_RISK }
     public record Outcome(OffloadingJob job, Route route, Status status, double decisionSeconds,
             double readySeconds, double startSeconds, double resolvedSeconds, double executedMi,
             double remainingMi, double uploadedSeconds) { }
     public record Decision(long id, OffloadingPolicy.Task task, OffloadingPolicy.Context context,
             OffloadingPolicy.Destination destination) { }
+    public record QueueAudit(long task,double at,KnownQueueProjection.Snapshot localSnapshot,
+        KnownQueueProjection.Snapshot airSnapshot,KnownQueueProjection.Result local,KnownQueueProjection.Result air,OffloadingPolicy.Destination selected) { }
     public record NodeEnergy(int device, double idleJ, double computeJ, double txJ, double remainingJ, double poweredSeconds) {
         public double totalJ() { return idleJ + computeJ + txJ; }
     }
     public record Metrics(int offered, int onTime, int late, int expired, int uavDropped, int deviceDropped,
             int unfinished, int local, int offloaded, double dvr, double meanCompletedLatencySeconds) { }
     public record Result(List<Outcome> tasks, List<Decision> decisions, List<NodeEnergy> energy,
-            List<Long> routingNanos, List<Long> schedulingNanos) {
+            List<Long> routingNanos, List<Long> schedulingNanos,List<QueueAudit> queueAudit) {
         public Result {
             tasks = List.copyOf(tasks); decisions = List.copyOf(decisions); energy = List.copyOf(energy);
             routingNanos = List.copyOf(routingNanos); schedulingNanos = List.copyOf(schedulingNanos);
+            queueAudit=List.copyOf(queueAudit);
         }
         public double totalEnergyJ() { return energy.stream().mapToDouble(NodeEnergy::totalJ).sum(); }
         public double uavEnergyJ() { return energy.get(0).totalJ(); }
@@ -61,7 +64,7 @@ public final class OffloadingSimulation extends SimulationManager {
                 switch (o.status()) {
                     case COMPLETED_ON_TIME -> on++;
                     case COMPLETED_LATE -> late++;
-                    case EXPIRED_WAITING -> expired++;
+                    case EXPIRED_WAITING, DROPPED_DEADLINE_RISK -> expired++;
                     case DROPPED_UAV_BATTERY -> uav++;
                     case DROPPED_DEVICE_BATTERY -> device++;
                     case UNFINISHED_HORIZON -> unfinished++;
@@ -95,6 +98,7 @@ public final class OffloadingSimulation extends SimulationManager {
     private final NavigableSet<Double> calendar=new TreeSet<>();
     private final UAVEdgeNode uav;
     private final List<Decision> decisions=new ArrayList<>();
+    private final List<QueueAudit> queueAudit=new ArrayList<>();
     private final List<Long> routingNanos=new ArrayList<>(), schedulingNanos=new ArrayList<>();
     private State uavRunning;
     private boolean uavAlive=true;
@@ -122,6 +126,10 @@ public final class OffloadingSimulation extends SimulationManager {
         super(null,engine,1,1,new Scenario(1,0,0));
         this.config=config; this.policy=policy; this.scheduler=scheduler;
         this.mobile=mobile;this.servicePolicy=servicePolicy;latestGeneration=new double[config.devices().size()];
+        if(mobile!=null&&(policy instanceof QueueImpactRouting||scheduler instanceof QueueImpactScheduler))
+            throw new IllegalArgumentException("Full QIOS projection currently supports fixed hovering UAV only");
+        if(policy instanceof QueueImpactRouting q && (!(scheduler instanceof QueueImpactScheduler s)||q.backgroundWeight()!=s.backgroundWeight()))
+            throw new IllegalArgumentException("QIOS routing requires matching QIOS scheduler weight");
         states=jobs.stream().map(State::new).sorted(Comparator.comparingDouble((State s)->s.job.task().arrivalSeconds())
                 .thenComparingLong(s->s.job.task().id())).toList();
         ground=config.devices().stream().map(Ground::new).toList();
@@ -245,6 +253,9 @@ public final class OffloadingSimulation extends SimulationManager {
         return device<0?s.route==Route.UAV||s.route==Route.BACKGROUND:s.route==Route.LOCAL && s.job.device()==device;
     }
     private State dispatch(int device,double now,TaskScheduler selector) {
+        if(device<0&&selector instanceof DeadlineRiskScheduler)for(var s:states)
+            if(s.status==Status.WAITING&&assigned(s,device)&&now+s.estimate()/config.uavMips()>s.job.task().deadlineSeconds()+EPS)
+                end(s,Status.DROPPED_DEADLINE_RISK,now);
         var ready=states.stream().filter(s->s.status==Status.WAITING && assigned(s,device)).toList();
         if (ready.isEmpty()) return null;
         var views=ready.stream().map(s->view(s,s.ready,s.estimate())).toList();
@@ -252,7 +263,9 @@ public final class OffloadingSimulation extends SimulationManager {
         double cpu=device<0?config.uavCpuWatts():ground.get(device).spec.cpuWatts();
         double idle=device<0?config.hoverWatts():ground.get(device).spec.idleWatts();
         double battery=device<0?uav.getEnergyModel().getBatteryLevel()*3600:ground.get(device).remaining();
-        long begin=System.nanoTime(); long id=selector.choose(views,new TaskScheduler.Context(now,battery,mips,cpu,idle,config.horizonSeconds()));
+        long begin=System.nanoTime(); long id=device<0&&selector instanceof QueueImpactScheduler q
+            ?KnownQueueProjection.choose(queueSnapshot(now,null,null),q.backgroundWeight())
+            :selector.choose(views,new TaskScheduler.Context(now,battery,mips,cpu,idle,config.horizonSeconds()));
         if (device<0) schedulingNanos.add(System.nanoTime()-begin);
         var s=ready.stream().filter(t->t.job.task().id()==id).findFirst().orElseThrow(()->new IllegalArgumentException("Invalid scheduler choice"));
         s.status=Status.RUNNING; s.start=now; return s;
@@ -277,7 +290,22 @@ public final class OffloadingSimulation extends SimulationManager {
         var local=predict(s,now,false); var air=predict(s,now,true);
         var task=new OffloadingPolicy.Task(t.id(),s.job.device(),t.arrivalSeconds(),t.deadlineSeconds(),t.priority(),t.inputBytes(),s.job.estimatedMi(),s.ready-now);
         var context=new OffloadingPolicy.Context(now,ground.get(s.job.device()).remaining(),uavAlive?uav.getEnergyModel().getBatteryLevel()*3600:0,local,air);
-        var destination=Objects.requireNonNull(policy.choose(task,context)); routingNanos.add(System.nanoTime()-begin);
+        OffloadingPolicy.Destination destination;
+        if(policy instanceof QueueImpactRouting q) {
+            var localSnapshot=queueSnapshot(now,s,OffloadingPolicy.Destination.LOCAL);
+            var localProjection=KnownQueueProjection.project(localSnapshot,q.backgroundWeight(),true,null);
+            KnownQueueProjection.Snapshot airSnapshot=null;KnownQueueProjection.Result airProjection=null;
+            destination=OffloadingPolicy.Destination.LOCAL;
+            if(uavAlive) {
+                airSnapshot=queueSnapshot(now,s,OffloadingPolicy.Destination.UAV);
+                airProjection=KnownQueueProjection.project(airSnapshot,q.backgroundWeight(),true,null);
+                if(KnownQueueProjection.better(airProjection,localProjection))destination=OffloadingPolicy.Destination.UAV;
+            }
+            queueAudit.add(new QueueAudit(t.id(),now,localSnapshot,airSnapshot,localProjection,airProjection,destination));
+        } else if(policy instanceof TransferAwareRouting&&states.stream().anyMatch(w->w.status==Status.TRANSFERRING))
+            destination=OffloadingPolicy.Destination.LOCAL;
+        else destination=Objects.requireNonNull(policy.choose(task,context));
+        routingNanos.add(System.nanoTime()-begin);
         // Common physical feasibility rule: outside service coverage -> local, even for ALL_UAV.
         if (mobile!=null && !canUpload(s.job.device(),now)) destination=OffloadingPolicy.Destination.LOCAL;
         decisions.add(new Decision(t.id(),task,context,destination));
@@ -290,6 +318,25 @@ public final class OffloadingSimulation extends SimulationManager {
     }
     /** Replay only admitted work with estimated durations. No actual demand/future arrivals are passed to the projection. */
     private record Projected(TaskScheduler.ReadyTask task, boolean running) { }
+    /** Immutable estimated-work snapshot. FUTURE and terminal states are deliberately excluded. */
+    private KnownQueueProjection.Snapshot queueSnapshot(double now,State candidate,OffloadingPolicy.Destination route) {
+        var nodes=new ArrayList<KnownQueueProjection.Node>();
+        nodes.add(new KnownQueueProjection.Node(-1,config.uavMips(),config.hoverWatts(),config.uavCpuWatts(),0,uav.getEnergyModel().getBatteryLevel()*3600,uavAlive));
+        for(int d=0;d<ground.size();d++){var g=ground.get(d);nodes.add(new KnownQueueProjection.Node(d,g.spec.mips(),g.spec.idleWatts(),g.spec.cpuWatts(),g.spec.txWatts(),g.remaining(),g.alive));}
+        var jobs=new ArrayList<KnownQueueProjection.Job>();
+        for(var s:states) {
+            if(s==candidate)continue;
+            if(s.terminal()||s.status==Status.FUTURE||s.route==Route.UNDECIDED)continue;
+            var t=s.job.task();
+            jobs.add(new KnownQueueProjection.Job(t.id(),s.job.device(),s.route!=Route.LOCAL,t.source()==SchedulingTask.Source.ALIBABA,
+                t.arrivalSeconds(),s.ready,t.deadlineSeconds(),t.priority(),s.estimate(),KnownQueueProjection.Phase.valueOf(s.status.name()),true));
+        }
+        if(candidate!=null){var t=candidate.job.task();boolean air=route==OffloadingPolicy.Destination.UAV;
+            double ready=air?candidate.ready:now;
+            jobs.add(new KnownQueueProjection.Job(t.id(),candidate.job.device(),air,false,t.arrivalSeconds(),ready,t.deadlineSeconds(),
+                t.priority(),candidate.job.estimatedMi(),air&&ready>now?KnownQueueProjection.Phase.TRANSFERRING:KnownQueueProjection.Phase.WAITING,true));}
+        return new KnownQueueProjection.Snapshot(now,config.horizonSeconds(),nodes,jobs);
+    }
     private OffloadingPolicy.Prediction predict(State candidate,double now,boolean air) {
         var g=ground.get(candidate.job.device()); var spec=g.spec;
         double marginal=air?candidate.job.estimatedMi()/config.uavMips()*config.uavCpuWatts()
@@ -310,6 +357,8 @@ public final class OffloadingSimulation extends SimulationManager {
             final double at=time;
             if (running==null) {
                 jobs.removeIf(p->p.task().deadlineSeconds()<=at+EPS);
+                if(air&&selector instanceof DeadlineRiskScheduler)
+                    jobs.removeIf(p->p.task().readySeconds()<=at+EPS&&at+p.task().remainingMi()/mips>p.task().deadlineSeconds()+EPS);
                 if (jobs.stream().noneMatch(p->p.task().id()==candidate.job.task().id())) break;
                 var ready=jobs.stream().map(Projected::task).filter(t->t.readySeconds()<=at+EPS).toList();
                 if (ready.isEmpty()) { time=jobs.stream().mapToDouble(p->Math.min(p.task().readySeconds(),p.task().deadlineSeconds())).min().orElseThrow(); continue; }
@@ -346,7 +395,7 @@ public final class OffloadingSimulation extends SimulationManager {
         energies.add(new NodeEnergy(-1,(e.getFlightWh()+e.getHoverWh())*3600,e.getComputeWh()*3600,0,e.getBatteryLevel()*3600,uavPowered));
         for (int d=0;d<ground.size();d++) { var g=ground.get(d); energies.add(new NodeEnergy(d,g.idleJ,g.computeJ,g.txJ,g.remaining(),g.powered)); }
         result=new Result(states.stream().map(s->new Outcome(s.job,s.route,s.status,s.decision,s.ready,s.start,s.finish,s.executed,s.remaining,s.upload)).toList(),
-                decisions,energies,routingNanos,schedulingNanos);
+                decisions,energies,routingNanos,schedulingNanos,queueAudit);
         if (mobile!=null) {
             var ages=new ArrayList<Double>();for (double generation:latestGeneration) ages.add(now-generation);
             mobileResult=new MobileService.Result(result,visits,positions,coverage,updates,ages,

@@ -37,6 +37,9 @@ def sha(path):
 def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
     """ready entries: (id, source, arrival, ready, deadline, priority, estimated_remaining)."""
     fifo = lambda t: (t[3], t[2], t[0])
+    if name.startswith("RISK_"):
+        ready=[t for t in ready if now+t[6]/mips<=t[4]+1e-8]
+        name=name[5:]
     if name == "FIFO":
         return min(ready, key=fifo)[0]
     if name == "EDF":
@@ -148,6 +151,8 @@ class Audit:
         while pending and time < self.horizon:
             if running is None:
                 pending = [j for j in pending if j[4] > time + 1e-8]
+                if air and self.schedule.startswith('RISK_'):
+                    pending=[j for j in pending if j[3]>time+1e-8 or time+j[6]/spec['mips']<=j[4]+1e-8]
                 if all(j[0] != candidate for j in pending):
                     break
                 ready = [j for j in pending if j[3] <= time + 1e-8]
@@ -173,7 +178,7 @@ class Audit:
             running = None
         return math.inf, marginal, True, False
 
-    def verify(self, decisions, policy):
+    def verify(self, decisions, policy, *, dispatch_check=True, routing_check=True):
         check(set(self.energy) == set(self.nodes), "Energy node set")
         seen = set()
         for tid, j in self.jobs.items():
@@ -205,6 +210,12 @@ class Audit:
             elif status == "EXPIRED_WAITING":
                 check(not math.isfinite(start), "Running task expired")
                 close(end, deadline, "Waiting expiry")
+            elif status == "DROPPED_DEADLINE_RISK":
+                check(self.schedule.startswith('RISK_') and node==-1 and not math.isfinite(start), "Invalid risk drop")
+                check(num(o,'ready_s')<=end+EPS and end<deadline+EPS, "Risk drop before ready/after deadline")
+                check(end+num(j,'estimated_mi')/spec['mips']>deadline+1e-8, "False risk drop predicate")
+                check(not any(self.node(other)==node and math.isfinite(num(out,'start_s')) and num(out,'start_s')<end-1e-8
+                              and num(out,'resolved_s')>end+1e-8 for other,out in self.o.items()), "Risk guard ran while CPU busy")
             elif status == "UNFINISHED_HORIZON":
                 close(end, self.horizon, "Horizon resolution")
             elif status in {"DROPPED_UAV_BATTERY", "DROPPED_DEVICE_BATTERY"}:
@@ -245,6 +256,8 @@ class Audit:
                     if num(o, "ready_s") <= at+1e-8 and num(j, "deadline_s") > at+1e-8 and (tid == chosen or not math.isfinite(num(o, "start_s")) or num(o, "start_s") > at+1e-8):
                         if num(o, "resolved_s") >= at-1e-8:
                             ready.append((tid, j["source"], num(j, "arrival_s"), num(o, "ready_s"), num(j, "deadline_s"), int(j["priority"]), num(j, "estimated_mi")))
+                if not dispatch_check:
+                    continue  # A caller with a different scheduler must independently verify its actions.
                 predicted = select(ready, at, self.battery_at(node, at), cfg["mips"], cfg["cpuWatts"], cfg["idleWatts"],
                                    self.horizon, self.schedule if node == -1 else "FIFO", self.alpha)
                 check(chosen == predicted, f"Wrong dispatch {chosen} != {predicted}")
@@ -265,6 +278,8 @@ class Audit:
                               for tid, o in self.o.items())
                 check(busy or not waiting, "Non-work-conserving idle CPU")
 
+        if not routing_check:
+            return  # Physics only; caller is responsible for independent routing replay.
         for d in decisions:
             tid = int(d["id"])
             check(tid not in seen and self.jobs[tid]["source"] == "RESCUENET", "Duplicate/invalid decision")
@@ -294,9 +309,12 @@ class Audit:
             elif policy == "SHORTEST_FINISH":
                 destination = fastest
             else:
-                check(policy == "DEADLINE_ENERGY", "Unknown routing policy")
+                check(policy in {"DEADLINE_ENERGY","TRANSFER_AWARE"}, "Unknown routing policy")
                 a, b = [p[2] and p[3] and p[0] <= num(j, "deadline_s")+1e-8 for p in forecasts]
                 destination = ("LOCAL" if a else "UAV") if a != b else (("LOCAL" if local[1] < air[1] else "UAV") if a and local[1] != air[1] else fastest)
+                if policy=='TRANSFER_AWARE' and any(self.admitted_before(other,tid,now) and out['route']=='UAV'
+                    and num(out,'ready_s')>now+1e-8 and num(out,'resolved_s')>now+1e-8 for other,out in self.o.items()):
+                    destination='LOCAL'
             destination = self.route_destination(tid, destination)
             check(d["destination"] == destination == o["route"], "Offloading policy/trace mismatch")
         check(seen == {tid for tid, o in self.o.items() if o["route"] in {"LOCAL", "UAV"}}, "Missing routing decisions")
