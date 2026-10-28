@@ -56,7 +56,9 @@ def audit_trace(trace,row,model,mode,plan,audit):
             snap=history[k]['snapshot'];assert snap['slots_completed']==k
             assert abs(snap['time_s']-seconds)<1e-5
             if k:assert history[k]['action']==int(slots[k-1]['action'])
-        if row['policy']=='DQN':a=int(model.predict(obs,deterministic=True)[0])
+        if row['policy'] in ('DQN','PPO','A2C'):
+            assert model is not None
+            a=int(model.predict(obs,deterministic=True)[0])
         elif row['policy']=='ROUND_ROBIN':a=k%12
         elif row['policy']=='RANDOM':a=int(rng.integers(12))
         else:
