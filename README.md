@@ -1,5 +1,18 @@
 # MECSim
 
+**24/10:** [đối chứng learning seed đã hoàn tất](PureEdgeSim/uav/PAPER_SEED_ISOLATION.md).
+Đã viết [đề xuất `.md`](PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md) và
+[khởi chạy đối chứng reward/freshness](PureEdgeSim/uav/PAPER_CONVENTION_RETRAIN_STATUS.md).
+
+**Tái hiện paper:** đã train3synthetic DQN đủ1triệu bước/model tại8/8, audit
+360primary +90final-checkpoint traces đạt. Kết quả và giới hạn tại
+[PAPER_REFERENCE_RESULTS.md](PureEdgeSim/uav/PAPER_REFERENCE_RESULTS.md).
+
+**Cập nhật 23/10:** đã nối chọn thiết bị, di chuyển và coverage vào offloading +
+scheduler: [ADAPTED_PAPER_SERVICE.md](PureEdgeSim/uav/ADAPTED_PAPER_SERVICE.md).
+Đã có adapter và DQN train thử 2.000 bước trong môi trường mở rộng:
+[MOBILE_DRL.md](PureEdgeSim/uav/MOBILE_DRL.md). Đây chưa phải tái hiện paper hoặc kết quả hội tụ.
+
 **Đọc lại dự án từ đầu:** [Tổng quan, kết quả đã kiểm chứng và việc làm tiếp](PureEdgeSim/uav/PROJECT_OVERVIEW.md).
 
 ## Hướng hiện tại: offloading + task scheduling

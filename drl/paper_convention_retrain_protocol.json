@@ -1,0 +1,28 @@
+{
+  "schema": "paper-convention-retrain-v1",
+  "reference_campaign": "target/paper-seed-isolation-20261024",
+  "proposal": "PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md",
+  "profiles": {
+    "REWARD_AFTER": {"paper.rewardSnapshot": "AFTER"},
+    "LOCAL_COMPLETION": {"paper.deliveryConvention": "COMPLETED"}
+  },
+  "learning_seeds": [0, 1, 2],
+  "layout_seed": 0,
+  "steps_per_model": 1000000,
+  "max_workers": 3,
+  "primary_checkpoint": "best_model.zip",
+  "secondary_checkpoint": "final_model.zip",
+  "test_first_seed": 2000000,
+  "episodes_per_checkpoint": 30,
+  "new_models": 6,
+  "reused_models": 3,
+  "new_trace_audits_expected": 540,
+  "reference_trace_rows_reused": 270,
+  "status": "prespecified development comparison; not full-paper reproduction",
+  "notes": [
+    "One property changes per profile; all other base protocol settings come from the completed fixed-layout diagnostic.",
+    "No raw-reward comparison across definitions; primary comparison is lifetime slots and seconds.",
+    "Model selection uses validation only; final1m remains a secondary diagnostic.",
+    "Three learning seeds on one previously observed layout; no superiority/equivalence or broad generalization claim."
+  ]
+}

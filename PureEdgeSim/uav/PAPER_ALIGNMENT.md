@@ -1,5 +1,15 @@
 # Đối chiếu implementation với arXiv:2501.15305v1
 
+**Kết quả mới nhất 23/10, sau kiểm toán:** đã hoàn tất3synthetic DQN ×1triệu
+bước tại cấu hình8/8, replay360primary +90final-checkpoint traces đạt. Xem
+[PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md). Đây là đối chiếu một
+cấu hình; chưa tái hiện đầy đủ Tables5/6 hoặc xác nhận tương đương source tác giả.
+
+**Giai đoạn audit 23/10/2026:** đã kiểm toán Tables1–4 và chạy2.520 episode synthetic
+để đo độ nhạy quy ước, có replay độc lập và parity baseline cũ. Xem
+[PAPER_REPRODUCTION_AUDIT.md](PAPER_REPRODUCTION_AUDIT.md). Kế hoạch train đủ ngân
+sách từ giai đoạn đó đã được thực hiện trong kết quả mới nhất ở trên.
+
 **Sau đợt dọn source:** demo Milestone 1–7 và entry point dataset cũ đã được gỡ.
 Source/test trước khi dọn: `archives/legacy-milestones-*.zip`. Các mục milestone
 phía dưới là lịch sử thiết kế. Đường chạy hiện tại xem [README.md](README.md).
@@ -105,7 +115,7 @@ khẳng định số slot của baseline khớp số liệu báo cáo, kể cả
    phần task đó. Slot bằng `max(local durations, flight + upload durations)`,
    giới hạn 600 s. Công suất standby chạy suốt slot; active compute/TX là phần
    cộng thêm. UAV compute coi không đáng kể theo giả thiết nhanh hơn nhiều của §3.
-3. **Cap:** local compute quá dài bị cắt ở 600 s và không đưa phần dư sang slot
+3. **Cap:** mốc 600 s được §4 quy định rõ. Local compute quá dài hiện bị cắt ở 600 s và không đưa phần dư sang slot
    kế; upload chỉ có `600-flight` giây. Không reset data age nếu upload chưa
    xong. `capped_work_items` cho biết bao nhiêu công việc đã bị cắt. Bài không
    mô tả rõ backlog/cap, nên đây là quy ước triển khai, không phải kết quả xác nhận.
@@ -117,7 +127,7 @@ khẳng định số slot của baseline khớp số liệu báo cáo, kể cả
 5. **Data expiry:** §4 trang 8 nói kết thúc khi tuổi đạt 10, Eq. (1g) viết `<=10`,
    trong khi §5 trang 12 nhắc baseline 11 slot. Hiện chọn `age>=10`, đúng câu
    mô tả implementation. Phải kiểm tra indexing với tác giả trước khi so Table 5.
-6. **Reward:** Table 6 dòng cuối là `U + log(A/O)`. Hiện U là số slot đã thực
+6. **Reward:** §4 quy định gọi reward ở cuối step. Table 6 dòng cuối là `U + log(A/O)`. Hiện U là số slot đã thực
    hiện, A/O lấy từ đầu slot trước reset tuổi, dùng `max(age,1e-6)` để tránh
    log(0). Bài không nêu epsilon, log base hay thời điểm lấy A/O; hiện dùng ln.
    Không khẳng định đây là reward code nguyên gốc.

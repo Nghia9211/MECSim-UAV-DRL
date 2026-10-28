@@ -84,6 +84,7 @@ public final class PaperSimulation {
         private final long taskSeed;
         private final PaperDatasetWorkload dataset;
         private final DiagnosticOptions diagnostics;
+        private final PaperConventions conventions;
         private long kernelNanos;
         private PaperDatasetWorkload.CpuPlan cpuPlan;
         private PaperDatasetWorkload.ImageTask[] imageTasks;
@@ -121,12 +122,17 @@ public final class PaperSimulation {
         }
         public Manager(PureEdgeSim engine, List<DeviceSpec> devices, long taskSeed, Policy policy, int maxSlots,
                        PaperDatasetWorkload dataset, DiagnosticOptions diagnostics) {
+            this(engine,devices,taskSeed,policy,maxSlots,dataset,diagnostics,PaperConventions.fromProperties());
+        }
+        public Manager(PureEdgeSim engine, List<DeviceSpec> devices, long taskSeed, Policy policy, int maxSlots,
+                       PaperDatasetWorkload dataset, DiagnosticOptions diagnostics,PaperConventions conventions) {
             super(null, engine, 1, 1, new Scenario(DEVICES, 0, 0));
             if (devices.size() != DEVICES || maxSlots <= 0)
                 throw new IllegalArgumentException("Use 12 devices and a positive slot safety limit");
             this.devices = List.copyOf(devices); this.taskRandom = new Random(taskSeed);
             this.taskSeed=taskSeed; this.dataset=dataset;
             this.diagnostics=Objects.requireNonNull(diagnostics);
+            this.conventions=Objects.requireNonNull(conventions);
             this.policy = Objects.requireNonNull(policy); this.maxSlots = maxSlots;
             for (int i = 0; i < DEVICES; i++) battery[i] = devices.get(i).capacityJ();
             var motion = new UAVMobilityModel(this, new Location3D(0, 0, ALTITUDE_M), SPEED_MPS, AREA_M, AREA_M);
@@ -174,6 +180,7 @@ public final class PaperSimulation {
         public UAVEdgeNode getUav() { return uav; }
         public Map<String,Object> serviceEstimates() {
             if(terminated||truncated)throw new IllegalStateException("No decision after episode end");
+            if(!conventions.equals(PaperConventions.defaults()))throw new IllegalStateException("Service estimator supports default conventions only");
             var prior=dataset==null?ServiceEstimator.Prior.synthetic():dataset.servicePrior();
             var p=uav.getMobilityModel().getCurrentLocation();
             var priorFields=Map.of("input_bytes",prior.inputBytes(),"image_mi",prior.imageMi(),
@@ -230,7 +237,7 @@ public final class PaperSimulation {
                 double distance = destination.distanceTo(new Location3D(d.x(), d.y(), 0));
                 candidates[i] = distance <= RANGE_M;
                 activeStart[i] = candidates[i] ? flight : 0;
-                double requested = candidates[i] ? workBytes[i] * 8 / rateBps(distance)
+                double requested = candidates[i] ? workBytes[i] * 8 / conventions.rateBps(distance)
                         : localRequired[i];
                 if(dataset!=null && candidates[i])cpuJobs.add(new PaperDatasetWorkload.Job("RESCUENET",i,imageTasks[i].index(),flight+requested,imageTasks[i].computeMi()));
                 activeDuration[i] = Math.min(requested, Math.max(0, diagnostics.maxSlotSeconds() - activeStart[i]));
@@ -278,11 +285,15 @@ public final class PaperSimulation {
                 if (!d.powered()) battery[i] = Math.max(0, battery[i] - consumed);
                 // An incomplete upload never refreshes data age, including at the 600s cap.
                 double distance = uav.getMobilityModel().getDestination().distanceTo(new Location3D(d.x(), d.y(), 0));
-                boolean served = candidates[i] && duration + 1e-9 >= flight + workBytes[i] * 8 / rateBps(distance);
+                boolean served = candidates[i] && duration + 1e-9 >= flight + workBytes[i] * 8 / conventions.rateBps(distance);
                 if(dataset!=null)served=served && duration+1e-9>=cpuPlan.deviceFinish(i);
                 if (served) completed++;
                 boolean delivered=dataset==null ? d.connected()||served
                         : served || (!candidates[i] && d.connected() && localRequired[i]<=duration+1e-9);
+                if(conventions.delivery()==PaperConventions.Delivery.COMPLETED)
+                    delivered=served||(!candidates[i]&&d.connected()&&localRequired[i]<=duration+1e-9);
+                else if(conventions.delivery()==PaperConventions.Delivery.ARRIVED)
+                    delivered=d.connected()||(candidates[i]&&duration+1e-9>=flight);
                 ages[i] = delivered ? 0 : ages[i] + 1;
                 if(dataset!=null) {
                     imageSubmitted++;
@@ -291,7 +302,7 @@ public final class PaperSimulation {
                     if(recordTrace) workloadRows.add(String.format(Locale.ROOT,"%d,%d,%d,%.0f,%.9f,%.9f,%s,%.9f",slot,i,imageTasks[i].index(),workBytes[i],imageTasks[i].computeMi(),localRequired[i],delivered,latency));
                 }
                 if (battery[i] <= 1e-6) failures.add("DEVICE_" + i + "_BATTERY");
-                if (ages[i] >= DATA_AGE_LIMIT) failures.add("DEVICE_" + i + "_DATA_AGE");
+                if (conventions.expired(ages[i])) failures.add("DEVICE_" + i + "_DATA_AGE");
                 if(recordTrace) deviceRows.add(String.format(Locale.ROOT, "%d,%d,%s,%s,%.6f,%s,%s,%.9f,%.9f,%d",
                         slot, i, d.powered(), d.connected(), workBytes[i], candidates[i], served, battery[i], consumed, ages[i]));
             }
@@ -306,7 +317,9 @@ public final class PaperSimulation {
                 String status=done?"COMPLETED":terminated?"DROPPED_EPISODE_END":"DROPPED_SLOT_CAP";
                 if(recordTrace) cpuRows.add(String.format(Locale.ROOT,"%d,%s,%d,%d,%.9f,%.9f,%.9f,%.9f,%.9f,%s",slot,s.job().source(),s.job().device(),s.job().sourceIndex(),start+s.job().ready(),start+s.start(),start+s.finish(),s.job().mi(),executed,status));
             }
-            reward = slot + Math.log(Math.max(1e-6, selectedAge) / Math.max(1e-6, oldestAge));
+            double ageA=conventions.rewardSnapshot()==PaperConventions.RewardSnapshot.BEFORE?selectedAge:ages[action];
+            double ageO=conventions.rewardSnapshot()==PaperConventions.RewardSnapshot.BEFORE?oldestAge:Arrays.stream(ages).max().orElse(0);
+            reward = slot + Math.log(Math.max(conventions.rewardEpsilon(),ageA) / Math.max(conventions.rewardEpsilon(),ageO));
             double[] state = observation();
             var p = uav.getMobilityModel().getCurrentLocation();
             if(recordTrace) slots.add(String.format(Locale.ROOT, "%d,%d,%.9f,%.9f,%.9f,%.6f,%.6f,%.6f,%.9f,%.9f,%d,%d,%d,%.9f,%s,%s,%s",
@@ -324,6 +337,7 @@ public final class PaperSimulation {
                     +"Timing covers beginSlot after action callback and endSlot, not engine dispatch/IPC/startup.\n"
                     +"Local rate scaling changes duration at fixed active W; exploratory sensitivity, not measured calibration.\n");
             Files.write(dir.resolve("slots.csv"), slots); Files.write(dir.resolve("devices.csv"), deviceRows);
+            new com.fasterxml.jackson.databind.ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(dir.resolve("conventions.json").toFile(),conventions.manifest());
             List<String> inventory = new ArrayList<>(List.of("device,x_m,y_m,hardware,vision_task,capacity_j,powered,connected"));
             for (int i = 0; i < DEVICES; i++) {
                 DeviceSpec d = devices.get(i);

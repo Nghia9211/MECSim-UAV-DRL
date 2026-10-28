@@ -144,13 +144,14 @@ def train(args):
     for entry in args.property:
         key, value = entry.split("=", 1)
         properties[key] = value
-    config = EnvConfig(args.layout_seed, args.powered, args.connected, args.max_slots, args.reward, properties)
+    config = EnvConfig(args.layout_seed, args.powered, args.connected, args.max_slots, args.reward, properties,
+                       observation_mode=args.observation_mode)
     parameters = model_options(args.algorithm)
     manifest = dict(algorithm=args.algorithm, seed=args.seed, requested_steps=args.steps,
         environment=asdict(config), hyperparameters=parameters, python=platform.python_version(),
         packages={name: importlib.metadata.version(name) for name in ["torch", "numpy", "gymnasium", "stable-baselines3"]},
         threads=args.threads, device=args.device, validation_seeds=[1_000_000+i for i in range(args.validation_episodes)],
-        observation="12 battery fractions then 12 unnormalized ages; no UAV location",
+        observation=config.observation_mode,
         protocol="Fixed layout; training task seeds in [0,1000000); validation starts at 1000000; test at 2000000.",
         status="RUNNING")
     snapshot(output)
@@ -258,6 +259,7 @@ def main():
     p.add_argument("--max-slots", type=positive, default=200)
     p.add_argument("--workload", choices=["synthetic", "datasets"], default="synthetic")
     p.add_argument("--reward", choices=REWARDS, default="paper")
+    p.add_argument("--observation-mode", choices=["paper24", "extended125"], default="paper24")
     p.add_argument("--property", action="append", default=[], metavar="JAVA_KEY=VALUE")
     p.add_argument("--output")
     p.add_argument("--eval-freq", type=positive, default=10_000)

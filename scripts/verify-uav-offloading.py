@@ -62,6 +62,10 @@ def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
 
 
 class Audit:
+    def route_destination(self, tid, destination):
+        """Physical routing constraints; fixed-hover mode adds no coverage gate."""
+        return destination
+
     def __init__(self, jobs, outcomes, energies, cfg, schedule, alpha):
         self.jobs, self.o, self.cfg, self.schedule, self.alpha = jobs, outcomes, cfg, schedule, alpha
         self.energy = {int(e["device"]): e for e in energies}
@@ -293,6 +297,7 @@ class Audit:
                 check(policy == "DEADLINE_ENERGY", "Unknown routing policy")
                 a, b = [p[2] and p[3] and p[0] <= num(j, "deadline_s")+1e-8 for p in forecasts]
                 destination = ("LOCAL" if a else "UAV") if a != b else (("LOCAL" if local[1] < air[1] else "UAV") if a and local[1] != air[1] else fastest)
+            destination = self.route_destination(tid, destination)
             check(d["destination"] == destination == o["route"], "Offloading policy/trace mismatch")
         check(seen == {tid for tid, o in self.o.items() if o["route"] in {"LOCAL", "UAV"}}, "Missing routing decisions")
 

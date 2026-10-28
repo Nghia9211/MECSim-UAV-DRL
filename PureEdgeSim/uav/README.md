@@ -1,5 +1,22 @@
 # UAV simulation
 
+**Cửa sổ so sánh thuật toán:** double-click `Open-UAV-Dashboard.cmd` ở gốc
+MECSim để xem biểu đồ kết quả, best/final và phát lại đường bay UAV 2D.
+Hướng dẫn và phạm vi dữ liệu: [VISUALIZATION.md](VISUALIZATION.md).
+
+**Cập nhật 24/10:** [đối chứng learning seed trên cùng layout đã hoàn tất](PAPER_SEED_ISOLATION.md).
+Đã viết [đề xuất tiếp theo](NEXT_EXPERIMENT_PROPOSAL.md) và
+[khởi chạy 6 model đối chứng reward/freshness](PAPER_CONVENTION_RETRAIN_STATUS.md).
+
+**Trạng thái tái hiện paper:** đã hoàn tất3synthetic DQN ×1triệu bước tại8/8,
+replay360primary +90final-checkpoint traces đạt. Xem [PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md).
+Convention audit2.520episode ở [PAPER_REPRODUCTION_AUDIT.md](PAPER_REPRODUCTION_AUDIT.md).
+
+**Nhánh phát triển từ paper (23/10):** [ADAPTED_PAPER_SERVICE.md](ADAPTED_PAPER_SERVICE.md)
+nối chọn thiết bị → di chuyển/coverage → local/UAV → CPU scheduler. RR/Oldest
+đã triển khai. Adapter và DQN train thử mới tại [MOBILE_DRL.md](MOBILE_DRL.md)
+(2.000 bước, chưa chứng minh hội tụ hoặc vượt heuristic).
+
 **Bắt đầu ở đây:** [Tổng quan dự án, những phần đã làm và kế hoạch tiếp theo](PROJECT_OVERVIEW.md).
 
 Chạy từ thư mục `uav/MECSim`, Java 17 và Maven.

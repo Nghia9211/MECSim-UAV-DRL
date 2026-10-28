@@ -109,6 +109,7 @@ public final class PaperGymBridge {
             scenarioManifest.put("task_seed",taskSeed); scenarioManifest.put("workload_mode",mode);
             scenarioManifest.put("max_slots",maxSlots);
             scenarioManifest.put("diagnostics",PaperSimulation.DiagnosticOptions.fromProperties().toString());
+            scenarioManifest.put("conventions",PaperConventions.fromProperties().manifest());
             includeDecisionState=Boolean.TRUE.equals(c.get("decision_state"));
             if(maxSlots<=0) throw new IllegalArgumentException("max_slots must be positive");
             engine=new PureEdgeSim();

@@ -53,6 +53,7 @@ class EnvConfig:
     scenario_mode: str = "legacy"
     shift_seed: int = 0
     decision_state: bool = False
+    observation_mode: str = "paper24"
 
     def __post_init__(self):
         if not 0 <= self.powered <= 12 or not 0 <= self.connected <= 12 or self.max_slots <= 0:
@@ -60,6 +61,10 @@ class EnvConfig:
         if self.reward not in REWARDS:
             raise ValueError(f"Unknown reward: {self.reward}")
         validate_scenario(self.scenario_mode, self.shift_seed, self.decision_state)
+        if self.observation_mode not in ("paper24", "extended125"):
+            raise ValueError("Unknown observation mode")
+        if self.observation_mode == "extended125" and self.properties.get("paper.workload", "synthetic") != "synthetic":
+            raise ValueError("extended125 is defined for the synthetic paper environment only")
 
 
 def reward_value(name, before, action, after, slots, paper_reward):
@@ -75,14 +80,20 @@ def reward_value(name, before, action, after, slots, paper_reward):
 
 class PaperEnv(gym.Env):
     metadata = {"render_modes": []}
+    bridge_class = "uav.PaperGymBridge"
+    protocol_id = 1
 
     def __init__(self, config: EnvConfig | None = None, *, timeout=120):
         super().__init__()
         self.config = config or EnvConfig()
         self.timeout = timeout
         self.action_space = gym.spaces.Discrete(12)
+        max_age = 11 if self.config.properties.get("paper.expiryConvention") == "ABOVE_LIMIT" else 10
         self.observation_space = gym.spaces.Box(
-            np.zeros(24, np.float32), np.array([1] * 12 + [10] * 12, np.float32))
+            np.zeros(24, np.float32), np.array([1] * 12 + [max_age] * 12, np.float32))
+        if self.config.observation_mode == "extended125":
+            self.observation_space = gym.spaces.Box(np.zeros(125, np.float32),
+                np.array([1]*12+[max_age]*12+[1]*101, np.float32))
         self._process = None
         self._stderr = None
         self._messages = queue.Queue()
@@ -105,7 +116,7 @@ class PaperEnv(gym.Env):
         # that could outlive kill()/timeouts and retain inherited pipe handles).
         self.command = [str(java), "-Xmx512m", "-Djava.awt.headless=true",
                         *[f"-D{k}={v}" for k, v in sorted(self.config.properties.items())],
-                        "-cp", classpath, "uav.PaperGymBridge"]
+                        "-cp", classpath, self.bridge_class]
         self._stderr = tempfile.TemporaryFile(mode="w+", encoding="utf-8")
         try:
             self._process = subprocess.Popen(self.command, cwd=ROOT, stdin=subprocess.PIPE,
@@ -121,7 +132,7 @@ class PaperEnv(gym.Env):
             self._reader = threading.Thread(target=reader, daemon=True)
             self._reader.start()
             hello = self._receive()
-            if not hello.get("ready") or hello.get("protocol") != 1:
+            if not hello.get("ready") or hello.get("protocol") != self.protocol_id:
                 raise RuntimeError(f"Unsupported bridge handshake: {hello}")
         except BaseException:
             self.close()
@@ -153,6 +164,8 @@ class PaperEnv(gym.Env):
         mode = options.get("scenario_mode", self.config.scenario_mode)
         shift = options.get("shift_seed", self.config.shift_seed)
         decision = options.get("decision_state", self.config.decision_state)
+        if self.config.observation_mode == "extended125":
+            decision = True
         validate_scenario(mode, shift, decision)
         super().reset(seed=seed)
         if self._process is None:
@@ -167,7 +180,17 @@ class PaperEnv(gym.Env):
             "scenario_mode": mode, "shift_seed": shift, "decision_state": decision})
         self._observation = np.asarray(result["observation"], dtype=np.float32)
         self._done = False
-        return self._observation.copy(), {**result["info"], "layout_seed": layout_seed, "task_seed": task_seed}
+        self._state_history = [] if options.get("trace", False) else None
+        if self._state_history is not None and self.config.observation_mode == "extended125":
+            self._state_history.append(dict(action=None, raw=self._observation.tolist(),
+                observation=self._encode(result["info"]).tolist(), snapshot=result["info"]["decision_state"]))
+        return self._encode(result["info"]), {**result["info"], "layout_seed": layout_seed, "task_seed": task_seed}
+
+    def _encode(self, info):
+        if self.config.observation_mode == "paper24":
+            return self._observation.copy()
+        from .paper_state import encode_state
+        return encode_state(self._observation, info["decision_state"], self.config.max_slots)
 
     def step(self, action):
         if self._done:
@@ -181,13 +204,18 @@ class PaperEnv(gym.Env):
                               result["info"]["slots"], result["reward"])
         self._observation = after
         self._done = result["terminated"] or result["truncated"]
-        return after.copy(), reward, result["terminated"], result["truncated"], {
+        if self._state_history is not None and self.config.observation_mode == "extended125":
+            self._state_history.append(dict(action=action, reward=reward, raw=after.tolist(),
+                observation=self._encode(result["info"]).tolist(), snapshot=result["info"]["decision_state"]))
+        return self._encode(result["info"]), reward, result["terminated"], result["truncated"], {
             **result["info"], "paper_reward": result["reward"]}
 
     def save_trace(self, directory):
         if self._process is None:
             raise RuntimeError("No episode to save")
         self._request({"cmd": "save", "path": str(Path(directory).resolve())})
+        if self.config.observation_mode == "extended125" and self._state_history is not None:
+            (Path(directory)/"extended-state.json").write_text(json.dumps(self._state_history), encoding="utf-8")
 
     def service_estimates(self):
         """Read-only pre-action forecast; use declared pool prior, never future samples."""

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UAV Lab · Algorithm comparison</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<main id="uav-lab">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">U</span><div><strong>UAV Lab</strong><span>EXPERIMENT EXPLORER</span></div></div>
+    <div class="top-meta"><span class="status-dot"></span> Kết quả đã chạy <span id="build-date"></span><button id="theme" class="quiet" aria-label="Đổi giao diện sáng tối">Sáng / tối</button></div>
+  </header>
+  <section class="intro"><div><div class="eyebrow">ALGORITHM COMPARISON</div><h1>So sánh. Quan sát. Kiểm chứng.</h1><p>Đọc kết quả cùng đường bay UAV — trên đúng môi trường và cùng test case.</p></div><div class="run-stamp" id="run-stamp"></div></section>
+  <section class="filters" aria-label="Bộ chọn thí nghiệm">
+    <label>Bộ thí nghiệm<select id="dataset"></select></label>
+    <label>Cấu hình<select id="profile"></select></label>
+    <label>DQN checkpoint<select id="checkpoint"><option value="best">Best theo validation</option><option value="final">Final đúng 1 triệu bước</option></select></label>
+    <label>Chỉ số<select id="metric"></select></label>
+  </section>
+  <section class="scope"><span class="scope-label">PHẠM VI</span><span id="scope-note"></span></section>
+  <section class="stats" aria-label="Các chỉ số đối chiếu">
+    <article><span id="stat-label">DQN · mean lifetime</span><strong id="stat-dqn"></strong><small id="stat-dqn-detail"></small></article>
+    <article><span id="baseline-label">Heuristic tốt nhất theo chỉ số</span><strong id="stat-baseline"></strong><small id="stat-baseline-detail"></small></article>
+    <article><span>DQN − heuristic</span><strong id="stat-delta"></strong><small id="stat-delta-detail"></small></article>
+    <article><span>Mẫu thực nghiệm đang xem</span><strong id="stat-cases"></strong><small id="stat-unit"></small></article>
+  </section>
+  <section class="charts-grid">
+    <article class="panel"><div class="panel-head"><div><h2 id="comparison-title">So sánh thuật toán</h2><p id="comparison-unit"></p></div><button id="export" class="quiet">Xuất bảng CSV</button></div><div id="bars" class="chart"></div><div id="chart-note" class="chart-note"></div></article>
+    <article class="panel"><div class="panel-head"><div><h2 id="stability-title">Best và final theo learning seed</h2><p id="stability-unit"></p></div></div><div id="stability" class="chart"></div><div id="stability-note" class="chart-note"></div></article>
+  </section>
+  <section class="panel trajectory-panel">
+    <div class="panel-head"><div><div class="eyebrow">TRAJECTORY REPLAY</div><h2>Đường bay trên cùng một test case</h2></div><div class="case-controls"><label id="seed-label">Learning/layout seed<select id="seed"></select></label><label>Task seed<select id="task"></select></label><label>Quan sát UAV<select id="focus"></select></label></div></div>
+    <div id="policy-toggles" class="toggles" aria-label="Hiện đường bay thuật toán"></div>
+    <div class="map-grid"><div><div id="map" class="map-chart"></div><div class="map-footer"><span id="map-caption"></span><label class="check"><input type="checkbox" id="coverage" checked> Vùng phủ sóng khi hover</label></div></div><aside class="flight-info"><div class="eyebrow" id="flight-policy"></div><h3 id="flight-status"></h3><dl id="flight-details"></dl><div class="legend-nodes">● Thiết bị có kết nối<br>□ Thiết bị mất kết nối<br>P = có nguồn ngoài</div><p id="trace-note"></p></aside></div>
+    <div class="playback"><button id="play" class="primary">Phát đường bay</button><button id="rewind" class="quiet">Về đầu</button><div class="timeline"><label for="time"><span>Thời gian mô phỏng</span><strong id="time-label"></strong></label><input id="time" type="range" min="0" max="100" value="0" step="0.1"></div><label class="speed-label">Tốc độ<select id="speed"><option value="1">1 vòng / 40 giây</option><option value="2" selected>1 vòng / 20 giây</option><option value="4">1 vòng / 10 giây</option></select></label></div>
+  </section>
+  <section class="panel validation-panel"><div class="panel-head"><div><h2>Diễn biến validation của DQN</h2><p id="validation-unit">Chỉ dùng validation để chọn checkpoint; không dùng test.</p></div></div><div id="validation" class="wide-chart"></div></section>
+  <section class="panel table-panel"><div class="panel-head"><div><h2>Bảng kết quả</h2><p>Trung bình được tính lại từ từng episode, không cộng lặp baseline theo learner.</p></div></div><div class="table-scroll"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div></section>
+  <details class="provenance"><summary>Nguồn dữ liệu và cách đọc</summary><div id="provenance"></div></details>
+  <footer>MECSim · UAV disaster analytics <span>Dữ liệu mô phỏng đã lưu · Không chạy training khi mở cửa sổ</span></footer>
+</main>
+<div id="tooltip" class="tooltip" hidden></div>
+<script id="experiment-data" type="application/json">__EXPERIMENT_DATA__</script>
+<script src="dashboard.js"></script>
+</body>
+</html>

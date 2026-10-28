@@ -33,7 +33,7 @@ public final class OffloadingBenchmark {
     private static String fields(Object... values) {
         return String.join(",",Arrays.stream(values).map(v->v instanceof Double?number((Double)v):v.toString()).toList());
     }
-    private static void save(Path directory,String name,OffloadingSimulation.Result r) throws Exception {
+    public static void save(Path directory,String name,OffloadingSimulation.Result r) throws Exception {
         var rows=new ArrayList<String>(List.of("id,route,status,decision_s,ready_s,start_s,resolved_s,executed_mi,remaining_mi,uploaded_s"));
         for (var o:r.tasks()) rows.add(fields(o.job().task().id(),o.route(),o.status(),o.decisionSeconds(),o.readySeconds(),o.startSeconds(),o.resolvedSeconds(),o.executedMi(),o.remainingMi(),o.uploadedSeconds()));
         write(directory.resolve(name+"-tasks.csv"),rows);

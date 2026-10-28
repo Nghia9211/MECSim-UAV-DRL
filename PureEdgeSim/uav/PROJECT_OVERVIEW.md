@@ -1,5 +1,24 @@
 # Tài liệu đọc lại dự án UAV: đã làm gì và làm tiếp gì?
 
+> **Mới nhất 24/10:** [PAPER_SEED_ISOLATION.md](PAPER_SEED_ISOLATION.md) đã kiểm chứng
+> cùng-layout best 32/32/32 slot nhưng final 30/30,367/10 slot.
+> [NEXT_EXPERIMENT_PROPOSAL.md](NEXT_EXPERIMENT_PROPOSAL.md) đã được ghi và
+> [6 model reward/freshness đang được chạy](PAPER_CONVENTION_RETRAIN_STATUS.md).
+
+> **Kết quả mới nhất 23/10:** đã train3synthetic DQN đủ1triệu bước/model,
+> cấu hình8/8; mean21,000slot với best-validation checkpoint,19,678 với final1m.
+> [PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md) phân biệt kết quả đã
+> kiểm chứng với phần reproduction còn thiếu.
+
+> **Giai đoạn audit paper 23/10:** tham số công bố đã audit, benchmark quy
+> ước2.520 episode đã replay độc lập. Xem [PAPER_REPRODUCTION_AUDIT.md](PAPER_REPRODUCTION_AUDIT.md).
+> Benchmark này kiểm tra heuristic và quy ước; kết quả DQN đủ ngân sách nằm ở mục mới nhất bên trên.
+
+> **Cập nhật 23/10/2026:** đã nối tầng chọn thiết bị/di chuyển/coverage với
+> offloading/scheduling. Đọc [ADAPTED_PAPER_SERVICE.md](ADAPTED_PAPER_SERVICE.md).
+> Đã có adapter và DQN train thử 2.000 bước trong môi trường mở rộng:
+> [MOBILE_DRL.md](MOBILE_DRL.md). Chưa chứng minh hội tụ hoặc vượt heuristic.
+
 > **Cập nhật 22/10/2026:** đã mở rộng từ scheduling-only sang quyết định local/UAV
 > kết hợp scheduling. Trạng thái mới và cách chạy ở
 > [OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md).

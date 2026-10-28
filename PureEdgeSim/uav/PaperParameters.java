@@ -36,9 +36,14 @@ public final class PaperParameters {
      * Table 1's beta0 unit is ambiguous: this convention must be checked against author code.
      */
     public static double rateBps(double distanceM) {
+        return rateBps(distanceM,Math.pow(10,(-50-30)/10.0));
+    }
+    /** Explicit gain alternative for isolated convention sensitivity; existing callers keep literal dBm. */
+    public static double rateBps(double distanceM,double referenceGain) {
         if (!Double.isFinite(distanceM) || distanceM < ALTITUDE_M)
             throw new IllegalArgumentException("Slant distance must be at least UAV altitude");
-        double gain = Math.pow(10, (-50 - 30) / 10.0) * Math.pow(distanceM, -4);
+        if(!Double.isFinite(referenceGain)||referenceGain<=0)throw new IllegalArgumentException("Invalid reference gain");
+        double gain = referenceGain * Math.pow(distanceM, -4);
         double noiseW = Math.pow(10, (-100 - 30) / 10.0);
         return BANDWIDTH_HZ * Math.log1p(TRANSMIT_W * gain / noiseW) / Math.log(2);
     }

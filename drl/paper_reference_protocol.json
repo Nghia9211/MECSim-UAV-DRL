@@ -1,0 +1,40 @@
+{
+  "schema": "paper-reference-stage1-v1",
+  "status": "prepared; full-budget synthetic training not executed by the convention audit",
+  "paper": "arXiv:2501.15305v1",
+  "workload": "synthetic",
+  "algorithm": "DQN",
+  "reward": "paper",
+  "steps_per_model": 1000000,
+  "learning_seeds": [0, 1, 2],
+  "layout_seeds": [0, 1, 2],
+  "seed_pairing": "learning seed equals layout seed; train one model per layout",
+  "powered": 8,
+  "connected": 8,
+  "max_slots": 200,
+  "properties": {
+    "paper.slotCapSeconds": "600",
+    "paper.localRateScale": "1",
+    "paper.radioConvention": "LITERAL_DBM",
+    "paper.expiryConvention": "AT_LIMIT",
+    "paper.deliveryConvention": "LEGACY",
+    "paper.rewardSnapshot": "BEFORE",
+    "paper.rewardEpsilon": "1e-6"
+  },
+  "eval_freq": 10000,
+  "validation_episodes": 5,
+  "evaluation_episodes_per_model": 30,
+  "checkpoint": "best_model.zip selected on validation mean lifetime",
+  "primary_metric": "mean lifetime slots; include final attempted/partial slot and report completed-slot count separately",
+  "paper_table5_p8_c8_mean_slots": 18.3,
+  "paper_table6_p8_c8_paper_reward_dqn_max_slots": 28,
+  "published_seed_identities": "not supplied; these are independent reproduction seeds, not the author's original draws",
+  "scope": "One Table 5 cell only; not full Table 5, reward/algorithm Table 6 grid, or SUMO case study.",
+  "notes": [
+    "No RescueNet/Alibaba/Google/C2A is used for paper reproduction.",
+    "DQN state/action and reward differ from the mobile offloading+scheduling extension.",
+    "Do not compare heuristic means or a maximum with the published DQN mean.",
+    "Replay/target-network settings absent from the paper remain explicit choices in drl.run.model_options.",
+    "Do not choose the convention profile or checkpoint using final test scores."
+  ]
+}
