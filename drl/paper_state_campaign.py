@@ -72,7 +72,11 @@ def audit_trace(trace,row,model,mode,plan,audit):
         np.testing.assert_allclose(history[-1]['observation'],expected(len(slots)),atol=2e-6,rtol=2e-6)
         assert history[-1]['action']==int(slots[-1]['action'])
     conventions=json.loads((trace/'conventions.json').read_text())
-    assert conventions['delivery']=='COMPLETED' and conventions['reward_snapshot']=='BEFORE'
+    assert conventions['delivery']==plan['properties']['paper.deliveryConvention']
+    assert conventions['reward_snapshot']==plan['properties']['paper.rewardSnapshot']
+    assert conventions['radio']==plan['properties']['paper.radioConvention']
+    assert conventions['expiry']==plan['properties']['paper.expiryConvention']
+    assert conventions['reward_epsilon']==float(plan['properties']['paper.rewardEpsilon'])
     record=dict(profile='REFERENCE',seed=0,task_seed=row['task_seed'],policy=row['policy'],trace=trace.relative_to(ROOT).as_posix(),
         slots=row['slots'],seconds=row['seconds'],reward=row['reward'],reason=row['reason'],truncated=str(row['truncated']).lower(),
         uav_energy_j=1600000-float(row['uav_battery_j']),ground_energy_j=sum(float(d['energy_used_j']) for d in dev),
@@ -98,14 +102,14 @@ def launch(out,plan,mode,seed):
     return run
 
 
-def campaign(out,smoke=False):
-    plan=json.loads(PLAN.read_text());torch.set_num_threads(1)
+def campaign(out,smoke=False,protocol=PLAN):
+    plan=json.loads(protocol.read_text());torch.set_num_threads(1)
     if smoke:plan.update(steps=1200,eval_freq=600,test_episodes=2,learning_seeds=[0],workers=2)
     out.mkdir(parents=True,exist_ok=False)
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     hashes={p.relative_to(ROOT).as_posix():digest(p) for folder,pattern in [('drl','*.py'),('PureEdgeSim/uav','*.java'),('scripts','verify-paper-conventions.py')]
             for p in (ROOT/folder).glob(pattern)}
-    m=dict(status='RUNNING',plan=plan,commit=sha,source_sha256=hashes,smoke=smoke,started=time.time())
+    m=dict(status='RUNNING',plan=plan,protocol_sha256=digest(protocol),commit=sha,source_sha256=hashes,smoke=smoke,started=time.time())
     save(out/'manifest.json',m)
     try:
         with ThreadPoolExecutor(max_workers=plan['workers']) as pool:
@@ -139,7 +143,7 @@ def campaign(out,smoke=False):
         with (out/'summary.csv').open('w',newline='') as f:
             w=csv.DictWriter(f,fieldnames=list(summaries[0]));w.writeheader();w.writerows(summaries)
         save(out/'verification.json',dict(status='PASS',traces=traces,device_rows=device_rows,checkpoints=proof,source_unchanged=True))
-        lines=['# State extension: LOCAL_COMPLETION','', 'Same-server paired learning seeds. Best selected by validation; final reported separately.',
+        lines=['# State extension: '+plan['properties']['paper.deliveryConvention'],'', 'Same-server paired learning seeds. Best selected by validation; final reported separately.',
                'Heuristics repeated across modes/checkpoints are shared cases, not extra independent samples.','',
                '| Mode | Checkpoint | DQN mean slots | SD across learner means |','| --- | --- | ---: | ---: |']
         for mode in plan['modes']:
@@ -154,4 +158,5 @@ def campaign(out,smoke=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--smoke',action='store_true')
-    a=p.parse_args();campaign(a.output.resolve(),a.smoke)
+    p.add_argument('--protocol',type=Path,default=PLAN)
+    a=p.parse_args();campaign(a.output.resolve(),a.smoke,a.protocol.resolve())

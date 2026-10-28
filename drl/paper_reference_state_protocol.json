@@ -1,0 +1,135 @@
+{
+  "schema": "paper-state-extension-v1",
+  "layout_seed": 0,
+  "powered": 8,
+  "connected": 8,
+  "learning_seeds": [
+    0,
+    1,
+    2
+  ],
+  "steps": 1000000,
+  "workers": 3,
+  "eval_freq": 10000,
+  "validation_episodes": 5,
+  "test_first_seed": 4000000,
+  "test_episodes": 30,
+  "modes": [
+    "paper24",
+    "extended125"
+  ],
+  "properties": {
+    "paper.deliveryConvention": "LEGACY",
+    "paper.slotCapSeconds": "600",
+    "paper.localRateScale": "1",
+    "paper.radioConvention": "LITERAL_DBM",
+    "paper.expiryConvention": "AT_LIMIT",
+    "paper.rewardSnapshot": "BEFORE",
+    "paper.rewardEpsilon": "1e-6"
+  },
+  "constants": {
+    "devices": 12,
+    "area_m": 800,
+    "altitude_m": 10,
+    "speed_mps": 5,
+    "flight_w": 150,
+    "hover_w": 80,
+    "uav_battery_j": 1600000,
+    "range_m": 65,
+    "min_battery_j": 50000,
+    "max_battery_j": 80000,
+    "min_task_bytes": 2000000,
+    "max_task_bytes": 4000000,
+    "slot_cap_s": 600,
+    "bandwidth_hz": 20000000,
+    "transmit_w": 0.1,
+    "age_limit": 10,
+    "hardware": {
+      "RASPBERRY_PI_4B": {
+        "standby_w": 2.65,
+        "active_w": {
+          "HAAR": 2.165,
+          "MMOD": 1.335,
+          "DNN": 3.234,
+          "DLIB": 1.91,
+          "YOLOV3": 3.268
+        },
+        "bytes_per_s": {
+          "HAAR": 74536.25,
+          "MMOD": 12318.36,
+          "DNN": 71731.84,
+          "DLIB": 65088.52,
+          "YOLOV3": 69985.94
+        }
+      },
+      "RASPBERRY_PI_3B": {
+        "standby_w": 1.69,
+        "active_w": {
+          "HAAR": 1.287,
+          "MMOD": 1.621,
+          "DNN": 1.9,
+          "DLIB": 4.38,
+          "YOLOV3": 1.925
+        },
+        "bytes_per_s": {
+          "HAAR": 2758.14,
+          "MMOD": 1114.03,
+          "DNN": 3767.51,
+          "DLIB": 87894.05,
+          "YOLOV3": 7066.79
+        }
+      },
+      "FIREFLY": {
+        "standby_w": 4.87,
+        "active_w": {
+          "HAAR": 2.352,
+          "MMOD": 1.124,
+          "DNN": 2.972,
+          "DLIB": 2.54,
+          "YOLOV3": 3.07
+        },
+        "bytes_per_s": {
+          "HAAR": 4734.16,
+          "MMOD": 1183.72,
+          "DNN": 949.36,
+          "DLIB": 13020.39,
+          "YOLOV3": 2733.97
+        }
+      },
+      "JETSON_NANO": {
+        "standby_w": 2.82,
+        "active_w": {
+          "HAAR": 1.36,
+          "MMOD": 0.92,
+          "DNN": 2.421,
+          "DLIB": 1.01,
+          "YOLOV3": 1.35
+        },
+        "bytes_per_s": {
+          "HAAR": 23867.61,
+          "MMOD": 5277.71,
+          "DNN": 40294.21,
+          "DLIB": 65264.07,
+          "YOLOV3": 22230.58
+        }
+      },
+      "NANOPC_T4": {
+        "standby_w": 1.88,
+        "active_w": {
+          "HAAR": 3.391,
+          "MMOD": 1.582,
+          "DNN": 2.595,
+          "DLIB": 5.06,
+          "YOLOV3": 2.874
+        },
+        "bytes_per_s": {
+          "HAAR": 1854.59,
+          "MMOD": 949.66,
+          "DNN": 973.1,
+          "DLIB": 6957.73,
+          "YOLOV3": 8298.13
+        }
+      }
+    }
+  }
+}
