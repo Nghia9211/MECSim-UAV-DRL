@@ -91,7 +91,7 @@ class PaperEnv(gym.Env):
         max_age = 11 if self.config.properties.get("paper.expiryConvention") == "ABOVE_LIMIT" else 10
         self.observation_space = gym.spaces.Box(
             np.zeros(24, np.float32), np.array([1] * 12 + [max_age] * 12, np.float32))
-        if self.config.observation_mode == "extended125":
+        if getattr(self.config, "observation_mode", "paper24") == "extended125":
             self.observation_space = gym.spaces.Box(np.zeros(125, np.float32),
                 np.array([1]*12+[max_age]*12+[1]*101, np.float32))
         self._process = None

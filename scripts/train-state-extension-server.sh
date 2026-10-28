@@ -11,6 +11,6 @@ if [[ "${1:-}" == --dry-run ]]; then
 fi
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 mvn -o test compile exec:java -Dexec.mainClass=uav.PaperGymBridge -Dexec.classpathScope=compile -Dexec.args=--classpath
-"$PY" -m unittest drl.test_extended_state drl.test_drl drl.test_paper_conventions -v
+"$PY" -m unittest drl.test_extended_state drl.test_drl drl.test_paper_conventions drl.test_mobile -v
 "$PY" -u -m drl.paper_state_campaign --output "${OUT}-smoke" --smoke
 "$PY" -u -m drl.paper_state_campaign --output "$OUT"
