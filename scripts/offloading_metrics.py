@@ -120,10 +120,12 @@ def summarize(rows, out):
 
 def compare(roots, out):
     manifests = [json.loads((Path(p)/'manifest.json').read_text()) for p in roots]
+    assert all(m['protocol'] == manifests[0]['protocol'] for m in manifests), 'Different protocols'
     errors = {m.get('estimate_error', m.get('estimateError')) for m in manifests}
     assert len(errors) == 1, 'Compare estimate-error settings separately'
     # Shared kernel and scheduler source hashes must agree; entrypoints may differ.
     shared = set.intersection(*(set(m['source_sha256']) for m in manifests))
+    assert 'PureEdgeSim/uav/offloading/OffloadingSimulation.java' in shared, 'Missing shared kernel snapshot'
     for name in shared:
         if name.endswith(('Benchmark.java', 'Pilot.java', 'Study.java')):
             continue

@@ -1,9 +1,21 @@
 """Check denominator, latency selection, censoring and zero-success semantics."""
 import unittest
-from offloading_metrics import calculate, p95
+import json
+from pathlib import Path
+import tempfile
+from offloading_metrics import calculate, p95, compare
 
 
 class MetricsTests(unittest.TestCase):
+    def test_comparison_rejects_changed_protocol(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roots = [Path(tmp)/name for name in ('a','b')]
+            for root,horizon in zip(roots,(600,900)):
+                root.mkdir()
+                (root/'manifest.json').write_text(json.dumps(dict(protocol=dict(horizonSeconds=horizon))))
+            with self.assertRaisesRegex(AssertionError,'Different protocols'):
+                compare(roots,Path(tmp)/'comparison')
+
     def test_drops_late_and_horizon_survivor(self):
         jobs = {str(i):dict(source='RESCUENET',arrival_s='1') for i in range(4)}
         outcomes = {str(i):dict(status=status,resolved_s=str(end)) for i,(status,end) in enumerate([
