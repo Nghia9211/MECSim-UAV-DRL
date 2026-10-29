@@ -25,5 +25,6 @@ for error in 0 0.4; do
     "$PY" scripts/test-uav-mobile-verifier.py "$run"
     "$PY" scripts/test-uav-mobile-risk-verifier.py "$run"
     if [[ "${DELIVERY_AUDIT:-0}" == 1 ]]; then "$PY" scripts/test-uav-delivery-verifier.py "$run"; fi
+    if [[ "${WAIT_AUDIT:-0}" == 1 ]]; then "$PY" scripts/test-uav-contact-wait-verifier.py "$run"; fi
 done
 echo MOBILE_COMPARISON_COMPLETE_AND_VERIFIED

@@ -18,7 +18,11 @@ public final class MobileService {
     }
     public record Site(double x, double y, boolean connected) { }
     public record Config(double areaMetres, double startX, double startY, double altitudeMetres,
-            double speedMps, double rangeMetres, double dwellSeconds, double flightWatts, List<Site> sites) {
+            double speedMps, double rangeMetres, double dwellSeconds, double flightWatts, List<Site> sites, boolean allowContactWait) {
+        public Config(double areaMetres,double startX,double startY,double altitudeMetres,double speedMps,
+                double rangeMetres,double dwellSeconds,double flightWatts,List<Site> sites) {
+            this(areaMetres,startX,startY,altitudeMetres,speedMps,rangeMetres,dwellSeconds,flightWatts,sites,false);
+        }
         public Config {
             sites=List.copyOf(sites);
             for (double v:new double[]{areaMetres,altitudeMetres,speedMps,rangeMetres,dwellSeconds,flightWatts})
@@ -39,7 +43,8 @@ public final class MobileService {
     }
     public record Position(double atSeconds,double x,double y,double altitude,boolean travelling,
             int target,double remainingBatteryJ) { }
-    public record Coverage(long taskId,double atSeconds,int device,boolean available,double slantMetres,double uploadSeconds) { }
+    public record Coverage(long taskId,double atSeconds,int device,boolean available,double slantMetres,double uploadSeconds,
+            boolean offloadAvailable,double plannedUploadStartSeconds,double plannedUploadSeconds,double plannedSlantMetres) { }
     public record Update(double atSeconds,int device,long taskId,double generationSeconds,double latestGenerationSeconds) { }
     public record Result(OffloadingSimulation.Result execution,List<Visit> visits,List<Position> positions,
             List<Coverage> coverage,List<Update> updates,List<Double> finalAgeSeconds,

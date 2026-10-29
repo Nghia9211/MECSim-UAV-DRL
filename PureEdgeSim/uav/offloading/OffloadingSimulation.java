@@ -38,7 +38,7 @@ public final class OffloadingSimulation extends SimulationManager {
         COMPLETED_LATE, EXPIRED_WAITING, DROPPED_UAV_BATTERY, DROPPED_DEVICE_BATTERY, UNFINISHED_HORIZON, DROPPED_DEADLINE_RISK }
     public record Outcome(OffloadingJob job, Route route, Status status, double decisionSeconds,
             double readySeconds, double startSeconds, double resolvedSeconds, double executedMi,
-            double remainingMi, double uploadedSeconds) { }
+            double remainingMi, double uploadedSeconds, double plannedUploadStartSeconds) { }
     public record Decision(long id, OffloadingPolicy.Task task, OffloadingPolicy.Context context,
             OffloadingPolicy.Destination destination) { }
     public record QueueAudit(long task,double at,KnownQueueProjection.Snapshot localSnapshot,
@@ -79,7 +79,7 @@ public final class OffloadingSimulation extends SimulationManager {
     }
     private static final class State {
         final OffloadingJob job; Route route=Route.UNDECIDED; Status status=Status.FUTURE;
-        double remaining, executed, upload, ready=Double.NaN, decision=Double.NaN, start=Double.NaN, finish=Double.NaN;
+        double remaining, executed, upload, uploadStart=Double.NaN, ready=Double.NaN, decision=Double.NaN, start=Double.NaN, finish=Double.NaN;
         State(OffloadingJob job) { this.job=job; remaining=job.task().computeMi(); }
         double estimate() { return Math.max(1e-6, job.estimatedMi()-executed); }
         boolean terminal() { return status.ordinal() >= Status.COMPLETED_ON_TIME.ordinal(); }
@@ -174,7 +174,7 @@ public final class OffloadingSimulation extends SimulationManager {
         if (s!=null) { double work=Math.min(s.remaining,seconds*mips); s.remaining-=work; s.executed+=work; }
     }
     private int transfers(int device) {
-        return (int)states.stream().filter(s->s.status==Status.TRANSFERRING && s.job.device()==device).count();
+        return (int)states.stream().filter(s->s.status==Status.TRANSFERRING && s.uploadStart<=lastTime && s.job.device()==device).count();
     }
     private void complete(State s,double now) {
         if (s!=null && s.remaining<=EPS) { s.remaining=0; s.finish=now;
@@ -196,7 +196,7 @@ public final class OffloadingSimulation extends SimulationManager {
             g.idleJ+=dt*g.spec.idleWatts(); g.computeJ+=g.running==null?0:dt*g.spec.cpuWatts();
             g.txJ+=dt*transfers(d)*g.spec.txWatts(); g.powered+=dt;
         }
-        for (var s:states) if (s.status==Status.TRANSFERRING) s.upload+=dt;
+        for (var s:states) if (s.status==Status.TRANSFERRING) s.upload+=Math.max(0,now-Math.max(lastTime,s.uploadStart));
         uav.advanceTo(now); lastTime=now;
         // Completion/upload at a battery or deadline boundary wins the tie.
         complete(uavRunning,now); if (uavRunning!=null && uavRunning.terminal()) uavRunning=null;
@@ -281,14 +281,19 @@ public final class OffloadingSimulation extends SimulationManager {
             return;
         }
         if (!ground.get(s.job.device()).alive) { end(s,Status.DROPPED_DEVICE_BATTERY,now); return; }
-        s.ready=uploadReady(s,now);
+        s.uploadStart=now;s.ready=uploadReady(s,now);
         if (mobile!=null) {
             double distance=distance(s.job.device());
-            coverage.add(new MobileService.Coverage(t.id(),now,s.job.device(),canUpload(s.job.device(),now),distance,s.ready-now));
+            double currentDuration=s.ready-now;
+            boolean contact=canWaitForContact(s,now);
+            double plannedDistance=contact?distanceAtTarget(s.job.device()):distance;
+            if(contact){s.uploadStart=travelArrival;s.ready=s.uploadStart+t.inputBytes()*8./PaperParameters.rateBps(plannedDistance);}
+            coverage.add(new MobileService.Coverage(t.id(),now,s.job.device(),canUpload(s.job.device(),now),distance,currentDuration,
+                canUpload(s.job.device(),now)||contact,s.uploadStart,s.ready-s.uploadStart,plannedDistance));
         }
         long begin=System.nanoTime();
         var local=predict(s,now,false); var air=predict(s,now,true);
-        var task=new OffloadingPolicy.Task(t.id(),s.job.device(),t.arrivalSeconds(),t.deadlineSeconds(),t.priority(),t.inputBytes(),s.job.estimatedMi(),s.ready-now);
+        var task=new OffloadingPolicy.Task(t.id(),s.job.device(),t.arrivalSeconds(),t.deadlineSeconds(),t.priority(),t.inputBytes(),s.job.estimatedMi(),s.ready-s.uploadStart);
         var context=new OffloadingPolicy.Context(now,ground.get(s.job.device()).remaining(),uavAlive?uav.getEnergyModel().getBatteryLevel()*3600:0,local,air,
             mobile==null || mobile.sites().get(s.job.device()).connected());
         OffloadingPolicy.Destination destination;
@@ -308,13 +313,14 @@ public final class OffloadingSimulation extends SimulationManager {
         else destination=Objects.requireNonNull(policy.choose(task,context));
         routingNanos.add(System.nanoTime()-begin);
         // Common physical feasibility rule: outside service coverage -> local, even for ALL_UAV.
-        if (mobile!=null && !canUpload(s.job.device(),now)) destination=OffloadingPolicy.Destination.LOCAL;
+        if (mobile!=null && !canUpload(s.job.device(),now) && !canWaitForContact(s,now)) destination=OffloadingPolicy.Destination.LOCAL;
         decisions.add(new Decision(t.id(),task,context,destination));
         if (destination==OffloadingPolicy.Destination.LOCAL) { s.route=Route.LOCAL; s.ready=now; s.status=Status.WAITING; }
         else {
             s.route=Route.UAV;
             if (!uavAlive) end(s,Status.DROPPED_UAV_BATTERY,now);
-            else { s.status=s.ready<=now?Status.WAITING:Status.TRANSFERRING; if (s.ready>now) calendar.add(s.ready); }
+            else { s.status=s.ready<=now?Status.WAITING:Status.TRANSFERRING;
+                if(s.uploadStart>now)calendar.add(s.uploadStart);if (s.ready>now) calendar.add(s.ready); }
         }
     }
     /** Replay only admitted work with estimated durations. No actual demand/future arrivals are passed to the projection. */
@@ -341,8 +347,8 @@ public final class OffloadingSimulation extends SimulationManager {
     private OffloadingPolicy.Prediction predict(State candidate,double now,boolean air) {
         var g=ground.get(candidate.job.device()); var spec=g.spec;
         double marginal=air?candidate.job.estimatedMi()/config.uavMips()*config.uavCpuWatts()
-                +(candidate.ready-now)*spec.txWatts():candidate.job.estimatedMi()/spec.mips()*spec.cpuWatts();
-        if (air && (!uavAlive || mobile!=null && !canUpload(candidate.job.device(),now)))
+                +(candidate.ready-candidate.uploadStart)*spec.txWatts():candidate.job.estimatedMi()/spec.mips()*spec.cpuWatts();
+        if (air && (!uavAlive || mobile!=null && !canUpload(candidate.job.device(),now) && !canWaitForContact(candidate,now)))
             return new OffloadingPolicy.Prediction(Double.POSITIVE_INFINITY,marginal,false,false);
         int node=air?-1:candidate.job.device();
         var jobs=new ArrayList<Projected>();
@@ -373,10 +379,12 @@ public final class OffloadingSimulation extends SimulationManager {
             time+=seconds; workSeconds+=seconds;
             if (running.task().id()==candidate.job.task().id()) {
                 double used=idle*(time-now)+cpu*workSeconds+(air?projectedFlightExtra(now,time):txEnergy(candidate.job.device(),now,time));
-                double uploadSeconds=candidate.ready-now;
+                double uploadSeconds=candidate.ready-candidate.uploadStart,waitSeconds=candidate.uploadStart-now;
                 // Conservative source budget during upload: keep current CPU load, sum independent TX links.
-                double sourceUpload=(spec.idleWatts()+(g.running==null?0:spec.cpuWatts())+spec.txWatts())*uploadSeconds
-                        +txEnergy(candidate.job.device(),now,now+uploadSeconds);
+                double sourceUpload=waitSeconds==0?(spec.idleWatts()+(g.running==null?0:spec.cpuWatts())+spec.txWatts())*uploadSeconds
+                        +txEnergy(candidate.job.device(),now,now+uploadSeconds):
+                        (spec.idleWatts()+(g.running==null?0:spec.cpuWatts()))*(waitSeconds+uploadSeconds)+spec.txWatts()*uploadSeconds
+                        +txEnergy(candidate.job.device(),now,candidate.ready);
                 boolean enough=used<=battery+EPS && (!air || sourceUpload<=g.remaining()+EPS);
                 return new OffloadingPolicy.Prediction(time,marginal,true,enough && time<=config.horizonSeconds()+EPS);
             }
@@ -387,7 +395,7 @@ public final class OffloadingSimulation extends SimulationManager {
     private double txEnergy(int device,double now,double until) {
         double seconds=0;
         for (var s:states) if (s.status==Status.TRANSFERRING && s.job.device()==device)
-            seconds+=Math.max(0,Math.min(until,Math.min(s.ready,s.job.task().deadlineSeconds()))-now);
+            seconds+=Math.max(0,Math.min(until,Math.min(s.ready,s.job.task().deadlineSeconds()))-Math.max(now,s.uploadStart));
         return seconds*ground.get(device).spec.txWatts();
     }
     private void finish(double now) {
@@ -395,7 +403,8 @@ public final class OffloadingSimulation extends SimulationManager {
         var energies=new ArrayList<NodeEnergy>(); var e=uav.getEnergyModel();
         energies.add(new NodeEnergy(-1,(e.getFlightWh()+e.getHoverWh())*3600,e.getComputeWh()*3600,0,e.getBatteryLevel()*3600,uavPowered));
         for (int d=0;d<ground.size();d++) { var g=ground.get(d); energies.add(new NodeEnergy(d,g.idleJ,g.computeJ,g.txJ,g.remaining(),g.powered)); }
-        result=new Result(states.stream().map(s->new Outcome(s.job,s.route,s.status,s.decision,s.ready,s.start,s.finish,s.executed,s.remaining,s.upload)).toList(),
+        result=new Result(states.stream().map(s->new Outcome(s.job,s.route,s.status,s.decision,s.ready,s.start,s.finish,s.executed,s.remaining,s.upload,
+            s.route==Route.UAV?s.uploadStart:Double.NaN)).toList(),
                 decisions,energies,routingNanos,schedulingNanos,queueAudit);
         if (mobile!=null) {
             var ages=new ArrayList<Double>();for (double generation:latestGeneration) ages.add(now-generation);
@@ -411,6 +420,14 @@ public final class OffloadingSimulation extends SimulationManager {
     }
     private boolean canUpload(int device,double now) {
         return uavAlive && !travelling && now<departAt && distance(device)<=mobile.rangeMetres()+EPS;
+    }
+    private double distanceAtTarget(int device) {
+        var end=mobile.sites().get(target);var source=mobile.sites().get(device);
+        return new Location3D(end.x(),end.y(),mobile.altitudeMetres()).distanceTo(new Location3D(source.x(),source.y(),0));
+    }
+    private boolean canWaitForContact(State s,double now) {
+        return mobile!=null && mobile.allowContactWait() && uavAlive && travelling && target>=0 && travelArrival>now
+            && travelArrival<s.job.task().deadlineSeconds() && distanceAtTarget(s.job.device())<=mobile.rangeMetres()+EPS;
     }
     private double uploadReady(State s,double now) {
         if (mobile==null) return s.job.task().readySeconds();

@@ -75,6 +75,10 @@ def export(root):
             on = sum(outcomes[k]['status']=='COMPLETED_ON_TIME' for k in delivered)
             delivered_latency=[float(outcomes[k]['resolved_s'])-float(jobs[k]['arrival_s']) for k in delivered]
             coverage = read(d/(r['policy']+'-coverage.csv'))
+            reserved={k for k,o in outcomes.items() if o['route']=='UAV' and
+                float(o.get('planned_upload_start_s') or jobs[k]['arrival_s'])>float(jobs[k]['arrival_s'])+1e-8}
+            actual_wait=sum(max(0,min(float(outcomes[k]['planned_upload_start_s']),float(outcomes[k]['resolved_s']))
+                -float(jobs[k]['arrival_s'])) for k in reserved)
             values.update(delivered_ontime_images=on,
                 delivered_completed_images=len(delivered),delivered_mean_latency_s=mean(delivered_latency),
                 delivered_p95_latency_s=p95(delivered_latency),
@@ -83,6 +87,11 @@ def export(root):
                 covered_images=sum(c['available']=='true' for c in coverage),
                 offloaded_images=sum(jobs[k]['source']=='RESCUENET' and o['route']=='UAV' for k,o in outcomes.items()),
                 flight_j=float(r['flight_j']),hover_j=float(r['hover_j']),travelled_m=float(r['travelled_m']))
+            values.update(contact_wait_enabled=int(m['protocol'].get('allowContactWait',False)),
+                offload_eligible_images=sum(c.get('offload_available',c['available'])=='true' for c in coverage),
+                reserved_images=len(reserved),reserved_uploaded_images=sum(float(outcomes[k]['uploaded_s'])>0 for k in reserved),
+                reserved_delivered_ontime_images=sum(k in delivered and outcomes[k]['status']=='COMPLETED_ON_TIME' for k in reserved),
+                actual_contact_wait_s=actual_wait)
         results.append(dict(scenario=r['scenario'], seed=r['seed'], policy=r['policy'],
                             workload_sha256=r['workload_sha256'], **values))
     write_csv(root/'core-metrics-episodes.csv', results)
@@ -129,6 +138,12 @@ def summarize(rows, out):
                 summary[-1].update(mean_delivered_latency_s=mean([r['delivered_mean_latency_s'] for r in g]),
                     mean_delivered_episode_p95_s=mean([r['delivered_p95_latency_s'] for r in g]),
                     delivered_latency_cases=sum(r['delivered_completed_images']>0 for r in g))
+                summary[-1].update(contact_wait_enabled=g[0]['contact_wait_enabled'],
+                    mean_offload_eligible_images=mean([r['offload_eligible_images'] for r in g]),
+                    mean_reserved_images=mean([r['reserved_images'] for r in g]),
+                    mean_reserved_uploaded_images=mean([r['reserved_uploaded_images'] for r in g]),
+                    mean_reserved_delivered_ontime_images=mean([r['reserved_delivered_ontime_images'] for r in g]),
+                    mean_actual_contact_wait_s=mean([r['actual_contact_wait_s'] for r in g]))
     write_csv(out/'core-metrics-summary.csv', summary)
     lines = ['# Core offloading + scheduling metrics', '',
         'Image DVR includes every offered image: drops/rejections/deadline-risk failures remain failures.',
@@ -145,7 +160,7 @@ def summarize(rows, out):
     if 'delivered_ontime_images' in rows[0]:
         lines += ['', '## Mobile delivery and propulsion', '',
             'Local computation on a disconnected source does NOT deliver a result. Primary image DVR above is compute completion; delivered DVR below counts received on-time results. Return/backhaul delay is currently zero when delivery is possible.',
-            'Total/UAV energy includes flight + hover + CPU; flight and hover are NOT added again. ALL_UAV means offload when covered; outside coverage the task runs locally immediately. CPU scheduling can run during flight.', '',
+            'Total/UAV energy includes flight + hover + CPU; flight and hover are NOT added again. ALL_UAV uses current or enabled known-flight contact; outside eligible contact the task runs locally. CPU scheduling can run during flight.', '',
             '| Policy | Delivered DVR % | J/on-time delivered image | Mean covered images | Mean offloaded images | Flight kJ | Hover kJ | Distance m |',
             '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
         for r in summary:
@@ -159,6 +174,15 @@ def summarize(rows, out):
         for r in summary:
             if r['scenario']=='ALL':
                 lines.append(f"| {r['policy']} | {fmt(r['mean_delivered_latency_s'])} | {fmt(r['mean_delivered_episode_p95_s'])} | {r['delivered_latency_cases']}/{r['cases']} |")
+        lines += ['', '## Known-flight contact waiting', '',
+            'Waiting capability enabled: '+str(bool(rows[0]['contact_wait_enabled']))+'. Eligible contact includes only the flight destination already selected at arrival. Reservation is an irrevocable raw-task offload decision; TX starts at the planned contact, never during the wait. Failed reservations remain failures.', '',
+            '| Policy | Mean eligible images | Mean reservations | Mean reservations uploaded | Mean reserved on-time deliveries | Mean actual wait s/episode |',
+            '| --- | ---: | ---: | ---: | ---: | ---: |']
+        for r in summary:
+            if r['scenario']=='ALL':
+                vals=[r[k] for k in ['mean_offload_eligible_images','mean_reserved_images','mean_reserved_uploaded_images',
+                    'mean_reserved_delivered_ontime_images','mean_actual_contact_wait_s']]
+                lines.append('| '+r['policy']+' | '+' | '.join(map(fmt,vals))+' |')
     (out/'CORE_METRICS.md').write_text('\n'.join(lines)+'\n', encoding='utf8')
 
 

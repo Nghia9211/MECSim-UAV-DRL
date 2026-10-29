@@ -21,11 +21,30 @@ class MobileAudit(base.Audit):
         adjusted=copy.deepcopy(jobs)
         self.coverage={int(c['id']):c for c in coverage}
         check(len(self.coverage)==len(coverage),'Duplicate coverage records')
+        self.plans={}
         for tid,c in self.coverage.items():
-            adjusted[tid]['upload_ready_s']=str(num(jobs[tid],'arrival_s')+num(c,'upload_s'))
+            if protocol.get('allowContactWait',False):
+                check(all(k in c for k in ['offload_available','planned_upload_start_s','planned_upload_s','planned_slant_m']), 'Missing contact plan')
+            start=num(c,'planned_upload_start_s',num(jobs[tid],'arrival_s'))
+            duration=num(c,'planned_upload_s',num(c,'upload_s'))
+            self.plans[tid]=(start,duration)
+            adjusted[tid]['upload_ready_s']=str(start+duration)
         super().__init__(adjusted,outcomes,energies,cfg,scheduler,.75)
         self.original=jobs;self.p=protocol;self.visits=visits;self.positions=positions;self.updates=updates;self.views=views
         self.visit_times=[num(v,'at_s') for v in visits]
+
+    def planned_upload_start(self,tid):
+        return self.plans.get(tid,(num(self.jobs[tid],'arrival_s'),0))[0]
+
+    def offload_available(self,tid):
+        c=self.coverage[tid]
+        return c.get('offload_available',c['available'])=='true'
+
+    def projection_flight_extra(self,now,until):
+        i=bisect.bisect_right(self.visit_times,now)-1
+        if i<0:return 0.
+        end=num(self.visits[i],'planned_arrival_s')
+        return (self.p['flightWatts']-self.cfg['hoverWatts'])*max(0,min(until,end)-now)
 
     def flight_seconds(self,at):
         death=num(self.energy[-1],'powered_s')
@@ -38,14 +57,14 @@ class MobileAudit(base.Audit):
         return idle,cpu,tx
 
     def projection(self,candidate,now,air):
-        if air and self.coverage[candidate]['available']!='true':
+        if air and not self.offload_available(candidate):
             j=self.jobs[candidate];g=self.nodes[int(j['device'])]
-            marginal=num(j,'estimated_mi')/self.cfg['uavMips']*self.cfg['uavCpuWatts']+(num(j,'upload_ready_s')-now)*g['txWatts']
+            marginal=num(j,'estimated_mi')/self.cfg['uavMips']*self.cfg['uavCpuWatts']+(num(j,'upload_ready_s')-self.planned_upload_start(candidate))*g['txWatts']
             return math.inf,marginal,False,False
         return super().projection(candidate,now,air)
 
     def route_destination(self,tid,destination):
-        return destination if self.coverage[tid]['available']=='true' else 'LOCAL'
+        return destination if self.offload_available(tid) else 'LOCAL'
 
     def position_at(self,at):
         t=min(at,num(self.energy[-1],'powered_s'))
@@ -81,9 +100,9 @@ class MobileAudit(base.Audit):
                 stop=num(prior,'planned_arrival_s')+self.p['dwellSeconds']
                 pin_until=stop
                 for tid,o in self.o.items():
-                    j=self.jobs[tid];arrival=num(j,'arrival_s')
-                    if o['route']=='UAV' and num(prior,'planned_arrival_s')-1e-8<=arrival<stop:
-                        upload_end=arrival+num(o,'uploaded_s')
+                    start=self.planned_upload_start(tid)
+                    if o['route']=='UAV' and num(prior,'planned_arrival_s')-1e-8<=start<stop:
+                        upload_end=start+num(o,'uploaded_s')
                         pin_until=max(pin_until,upload_end)
                 close(at,pin_until,'Dwell/upload departure')
                 close(num(v,'from_x'),num(prior,'to_x'),'Continuous visit x');close(num(v,'from_y'),num(prior,'to_y'),'Continuous visit y')
@@ -122,7 +141,20 @@ class MobileAudit(base.Audit):
             check((c['available']=='true')==available,'Physical coverage gate')
             rate=20e6*math.log1p(.1*1e-8*slant**(-4)/1e-13)/math.log(2)
             close(num(c,'upload_s'),num(j,'input_bytes')*8/rate,'Dynamic upload duration')
-            if self.o[tid]['route']=='UAV':check(available,'Upload outside coverage/in flight')
+            planned_start=at;planned_slant=slant;eligible=available
+            i=bisect.bisect_right(self.visit_times,at)-1
+            if self.p.get('allowContactWait',False) and self.alive(-1,at) and i>=0:
+                v=self.visits[i];eta=num(v,'planned_arrival_s')
+                end_slant=math.hypot(math.hypot(num(v,'to_x')-site['x'],num(v,'to_y')-site['y']),self.p['altitudeMetres'])
+                if eta>at+1e-8 and eta<num(j,'deadline_s') and end_slant<=self.p['rangeMetres']+1e-8:
+                    planned_start=eta;planned_slant=end_slant;eligible=True
+            if 'offload_available' in c:
+                check((c['offload_available']=='true')==eligible,'Causal contact availability')
+                close(num(c,'planned_upload_start_s'),planned_start,'Known-flight contact start')
+                close(num(c,'planned_slant_m'),planned_slant,'Planned contact slant')
+                planned_rate=20e6*math.log1p(.1*1e-8*planned_slant**(-4)/1e-13)/math.log(2)
+                close(num(c,'planned_upload_s'),num(j,'input_bytes')*8/planned_rate,'Planned contact upload duration')
+            if self.o[tid]['route']=='UAV':check(eligible,'Upload outside current/known-flight contact')
         expected={tid for tid,o in self.o.items() if self.jobs[tid]['source']=='RESCUENET' and o['status'].startswith('COMPLETED')
                   and (o['route']=='UAV' or self.cfg['sites'][int(self.jobs[tid]['device'])]['connected'])}
         check(len(self.updates)==len(expected) and {int(u['id']) for u in self.updates}==expected,'Delivered update set')
@@ -152,6 +184,7 @@ def verify(root):
         check(row['source'] in {'ALL','RESCUENET','ALIBABA'},'Unexpected source')
         check((*key,row['source']) not in source_keys,'Duplicate source row');source_keys.add((*key,row['source']))
         cfg=m['configs'][scenario];directory=root/scenario/f'seed-{seed}'
+        check(cfg.get('allowContactWait',False)==p.get('allowContactWait',False),'Common waiting capability config')
         if (scenario,seed) not in cases:
             inputs=read(directory/'workload.csv');jobs={int(j['id']):j for j in inputs};check(len(jobs)==len(inputs),'Duplicate jobs')
             digest=sha(directory/'workload.csv');cases[scenario,seed]=(jobs,digest)

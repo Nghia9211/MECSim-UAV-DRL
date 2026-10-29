@@ -28,8 +28,9 @@ public final class MobileServiceBenchmark {
         rows=new ArrayList<>(List.of("at_s,x,y,h,travelling,target,battery_j"));
         for (var p:result.positions()) rows.add(fields(p.atSeconds(),p.x(),p.y(),p.altitude(),p.travelling(),p.target(),p.remainingBatteryJ()));
         write(directory.resolve(name+"-positions.csv"),rows);
-        rows=new ArrayList<>(List.of("id,at_s,device,available,slant_m,upload_s"));
-        for (var c:result.coverage()) rows.add(fields(c.taskId(),c.atSeconds(),c.device(),c.available(),c.slantMetres(),c.uploadSeconds()));
+        rows=new ArrayList<>(List.of("id,at_s,device,available,slant_m,upload_s,offload_available,planned_upload_start_s,planned_upload_s,planned_slant_m"));
+        for (var c:result.coverage()) rows.add(fields(c.taskId(),c.atSeconds(),c.device(),c.available(),c.slantMetres(),c.uploadSeconds(),
+            c.offloadAvailable(),c.plannedUploadStartSeconds(),c.plannedUploadSeconds(),c.plannedSlantMetres()));
         write(directory.resolve(name+"-coverage.csv"),rows);
         rows=new ArrayList<>(List.of("at_s,device,id,generation_s,latest_generation_s"));
         for (var u:result.updates()) rows.add(fields(u.atSeconds(),u.device(),u.taskId(),u.generationSeconds(),u.latestGenerationSeconds()));
@@ -63,13 +64,14 @@ public final class MobileServiceBenchmark {
             for (var load:p.get("loads")) for (var battery:p.get("uavBatteriesJ")) {
                 String key=layout.get("name").asText()+"-"+load.get("name").asText()+"-b"+battery.asLong();
                 var m=new MobileService.Config(area,0,0,p.get("altitudeMetres").asDouble(),p.get("speedMps").asDouble(),p.get("rangeMetres").asDouble(),
-                        p.get("dwellSeconds").asDouble(),p.get("flightWatts").asDouble(),sites);
+                        p.get("dwellSeconds").asDouble(),p.get("flightWatts").asDouble(),sites,p.path("allowContactWait").asBoolean(false));
                 var c=new OffloadingSimulation.Config(p.get("horizonSeconds").asDouble(),p.get("uavMips").asDouble(),p.get("uavCpuWatts").asDouble(),p.get("hoverWatts").asDouble(),battery.asDouble(),devices);
                 mobileConfigs.put(key,m);cpuConfigs.put(key,c);
                 var config=new LinkedHashMap<String,Object>();config.put("horizonSeconds",c.horizonSeconds());config.put("uavMips",c.uavMips());
                 config.put("uavCpuWatts",c.uavCpuWatts());config.put("hoverWatts",c.hoverWatts());config.put("uavBatteryJ",c.uavBatteryJ());
                 config.put("devices",devices.stream().map(MobileServiceBenchmark::deviceMap).toList());
-                config.put("areaMetres",area);config.put("startX",0);config.put("startY",0);config.put("sites",sites.stream().map(s->Map.of("x",s.x(),"y",s.y(),"connected",s.connected())).toList());
+                config.put("areaMetres",area);config.put("startX",0);config.put("startY",0);config.put("allowContactWait",m.allowContactWait());
+                config.put("sites",sites.stream().map(s->Map.of("x",s.x(),"y",s.y(),"connected",s.connected())).toList());
                 configs.put(key,config);
             }
         }
@@ -93,7 +95,7 @@ public final class MobileServiceBenchmark {
         manifest.put("assumptions",List.of("Adapted RR/oldest device selection, not original paper/DQN reproduction. Continuous seconds since latest completed delivered generation, not paper slot age.",
                 "12 uniform ground CPUs. Connected local completion delivers instantly; disconnected local completion does not refresh. UAV completion relays instantly, even late; stale generation never rolls freshness back.",
                 "Fixed dwell, extended until already-started uploads finish/expire/die; closed stop admits no new uploads. No uploads in flight, but CPUs continue during flight.",
-                "Outside coverage or unavailable UAV => LOCAL immediately, including ALL_UAV which means ALL_UAV_WHEN_COVERED in this mode. No waiting for future coverage.",
+                "Outside current or opt-in known-flight contact => LOCAL. Contact wait, when enabled, is common to all policies: reserve raw-task upload at the already-selected destination arrival, never future unselected visits. No migration/retry.",
                 "All sources battery-powered; binary connected flag affects local result delivery only. UAV RF links independent full bandwidth; no RX/output delay/energy.",
                 "Route forecasts use admitted jobs and estimates. Future service moves are unknown; forecast assumes hover after the current stop. CPU scheduler energy guard uses hover baseline; actual flight power is still charged exactly.",
                 "Fixed normalized layout seed42 at two area scales; not 30 independently sampled layouts. All policy/config pairs share task arrivals, device assignments and source pools for a task seed.",
@@ -107,7 +109,8 @@ public final class MobileServiceBenchmark {
         for(String file:List.of("PureEdgeSim/uav/UAVMobilityModel.java","PureEdgeSim/uav/UAVEdgeNode.java","PureEdgeSim/uav/UAVEnergyModel.java","PureEdgeSim/uav/Location3D.java",
                 "PureEdgeSim/uav/PaperParameters.java","PureEdgeSim/uav/RescueNetWorkload.java","PureEdgeSim/uav/AlibabaWorkload.java","scripts/verify-uav-offloading.py",
                 "scripts/verify-uav-mobile.py","scripts/offloading_metrics.py","scripts/test_offloading_metrics.py",
-                "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/test-uav-delivery-verifier.py","scripts/run-mobile-comparison-server.sh",
+                "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/test-uav-delivery-verifier.py",
+                "scripts/test-uav-contact-wait-verifier.py","scripts/run-mobile-comparison-server.sh",
                 "src/test/java/uav/MobileServiceTest.java","pom.xml"))snapshot(out,Path.of(file),snapshots);
         manifest.put("source_sha256",snapshots);json.writerWithDefaultPrettyPrinter().writeValue(out.resolve("manifest.json").toFile(),manifest);
         var episodes=new ArrayList<String>(List.of("scenario,seed,policy,workload_sha256,source,offered,on_time,late,expired,uav_dropped,device_dropped,unfinished,local,offloaded,dvr,mean_completed_latency_s,uav_energy_j,ground_energy_j,total_energy_j,flight_j,hover_j,travelled_m,visits,mean_final_age_s,wall_ms,trace"));

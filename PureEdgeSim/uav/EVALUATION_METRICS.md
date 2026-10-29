@@ -52,6 +52,9 @@ về. Báo J/ảnh đúng hạn cho cả compute và delivery. Output/backhaul d
 khi có đường delivery; không gọi compute latency là độ trễ truyền kết quả thực.
 Exporter mobile cũng báo mean/P95 trên các kết quả thực sự delivered (gồm late),
 và số case có delivery; case không có delivery không được gán latency0.
+Nếu bật allowContactWait, báo thêm eligible contact, reservations, số reservation
+thực sự upload/deliver đúng hạn và thời gian chờ thực. Coverage tại arrival khác
+eligible future contact. Mọi baseline trong cùng run phải có cùng quyền chờ.
 Entrypoint mới phải gắn exporter và định nghĩa năng lượng trước khi kết luận.
 Không coi một run thiếu bộ metric này là báo cáo hoàn chỉnh.
 

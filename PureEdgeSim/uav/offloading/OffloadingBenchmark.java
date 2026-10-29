@@ -36,8 +36,8 @@ public final class OffloadingBenchmark {
         return String.join(",",Arrays.stream(values).map(v->v instanceof Double?number((Double)v):v.toString()).toList());
     }
     public static void save(Path directory,String name,OffloadingSimulation.Result r) throws Exception {
-        var rows=new ArrayList<String>(List.of("id,route,status,decision_s,ready_s,start_s,resolved_s,executed_mi,remaining_mi,uploaded_s"));
-        for (var o:r.tasks()) rows.add(fields(o.job().task().id(),o.route(),o.status(),o.decisionSeconds(),o.readySeconds(),o.startSeconds(),o.resolvedSeconds(),o.executedMi(),o.remainingMi(),o.uploadedSeconds()));
+        var rows=new ArrayList<String>(List.of("id,route,status,decision_s,ready_s,start_s,resolved_s,executed_mi,remaining_mi,uploaded_s,planned_upload_start_s"));
+        for (var o:r.tasks()) rows.add(fields(o.job().task().id(),o.route(),o.status(),o.decisionSeconds(),o.readySeconds(),o.startSeconds(),o.resolvedSeconds(),o.executedMi(),o.remainingMi(),o.uploadedSeconds(),o.plannedUploadStartSeconds()));
         write(directory.resolve(name+"-tasks.csv"),rows);
         rows=new ArrayList<>(List.of("device,idle_j,compute_j,tx_j,remaining_j,powered_s"));
         for (var e:r.energy()) rows.add(fields(e.device(),e.idleJ(),e.computeJ(),e.txJ(),e.remainingJ(),e.poweredSeconds()));

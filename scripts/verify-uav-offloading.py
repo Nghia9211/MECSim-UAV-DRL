@@ -65,6 +65,12 @@ def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
 
 
 class Audit:
+    def planned_upload_start(self,tid):
+        return num(self.jobs[tid],'arrival_s')
+
+    def projection_flight_extra(self,now,until):
+        return 0.
+
     def local_delivery_available(self, tid):
         return True
     def route_destination(self, tid, destination):
@@ -97,7 +103,7 @@ class Audit:
                 cpu += max(0, min(at, num(o, "resolved_s")) - start) * cfg["cpuWatts"]
             j = self.jobs[tid]
             if node >= 0 and int(j["device"]) == node:
-                tx += max(0, min(at - num(j, "arrival_s"), num(o, "uploaded_s"))) * cfg["txWatts"]
+                tx += max(0, min(at - self.planned_upload_start(tid), num(o, "uploaded_s"))) * cfg["txWatts"]
         return idle, cpu, tx
 
     def battery_at(self, node, at):
@@ -113,7 +119,9 @@ class Audit:
         source = int(job["device"])
         node = -1 if air else source
         spec, ground = self.nodes[node], self.nodes[source]
-        upload = num(job, "upload_ready_s") - now
+        planned_start=self.planned_upload_start(candidate)
+        upload = num(job, "upload_ready_s") - planned_start
+        wait=planned_start-now
         marginal = num(job, "estimated_mi") / spec["mips"] * spec["cpuWatts"] + (ground["txWatts"] * upload if air else 0)
         if air and not self.alive(-1, now):
             return math.inf, marginal, False, False
@@ -145,7 +153,7 @@ class Audit:
                 j = self.jobs[tid]
                 if num(o, "resolved_s") <= now + 1e-8 or num(o, "ready_s") <= now + 1e-8:
                     continue
-                total += max(0, min(until, num(o, "ready_s"), num(j, "deadline_s")) - now)
+                total += max(0, min(until, num(o, "ready_s"), num(j, "deadline_s")) - max(now,self.planned_upload_start(tid)))
             return total * ground["txWatts"]
 
         time, busy = now, 0.
@@ -161,7 +169,7 @@ class Audit:
                 if not ready:
                     time = min(min(j[3], j[4]) for j in pending)
                     continue
-                used = spec["idleWatts"] * (time - now) + spec["cpuWatts"] * busy + (0 if air else known_tx(time))
+                used = spec["idleWatts"] * (time - now) + spec["cpuWatts"] * busy + (self.projection_flight_extra(now,time) if air else known_tx(time))
                 chosen = select(ready, time, max(0, budget-used), spec["mips"], spec["cpuWatts"], spec["idleWatts"],
                                 self.horizon, self.schedule if air else "FIFO", self.alpha)
                 running = next(j for j in pending if j[0] == chosen)
@@ -169,11 +177,13 @@ class Audit:
             time += duration
             busy += duration
             if running[0] == candidate:
-                used = spec["idleWatts"] * (time - now) + spec["cpuWatts"] * busy + (0 if air else known_tx(time))
+                used = spec["idleWatts"] * (time - now) + spec["cpuWatts"] * busy + (self.projection_flight_extra(now,time) if air else known_tx(time))
                 ground_busy = any(self.node(tid) == source and math.isfinite(num(o, "start_s"))
                                   and num(o, "start_s") < now - 1e-8 and num(o, "resolved_s") > now + 1e-8
                                   for tid, o in self.o.items())
-                source_need = (ground["idleWatts"] + ground["txWatts"] + (ground["cpuWatts"] if ground_busy else 0)) * upload + known_tx(now+upload)
+                source_need = ((ground["idleWatts"] + ground["txWatts"] + (ground["cpuWatts"] if ground_busy else 0)) * upload + known_tx(now+upload)
+                    if wait==0 else (ground['idleWatts']+(ground['cpuWatts'] if ground_busy else 0))*(wait+upload)
+                    +ground['txWatts']*upload+known_tx(planned_start+upload))
                 fits = used <= budget + 1e-8 and (not air or source_need <= self.battery_at(source, now) + 1e-8)
                 return time, marginal, True, fits and time <= self.horizon + 1e-8
             pending.remove(running)
@@ -200,6 +210,8 @@ class Audit:
             spec = self.nodes[node]
             if route != "UNDECIDED":
                 close(num(o, "ready_s"), num(j, "upload_ready_s") if route == "UAV" else arrival, "Route-specific ready")
+            if route=='UAV' and 'planned_upload_start_s' in o:
+                close(num(o,'planned_upload_start_s'),self.planned_upload_start(tid),'Planned upload start')
             if math.isfinite(start):
                 check(start >= num(o, "ready_s")-EPS and start < deadline+EPS, "Illegal CPU start")
                 close(executed, (end-start)*spec["mips"], "Actual execution interval")
@@ -232,7 +244,7 @@ class Audit:
             if route == "UAV" and self.alive(-1, arrival):
                 source = int(j["device"])
                 uploaded = max(0, min(num(j, "upload_ready_s"), deadline, num(self.energy[source], "powered_s"),
-                                      num(self.energy[-1], "powered_s")) - arrival)
+                                      num(self.energy[-1], "powered_s")) - self.planned_upload_start(tid))
             close(num(o, "uploaded_s"), uploaded, "Partial upload duration")
 
         for node, cfg in self.nodes.items():

@@ -11,6 +11,62 @@ import static uav.offloading.OffloadingSimulation.Status.*;
 import static uav.scheduling.SchedulingTask.Source.*;
 
 class MobileServiceTest {
+    private MobileService.Config contactWait(double dwell,List<MobileService.Site> sites) {
+        return new MobileService.Config(800,0,0,10,5,65,dwell,150,sites,true);
+    }
+    private OffloadingSimulation.Config contactCpu(double battery,double sourceBattery,int n) {
+        return new OffloadingSimulation.Config(40,100,20,80,battery,
+            Collections.nCopies(n,new OffloadingSimulation.Device(100,1,1,.1,sourceBattery)));
+    }
+    @Test void knownFlightWaitCountsDeadlineButTransmitsOnlyAfterArrivalAndAllPoliciesCanUseIt() {
+        var jobs=List.of(image(0,0,1,20,2_500_000,100));
+        var m=contactWait(30,List.of(new MobileService.Site(50,0,false)));
+        var cfg=contactCpu(100000,10000,1);
+        var r=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(OffloadingSimulation.Route.UAV,get(r,0).route());
+        assertEquals(10,get(r,0).plannedUploadStartSeconds(),1e-7);
+        assertEquals(11,get(r,0).readySeconds(),1e-7);assertEquals(12,get(r,0).resolvedSeconds(),1e-7);
+        assertEquals(1,get(r,0).uploadedSeconds(),1e-7);assertEquals(.1,r.execution().energy().get(1).txJ(),1e-7);
+        assertEquals(1,r.execution().decisions().get(0).task().uploadSeconds(),1e-7);
+        assertEquals(40,r.execution().energy().get(1).idleJ(),1e-7);assertEquals(1,r.updates().size());
+        assertEquals(1500,r.flightJ(),1e-7);assertEquals(2400,r.hoverJ(),1e-7);
+        assertFalse(r.coverage().get(0).available());assertTrue(r.coverage().get(0).offloadAvailable());
+        var forced=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(ALL_UAV),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(r.execution().tasks(),forced.execution().tasks());
+        var noWait=mobility(30,m.sites());
+        var old=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,noWait,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(OffloadingSimulation.Route.LOCAL,get(old,0).route());assertTrue(old.updates().isEmpty());
+    }
+    @Test void waitingCannotResetDeadlineOrAnticipateUnselectedFutureVisits() {
+        var m=contactWait(30,List.of(new MobileService.Site(100,0,false),new MobileService.Site(400,0,false)));
+        var jobs=List.of(image(0,0,1,10,100,100),image(1,1,1,35,100,100),image(2,0,1,20.5,2_500_000,100));
+        var r=OffloadingSimulation.runMobile(jobs,contactCpu(100000,10000,2),OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertTrue(r.execution().tasks().stream().allMatch(o->o.route()==OffloadingSimulation.Route.LOCAL));
+        assertFalse(r.coverage().get(0).offloadAvailable()); // Arrival20 is after deadline10.
+        assertFalse(r.coverage().get(1).offloadAvailable()); // Next visit has not been chosen.
+        assertTrue(r.coverage().get(2).offloadAvailable()); // Contact exists, but upload+CPU miss20.5.
+    }
+    @Test void depletionBeforeContactDoesNotTransmitAndForecastAccountsForWaitingSourceAndFlightEnergy() {
+        var jobs=List.of(image(0,0,1,20,2_500_000,100));
+        var m=contactWait(30,List.of(new MobileService.Site(50,0,false)));
+        for(var cfg:List.of(contactCpu(750,10000,1),contactCpu(100000,9,1))) {
+            var forced=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(ALL_UAV),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+            assertEquals(0,get(forced,0).uploadedSeconds());assertEquals(0,forced.execution().energy().get(1).txJ());
+            assertEquals(cfg.uavBatteryJ()==750?DROPPED_UAV_BATTERY:DROPPED_DEVICE_BATTERY,get(forced,0).status());
+            var guarded=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+            assertEquals(OffloadingSimulation.Route.LOCAL,get(guarded,0).route());
+            assertFalse(guarded.execution().decisions().get(0).context().uav().batteryFeasible());
+        }
+    }
+    @Test void reservedUploadPinsStopAndExpiryReleasesItWithoutChargingWaitingAsTx() {
+        var m=contactWait(2,List.of(new MobileService.Site(50,0,false),new MobileService.Site(100,0,false)));
+        var r=OffloadingSimulation.runMobile(List.of(image(0,0,1,20,12_500_000,100)),contactCpu(100000,10000,2),OffloadingPolicy.baseline(ALL_UAV),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(15,r.visits().get(1).atSeconds(),1e-7);assertEquals(5,get(r,0).uploadedSeconds(),1e-7);
+        assertEquals(.5,r.execution().energy().get(1).txJ(),1e-7);
+        r=OffloadingSimulation.runMobile(List.of(image(0,0,1,12,12_500_000,100)),contactCpu(100000,10000,2),OffloadingPolicy.baseline(ALL_UAV),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(EXPIRED_WAITING,get(r,0).status());assertEquals(12,r.visits().get(1).atSeconds(),1e-7);
+        assertEquals(2,get(r,0).uploadedSeconds(),1e-7);assertEquals(.2,r.execution().energy().get(1).txJ(),1e-7);
+    }
     @Test void deliveryAwareUsesCurrentContactWithoutWaitingOrChangingConnectedRouting() {
         var cfg=new OffloadingSimulation.Config(40,100,20,80,100_000,
             List.of(new OffloadingSimulation.Device(100,1,1,.1,10_000)));
