@@ -11,6 +11,28 @@ import static uav.offloading.OffloadingSimulation.Status.*;
 import static uav.scheduling.SchedulingTask.Source.*;
 
 class MobileServiceTest {
+    @Test void deliveryAwareUsesCurrentContactWithoutWaitingOrChangingConnectedRouting() {
+        var cfg=new OffloadingSimulation.Config(40,100,20,80,100_000,
+            List.of(new OffloadingSimulation.Device(100,1,1,.1,10_000)));
+        var jobs=List.of(image(0,0,1,8,100,100),image(1,0,12,20,100,100));
+        var m=mobility(30,List.of(new MobileService.Site(50,0,false)));
+        var old=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DEADLINE_ENERGY),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        var r=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(10,r.visits().get(0).plannedArrivalSeconds());
+        assertEquals(OffloadingSimulation.Route.LOCAL,get(r,0).route());
+        assertEquals(OffloadingSimulation.Route.LOCAL,get(old,1).route());
+        assertEquals(OffloadingSimulation.Route.UAV,get(r,1).route());
+        assertEquals(0,old.updates().size());assertEquals(1,r.updates().size());
+        assertEquals(1,r.updates().get(0).taskId());
+        assertEquals(2,r.execution().metrics(RESCUENET).onTime());
+        assertFalse(r.execution().decisions().get(1).context().localDeliveryAvailable());
+        assertEquals(1500,r.flightJ(),1e-6);assertEquals(2400,r.hoverJ(),1e-6);
+        var connected=mobility(30,List.of(new MobileService.Site(50,0,true)));
+        var a=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DEADLINE_ENERGY),fifo,connected,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        var b=OffloadingSimulation.runMobile(jobs,cfg,OffloadingPolicy.baseline(DELIVERY_AWARE),fifo,connected,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(a.execution().tasks(),b.execution().tasks());
+        assertEquals(a.execution().totalEnergyJ(),b.execution().totalEnergyJ(),1e-7);
+    }
     @Test void deadlineRiskGuardRunsDuringFlightAndStillCountsDropsAsFailures() {
         var jobs=List.of(bg(0,0,2,500),bg(1,0,4,100),image(2,0,1,10,100,10));
         var m=mobility(10,List.of(new MobileService.Site(100,0,false)));

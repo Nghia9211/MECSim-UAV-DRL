@@ -42,9 +42,9 @@ public final class OffloadingBenchmark {
         rows=new ArrayList<>(List.of("device,idle_j,compute_j,tx_j,remaining_j,powered_s"));
         for (var e:r.energy()) rows.add(fields(e.device(),e.idleJ(),e.computeJ(),e.txJ(),e.remainingJ(),e.poweredSeconds()));
         write(directory.resolve(name+"-energy.csv"),rows);
-        rows=new ArrayList<>(List.of("id,at_s,device,estimated_mi,source_battery_j,uav_battery_j,local_finish_s,uav_finish_s,local_marginal_j,uav_marginal_j,local_available,uav_available,local_battery_feasible,uav_battery_feasible,destination"));
+        rows=new ArrayList<>(List.of("id,at_s,device,estimated_mi,source_battery_j,uav_battery_j,local_finish_s,uav_finish_s,local_marginal_j,uav_marginal_j,local_available,uav_available,local_battery_feasible,uav_battery_feasible,destination,local_delivery_available"));
         for (var d:r.decisions()) {var c=d.context();rows.add(fields(d.id(),c.nowSeconds(),d.task().device(),d.task().estimatedMi(),c.sourceBatteryJ(),c.uavBatteryJ(),
-                c.local().finishSeconds(),c.uav().finishSeconds(),c.local().marginalEnergyJ(),c.uav().marginalEnergyJ(),c.local().available(),c.uav().available(),c.local().batteryFeasible(),c.uav().batteryFeasible(),d.destination()));}
+                c.local().finishSeconds(),c.uav().finishSeconds(),c.local().marginalEnergyJ(),c.uav().marginalEnergyJ(),c.local().available(),c.uav().available(),c.local().batteryFeasible(),c.uav().batteryFeasible(),d.destination(),c.localDeliveryAvailable()));}
         write(directory.resolve(name+"-decisions.csv"),rows);
     }
     private static double quantile(List<Long> values) {

@@ -289,7 +289,8 @@ public final class OffloadingSimulation extends SimulationManager {
         long begin=System.nanoTime();
         var local=predict(s,now,false); var air=predict(s,now,true);
         var task=new OffloadingPolicy.Task(t.id(),s.job.device(),t.arrivalSeconds(),t.deadlineSeconds(),t.priority(),t.inputBytes(),s.job.estimatedMi(),s.ready-now);
-        var context=new OffloadingPolicy.Context(now,ground.get(s.job.device()).remaining(),uavAlive?uav.getEnergyModel().getBatteryLevel()*3600:0,local,air);
+        var context=new OffloadingPolicy.Context(now,ground.get(s.job.device()).remaining(),uavAlive?uav.getEnergyModel().getBatteryLevel()*3600:0,local,air,
+            mobile==null || mobile.sites().get(s.job.device()).connected());
         OffloadingPolicy.Destination destination;
         if(policy instanceof QueueImpactRouting q) {
             var localSnapshot=queueSnapshot(now,s,OffloadingPolicy.Destination.LOCAL);

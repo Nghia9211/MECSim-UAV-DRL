@@ -15,6 +15,8 @@ read,num,check,close,sha=base.read,base.num,base.check,base.close,base.sha
 
 
 class MobileAudit(base.Audit):
+    def local_delivery_available(self,tid):
+        return self.cfg['sites'][int(self.jobs[tid]['device'])]['connected']
     def __init__(self,jobs,outcomes,energies,cfg,scheduler,protocol,visits,positions,coverage,updates,views):
         adjusted=copy.deepcopy(jobs)
         self.coverage={int(c['id']):c for c in coverage}

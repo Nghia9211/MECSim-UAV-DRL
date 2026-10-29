@@ -1,7 +1,9 @@
 # Quy ước đánh giá offloading + scheduling
 
 Áp dụng từ 29/10/2026 cho các thuật toán mới và baseline trên cùng setting.
-Ứng viên hiện tại: DEADLINE_ENERGY + RISK_EDF. Không đồng nhất với DQN của paper Azfar.
+Ứng viên đang đánh giá: DELIVERY_AWARE + EDF/RISK_EDF trong mobile mode;
+giữ DEADLINE_ENERGY + EDF/RISK_EDF và SHORTEST_FINISH + EDF làm đối chứng.
+Không đồng nhất với DQN của paper Azfar.
 
 1. **Image DVR**: 1 − số ảnh hoàn thành đúng hạn / tất cả ảnh được tạo.
    Từ chối, risk-drop, hết pin, hết hạn và chưa xong đều không phải thành công.
@@ -48,6 +50,8 @@ flight/hover/distance, coverage và offloaded counts. Tách compute DVR và deli
 DVR: xử lý local xong trên source disconnected không được tính là đã chuyển kết quả
 về. Báo J/ảnh đúng hạn cho cả compute và delivery. Output/backhaul delay hiện bằng0
 khi có đường delivery; không gọi compute latency là độ trễ truyền kết quả thực.
+Exporter mobile cũng báo mean/P95 trên các kết quả thực sự delivered (gồm late),
+và số case có delivery; case không có delivery không được gán latency0.
 Entrypoint mới phải gắn exporter và định nghĩa năng lượng trước khi kết luận.
 Không coi một run thiếu bộ metric này là báo cáo hoàn chỉnh.
 

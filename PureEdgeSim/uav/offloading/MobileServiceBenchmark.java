@@ -107,7 +107,7 @@ public final class MobileServiceBenchmark {
         for(String file:List.of("PureEdgeSim/uav/UAVMobilityModel.java","PureEdgeSim/uav/UAVEdgeNode.java","PureEdgeSim/uav/UAVEnergyModel.java","PureEdgeSim/uav/Location3D.java",
                 "PureEdgeSim/uav/PaperParameters.java","PureEdgeSim/uav/RescueNetWorkload.java","PureEdgeSim/uav/AlibabaWorkload.java","scripts/verify-uav-offloading.py",
                 "scripts/verify-uav-mobile.py","scripts/offloading_metrics.py","scripts/test_offloading_metrics.py",
-                "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/run-mobile-comparison-server.sh",
+                "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/test-uav-delivery-verifier.py","scripts/run-mobile-comparison-server.sh",
                 "src/test/java/uav/MobileServiceTest.java","pom.xml"))snapshot(out,Path.of(file),snapshots);
         manifest.put("source_sha256",snapshots);json.writerWithDefaultPrettyPrinter().writeValue(out.resolve("manifest.json").toFile(),manifest);
         var episodes=new ArrayList<String>(List.of("scenario,seed,policy,workload_sha256,source,offered,on_time,late,expired,uav_dropped,device_dropped,unfinished,local,offloaded,dvr,mean_completed_latency_s,uav_energy_j,ground_energy_j,total_energy_j,flight_j,hover_j,travelled_m,visits,mean_final_age_s,wall_ms,trace"));

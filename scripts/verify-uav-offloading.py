@@ -65,6 +65,8 @@ def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
 
 
 class Audit:
+    def local_delivery_available(self, tid):
+        return True
     def route_destination(self, tid, destination):
         """Physical routing constraints; fixed-hover mode adds no coverage gate."""
         return destination
@@ -291,6 +293,9 @@ class Audit:
             check(int(d["device"]) == int(j["device"]), "Policy device")
             close(num(d, "source_battery_j"), self.battery_at(int(j["device"]), now), "Source decision battery")
             close(num(d, "uav_battery_j"), self.battery_at(-1, now), "UAV decision battery")
+            if policy == 'DELIVERY_AWARE' or 'local_delivery_available' in d:
+                check(d.get('local_delivery_available') in {'true','false'}, 'Missing delivery availability')
+                check((d['local_delivery_available']=='true')==self.local_delivery_available(tid), 'Local delivery availability')
             forecasts = []
             for air, name in ((False, "local"), (True, "uav")):
                 prediction = self.projection(tid, now, air)
@@ -309,9 +314,11 @@ class Audit:
             elif policy == "SHORTEST_FINISH":
                 destination = fastest
             else:
-                check(policy in {"DEADLINE_ENERGY","TRANSFER_AWARE"}, "Unknown routing policy")
+                check(policy in {"DEADLINE_ENERGY","TRANSFER_AWARE","DELIVERY_AWARE"}, "Unknown routing policy")
                 a, b = [p[2] and p[3] and p[0] <= num(j, "deadline_s")+1e-8 for p in forecasts]
                 destination = ("LOCAL" if a else "UAV") if a != b else (("LOCAL" if local[1] < air[1] else "UAV") if a and local[1] != air[1] else fastest)
+                if policy=='DELIVERY_AWARE' and not self.local_delivery_available(tid) and b:
+                    destination='UAV'
                 if policy=='TRANSFER_AWARE' and any(self.admitted_before(other,tid,now) and out['route']=='UAV'
                     and num(out,'ready_s')>now+1e-8 and num(out,'resolved_s')>now+1e-8 for other,out in self.o.items()):
                     destination='LOCAL'

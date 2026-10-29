@@ -16,15 +16,22 @@ public interface OffloadingPolicy {
         }
     }
     record Context(double nowSeconds, double sourceBatteryJ, double uavBatteryJ,
-            Prediction local, Prediction uav) { }
+            Prediction local, Prediction uav, boolean localDeliveryAvailable) {
+        /** Fixed mode and existing callers have an available local result path. */
+        public Context(double nowSeconds,double sourceBatteryJ,double uavBatteryJ,Prediction local,Prediction uav) {
+            this(nowSeconds,sourceBatteryJ,uavBatteryJ,local,uav,true);
+        }
+    }
     Destination choose(Task task, Context context);
 
-    enum Baseline { ALL_LOCAL, ALL_UAV, SHORTEST_FINISH, DEADLINE_ENERGY }
+    enum Baseline { ALL_LOCAL, ALL_UAV, SHORTEST_FINISH, DEADLINE_ENERGY, DELIVERY_AWARE }
     static OffloadingPolicy baseline(Baseline policy) {
         return (task, c) -> switch (policy) {
             case ALL_LOCAL -> Destination.LOCAL;
             case ALL_UAV -> Destination.UAV;
             case SHORTEST_FINISH -> fastest(c);
+            case DELIVERY_AWARE -> !c.localDeliveryAvailable() && c.uav().onTime(task.deadlineSeconds())
+                    ? Destination.UAV : baseline(Baseline.DEADLINE_ENERGY).choose(task,c);
             case DEADLINE_ENERGY -> {
                 boolean local = c.local().onTime(task.deadlineSeconds());
                 boolean uav = c.uav().onTime(task.deadlineSeconds());

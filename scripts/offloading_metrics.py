@@ -73,8 +73,11 @@ def export(root):
             delivered = {u['id'] for u in updates}
             assert len(delivered) == len(updates) and delivered <= set(jobs)
             on = sum(outcomes[k]['status']=='COMPLETED_ON_TIME' for k in delivered)
+            delivered_latency=[float(outcomes[k]['resolved_s'])-float(jobs[k]['arrival_s']) for k in delivered]
             coverage = read(d/(r['policy']+'-coverage.csv'))
             values.update(delivered_ontime_images=on,
+                delivered_completed_images=len(delivered),delivered_mean_latency_s=mean(delivered_latency),
+                delivered_p95_latency_s=p95(delivered_latency),
                 delivered_image_dvr=1-on/values['image_offered'] if values['image_offered'] else None,
                 j_per_delivered_ontime_image=values['total_energy_j']/on if on else None,
                 covered_images=sum(c['available']=='true' for c in coverage),
@@ -123,6 +126,9 @@ def summarize(rows, out):
                     mean_offloaded_images=mean([r['offloaded_images'] for r in g]),
                     mean_flight_j=mean([r['flight_j'] for r in g]),mean_hover_j=mean([r['hover_j'] for r in g]),
                     mean_travelled_m=mean([r['travelled_m'] for r in g]))
+                summary[-1].update(mean_delivered_latency_s=mean([r['delivered_mean_latency_s'] for r in g]),
+                    mean_delivered_episode_p95_s=mean([r['delivered_p95_latency_s'] for r in g]),
+                    delivered_latency_cases=sum(r['delivered_completed_images']>0 for r in g))
     write_csv(out/'core-metrics-summary.csv', summary)
     lines = ['# Core offloading + scheduling metrics', '',
         'Image DVR includes every offered image: drops/rejections/deadline-risk failures remain failures.',
@@ -147,6 +153,12 @@ def summarize(rows, out):
                 vals=[None if r['delivered_image_dvr'] is None else 100*r['delivered_image_dvr'],r['j_per_delivered_ontime_image'],
                     r['mean_covered_images'],r['mean_offloaded_images'],r['mean_flight_j']/1000,r['mean_hover_j']/1000,r['mean_travelled_m']]
                 lines.append('| '+r['policy']+' | '+' | '.join(map(fmt,vals))+' |')
+        lines += ['', 'Delivery latency uses all actually delivered images (including late results); unavailable delivery is not assigned zero latency. Output/backhaul delay remains zero in this model.', '',
+            '| Policy | Mean delivered latency s | Mean delivered episode P95 s | Cases with deliveries |',
+            '| --- | ---: | ---: | ---: |']
+        for r in summary:
+            if r['scenario']=='ALL':
+                lines.append(f"| {r['policy']} | {fmt(r['mean_delivered_latency_s'])} | {fmt(r['mean_delivered_episode_p95_s'])} | {r['delivered_latency_cases']}/{r['cases']} |")
     (out/'CORE_METRICS.md').write_text('\n'.join(lines)+'\n', encoding='utf8')
 
 

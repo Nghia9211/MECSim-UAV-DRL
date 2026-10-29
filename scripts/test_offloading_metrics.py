@@ -35,6 +35,9 @@ class MetricsTests(unittest.TestCase):
             self.assertEqual(r['delivered_image_dvr'],.5)
             self.assertEqual(r['j_per_ontime_image'],120)
             self.assertEqual(r['j_per_delivered_ontime_image'],240)
+            self.assertEqual(r['delivered_completed_images'],1)
+            self.assertEqual(r['delivered_mean_latency_s'],1)
+            self.assertEqual(r['delivered_p95_latency_s'],1)
             self.assertEqual(r['flight_j'],100)
             self.assertEqual(len(read(root/'core-metrics-episodes.csv')),1)
 
