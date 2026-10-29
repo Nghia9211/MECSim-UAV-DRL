@@ -12,7 +12,9 @@ try {
     if (-not $Output) {$Output="target/mobile-$(Get-Date -Format yyyyMMdd-HHmmss)-$PID"}
     $noise=$EstimateError.ToString([System.Globalization.CultureInfo]::InvariantCulture)
     $arguments=@('compile','exec:java','-Dexec.mainClass=uav.offloading.MobileServiceBenchmark',
-        '-Dexec.classpathScope=compile',"-Dmobile.seeds=$Seeds","-Dmobile.firstSeed=$FirstSeed","-Dmobile.protocol=$Protocol","-Dmobile.estimateError=$noise")
+        '-Dexec.classpathScope=compile',"-Dmobile.seeds=$Seeds","-Dmobile.protocol=$Protocol")
+    if ($PSBoundParameters.ContainsKey('FirstSeed')) {$arguments += "-Dmobile.firstSeed=$FirstSeed"}
+    if ($PSBoundParameters.ContainsKey('EstimateError')) {$arguments += "-Dmobile.estimateError=$noise"}
     if ($Output) {$arguments += "-Dmobile.output=$Output"}
     if ($Offline) {$arguments=@('-o')+$arguments}
     & mvn @arguments

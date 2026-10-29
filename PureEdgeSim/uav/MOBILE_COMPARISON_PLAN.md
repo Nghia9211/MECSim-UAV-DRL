@@ -1,5 +1,8 @@
 # Đưa baseline và RISK_EDF vào môi trường UAV di động
 
+Đã hoàn tất run30seed và independent verification. Kết quả và giới hạn:
+[MOBILE_COMPARISON_RESULTS.md](MOBILE_COMPARISON_RESULTS.md).
+
 Protocol trước launch, 29/10/2026. Tái sử dụng mobile kernel đã có; không đổi
 trajectory/coverage để làm thuật toán mới thắng. Không train DQN trong bước này.
 
