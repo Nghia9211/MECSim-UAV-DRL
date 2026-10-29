@@ -1,4 +1,4 @@
-﻿# Phân tích DQN mới nhất và kế hoạch RL cho offloading + scheduling
+# Phân tích DQN mới nhất và kế hoạch RL cho offloading + scheduling
 
 Ngày: 2026-10-30. Paper campaign: `target/dqn-24-125-retrain-20261030-v1` trên aiotlab_92.
 Source: `d3a75cee0dd9529337e018b1a2d84eec22100caf`. Sáu model, mỗi model 1.000.000 bước,
@@ -48,7 +48,7 @@ Chưa khẳng định PPO sẽ tốt hơn DQN. Chọn PPO để kiểm tra một
 với clipped update và KL guard, thay vì chỉ tăng state và kéo dài DQN cũ.
 Tài liệu triển khai: https://stable-baselines3.readthedocs.io/en/v2.6.0/modules/ppo.html
 
-Giữ trajectory ROUND_ROBIN. Mỗi service boundary, agent chọn 1 trong 9 cặp:
+Giữ quy tắc chọn thiết bị ROUND_ROBIN; thời điểm rời điểm dừng vẫn có thể đổi vì upload pinning. Mỗi service boundary, agent chọn 1 trong 9 cặp:
 
 - Offload: DELIVERY_AWARE, DEADLINE_ENERGY, SHORTEST_FINISH.
 - UAV CPU scheduler: EDF, SPT, FIFO; local CPU vẫn FIFO.
@@ -84,13 +84,13 @@ Weights là development choices, không phải paper hay được hiệu chỉnh
 - DQN batch64, replay100k, learning starts128, update mỗi4 step, target500, epsilon1→0,05.
 - Validation mỗi4096 bước, đủ16 scenario với seed đã cố định; chọn best bằng mean reward,
   ghi cả final. Không dùng test để chọn checkpoint.
-- Smoke: PPO+DQN seed0,1024step/model,1case,15 evaluation episodes; bắt buộc PASS trước full.
+- Smoke: PPO+DQN seed0,1024step/model,1case,17 evaluation episodes; bắt buộc PASS trước full.
 - Full evaluation:160 paired cases × (12 learned best/final policies +9 fixed pairs +ALL_LOCAL/EDF
-  +ALL_UAV/FIFO) =3.680 episodes; các baseline chia sẻ, không lặp để tăng cỡ mẫu.
+  +ALL_UAV/FIFO +DELIVERY_AWARE/RISK_EDF +DEADLINE_ENERGY/RISK_EDF) =4.000 episodes; các baseline chia sẻ, không lặp để tăng cỡ mẫu.
 
 ## Verify và tiêu chí đánh giá
 
-Java tests, Gym contract, thay đổi mode thực sự ảnh hưởng route/energy, future-task independence,
+Java tests, Gym contract, reset/reuse Java JVM khớp fresh episode, thay đổi mode thực sự ảnh hưởng route/energy, future-task independence,
 reproducible reset, reward telescoping, adversarial action/observation/reward/route tests.
 Mỗi evaluation trace được independent audit physics, battery/TX, contact plans, causal observations,
 mode-selected routing/scheduling và reward. Learned actions được đối chiếu lại checkpoint.
@@ -122,3 +122,21 @@ delivery-summary.csv. COMPLETE chỉ sau toàn bộ audit và source guard.
 Lệnh tắt máy manual của đợt24D/125D đã tạo ở
 `target/dqn-24-125-server-results-20261030/Tat_may_sau_train.cmd`; không tự chạy.
 Job RL mới nằm trong tmux trên server và tiếp tục sau khi máy local tắt.
+
+## Bổ sung sau kiểm tra trên server
+
+Validation125D seed2 tại990k đạt29 slot, tại1m còn10 slot; suy giảm đã hiện trong validation,
+không chỉ test. Chưa xác định nguyên nhân cụ thể nếu chưa có Q-value/TD-error diagnostics.
+
+Bản runner v1 đã được hủy có ghi nhận để sửa chi phí khởi tạo: mỗi episode trước đây tạo
+JVM và đọc lại pool. V2 tái sử dụng JVM và RESET toàn bộ episode, cache duy nhất pool dữ liệu
+bất biến. Test yêu cầu chạy A→B→A trên cùng JVM cho kết quả đúng bằng A trên JVM mới.
+Không đổi kernel physics hoặc workload mapping. Log v1 được giữ trong control-v1/cancelled.json.
+
+Có thêm hai baseline RISK_EDF mạnh từ contact-wait campaign để không chỉ so với FIFO/EDF/SPT.
+RISK_EDF được quyền loại task được dự đoán không còn kịp deadline; RL selector hiện chưa có
+action risk-drop tương ứng. Đây là đối chứng mạnh để phát hiện hạn chế của action space;
+không nói RL đã bao phủ toàn bộ scheduling methods. Tất cả risk-drop vẫn tính là deadline failure.
+
+Artifacts v2: `target/joint-rl-20261030-v2`, control `target/joint-rl-control-20261030-v2`,
+tmux `uav-joint-rl-20261030-v2` trên aiotlab_92. Đây là định danh run, không phải bằng chứng COMPLETE.

@@ -71,5 +71,25 @@ class JointTests(unittest.TestCase):
             np.testing.assert_array_equal(a,b)
             self.assertEqual(143,len(a))
 
+    def test_reused_jvm_resets_scenario_and_matches_fresh_episode(self):
+        def run(env):
+            obs,_=env.reset(seed=9,options={'task_seed':95003})
+            first=obs.copy()
+            while True:
+                obs,_,done,_,info=env.step(0)
+                if done:return first,obs,info
+        with JointEnv() as env:
+            a=run(env);pid=env._process.pid
+            env.config=MobileConfig(control_mode='joint_policy',allowContactWait=True,
+                                   areaMetres=800,uavBatteryJ=30000,estimateError=.4,imageRate=.08,backgroundRate=.02)
+            run(env)
+            env.config=MobileConfig(control_mode='joint_policy',allowContactWait=True)
+            b=run(env)
+            self.assertEqual(pid,env._process.pid)
+        with JointEnv() as fresh:c=run(fresh)
+        for other in (b,c):
+            np.testing.assert_array_equal(a[0],other[0]);np.testing.assert_array_equal(a[1],other[1])
+            self.assertEqual(a[2],other[2])
+
 
 if __name__=='__main__':unittest.main()

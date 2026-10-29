@@ -21,7 +21,7 @@ from stable_baselines3.common.logger import configure
 
 from .environment import ROOT
 from .joint_environment import JointEnv, ROUTES, SCHEDULES, REWARD
-from .mobile_environment import MobileConfig
+from .mobile_environment import MobileConfig, MobileEnv, heuristic_action
 from .mobile_run import audit_trace, save_json, snapshot
 from .run import write_csv
 
@@ -65,8 +65,10 @@ class Validation(BaseCallback):
 
     def evaluate(self):
         values=[]
-        for cfg in self.configs:
-            with JointEnv(cfg) as env:values.append(rollout(env,1800000,model=self.model)[0])
+        with JointEnv() as env:
+            for cfg in self.configs:
+                env.config=MobileConfig(**asdict(cfg))
+                values.append(rollout(env,1800000,model=self.model)[0])
         value=float(np.mean(values));updates=self.model._n_updates
         self.rows.append(dict(steps=self.num_timesteps,gradient_updates=updates,mean_reward=value))
         write_csv(self.out/'validation.csv',self.rows)
@@ -109,9 +111,19 @@ def import_metrics():
 
 
 def evaluate(out,smoke):
+    # Pools/JVM are expensive on the server filesystem. RESET rebuilds all episode
+    # state in Java, while the immutable dataset pool stays resident.
+    with JointEnv() as joint_env, MobileEnv() as fixed_env:
+        return evaluate_with_envs(out,smoke,joint_env,fixed_env)
+
+
+def evaluate_with_envs(out,smoke,joint_env,fixed_env):
     metrics=import_metrics();rows=[];proofs=[];audits=0;tasks=0;paired={};action_rows=[]
     policies=[(f'FIXED_{r}_{s}',None,3*i+j,None) for i,r in enumerate(ROUTES) for j,s in enumerate(SCHEDULES)]
-    policies += [('ALL_LOCAL_EDF',None,0,'ALL_LOCAL'),('ALL_UAV_FIFO',None,2,'ALL_UAV')]
+    policies += [('ALL_LOCAL_EDF',None,0,('ALL_LOCAL','EDF')),
+                 ('ALL_UAV_FIFO',None,2,('ALL_UAV','FIFO')),
+                 ('DELIVERY_AWARE_RISK_EDF',None,0,('DELIVERY_AWARE','RISK_EDF')),
+                 ('DEADLINE_ENERGY_RISK_EDF',None,0,('DEADLINE_ENERGY','RISK_EDF'))]
     for config in sorted((out/'models').glob('*/seed-*/config.json')):
         cfg=json.loads(config.read_text());assert cfg['status']=='COMPLETE'
         for checkpoint in ('best','final'):
@@ -130,17 +142,17 @@ def evaluate(out,smoke):
                 # The two external baselines use the original device-control environment,
                 # with the identical contact-wait physics and fixed RR target choices.
                 if fixed:
-                    from .mobile_environment import MobileEnv,heuristic_action
-                    c=MobileConfig(**asdict(cfg));c.control_mode='device';c.offloading=fixed;c.scheduler='FIFO' if fixed=='ALL_UAV' else 'EDF'
-                    with MobileEnv(c) as env:
-                        obs,info=env.reset(seed=seed,options={'task_seed':seed})
-                        while True:
-                            a=heuristic_action('ROUND_ROBIN',obs,info,np.random.default_rng(seed))
-                            obs,_,t,u,info=env.step(a)
-                            if t or u:break
-                        env.save_trace(trace)
+                    c=MobileConfig(**asdict(cfg));c.control_mode='device';c.offloading,c.scheduler=fixed
+                    fixed_env.config=c
+                    obs,info=fixed_env.reset(seed=seed,options={'task_seed':seed})
+                    while True:
+                        a=heuristic_action('ROUND_ROBIN',obs,info,np.random.default_rng(seed))
+                        obs,_,t,u,info=fixed_env.step(a)
+                        if t or u:break
+                    fixed_env.save_trace(trace)
                 else:
-                    with JointEnv(MobileConfig(**asdict(cfg))) as env:rollout(env,seed,model,action,trace)
+                    joint_env.config=MobileConfig(**asdict(cfg))
+                    rollout(joint_env,seed,model,action,trace)
                 result=audit_trace(trace);assert result['status']=='PASS';audits+=1;tasks+=result['tasks']
                 history=json.loads((trace/'transitions.json').read_text())
                 if not fixed:
@@ -226,7 +238,7 @@ def campaign(out,smoke):
         proof=evaluate(out,smoke)
         proof['source_unchanged']=all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in manifest['source_sha256'].items())
         assert proof['source_unchanged'],'Source changed during campaign'
-        expected=(15 if smoke else 3680)
+        expected=(17 if smoke else 4000)
         assert proof['traces']==expected,(proof['traces'],expected)
         save_json(out/'verification.json',proof)
         manifest.update(status='COMPLETE',episodes=proof['traces'],elapsed_s=time.monotonic()-start)

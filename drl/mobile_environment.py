@@ -45,7 +45,7 @@ class MobileConfig:
     def __post_init__(self):
         if self.offloading not in ("ALL_LOCAL", "ALL_UAV", "SHORTEST_FINISH", "DEADLINE_ENERGY", "DELIVERY_AWARE"):
             raise ValueError("Invalid offloading policy")
-        if self.scheduler not in ("FIFO", "EDF", "PRIORITY", "SPT", "FEASIBLE_AGING"):
+        if self.scheduler not in ("FIFO", "EDF", "PRIORITY", "SPT", "FEASIBLE_AGING", "RISK_EDF", "RISK_SPT"):
             raise ValueError("Invalid scheduler")
         if self.control_mode not in ("device","joint_policy") or type(self.allowContactWait) is not bool:
             raise ValueError("Invalid control mode / contact wait flag")
