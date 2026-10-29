@@ -1,5 +1,6 @@
 """Audit a completed Gym trace against physical traces, causal observations and fixed reward. Stdlib only."""
 import importlib.util
+import bisect
 import json
 import math
 from pathlib import Path
@@ -36,14 +37,30 @@ def verify(root):
     a=audit.MobileAudit(jobs,outcomes,read(root/'episode-energy.csv'),kernel,cfg['scheduler'],p,
                         *[read(root/('episode-'+s+'.csv')) for s in ['visits','positions','coverage','updates','views']])
     history=json.loads((root/'transitions.json').read_text(encoding='utf-8'))
+    joint=cfg.get('control_mode','device')=='joint_policy'
+    routes=('DELIVERY_AWARE','DEADLINE_ENERGY','SHORTEST_FINISH')
+    schedules=('EDF','SPT','FIFO')
+    if joint:
+        times=[s['info']['seconds'] for s in history[:-1]]
+        actions=[s['action'] for s in history[1:]]
+        def action_at(at):
+            i=bisect.bisect_right(times,at)-1
+            check(i>=0,'Policy action before first decision')
+            return actions[i]
+        a.schedule_at=lambda at:schedules[action_at(at)%3]
+        a.routing_policy_at=lambda at,default:routes[action_at(at)//3]
     check(len(history)==len(a.visits)+1,'Transition/visit count')
     choices={}
     for before,after in zip(history,history[1:]):
-        requested=after['action'];check(type(requested) is int and 0<=requested<12,'Action range')
+        requested=after['action'];check(type(requested) is int and 0<=requested<(9 if joint else 12),'Action range')
         alive=before['info']['alive'];executed=requested
         check(any(alive),'Choice without live source')
-        while not alive[executed]:executed=(executed+1)%12
+        if not joint:
+            while not alive[executed]:executed=(executed+1)%12
         check(after['info']['requested_action']==requested and after['info']['executed_action']==executed,'Action mapping')
+        if joint:
+            executed=(before['info']['previous_target']+1)%12
+            while not alive[executed]:executed=(executed+1)%12
         choices[before['info']['seconds']]=executed
     a.verify_mobile(choices,read(root/'episode-decisions.csv'),cfg['offloading'])
     # Reconstruct every observation from admitted queues and already-executed work.
@@ -68,7 +85,8 @@ def verify(root):
                       offloaded=sum(outcomes[tid]['route']=='UAV' for tid in image),local=sum(outcomes[tid]['route']=='LOCAL' for tid in image),
                       covered=sum(num(c,'at_s')<at and c['available']=='true' for c in a.coverage.values()))
         for k,v in expected.items():close(info[k],v,'Causal feedback '+k)
-        value=delivered-expected['image_misses']-.25*expected['background_misses']-.05*expected['image_latency_s']/60-.1*expected['energy_j']/10000
+        value=(2*delivered-len(image)-.25*expected['background_misses']-.1*expected['energy_j']/10000 if joint else
+               delivered-expected['image_misses']-.25*expected['background_misses']-.05*expected['image_latency_s']/60-.1*expected['energy_j']/10000)
         cumulative.append(value)
         close(state['reward'],0 if index==0 else value-cumulative[-2],'Reward delta')
         if index:
@@ -97,7 +115,12 @@ def verify(root):
             latest=max([num(u,'generation_s') for u in a.updates if int(u['device'])==d and num(u,'at_s')<=at+1e-8],default=0)
             obs.extend([site['x']/meta['areaMetres'],site['y']/meta['areaMetres'],unit(a.battery_at(d,at)/nodes[d]['batteryJ']),
                         unit((at-latest)/h),float(site['connected']),float(alive[d]),*load(d),float(d==previous)])
-        check(len(state['observation'])==len(obs)==129,'Observation size')
+        if joint:
+            previous_action=info['requested_action']
+            obs.extend([cfg['areaMetres']/800,cfg['uavBatteryJ']/1600000,cfg['imageRate']/.24,
+                        cfg['backgroundRate']/.1,cfg['estimateError']])
+            obs.extend([float(previous_action==i) for i in range(9)])
+        check(len(state['observation'])==len(obs)==(143 if joint else 129),'Observation size')
         for i,(observed,replayed) in enumerate(zip(state['observation'],obs)):close(observed,replayed,'Observation '+str(i))
     return dict(status='PASS',decisions=len(a.visits),tasks=len(jobs),total_reward=cumulative[-1],
                 checks=['shared kernel physics/energy/queues','source-pool cost mapping','requested/executed actions',

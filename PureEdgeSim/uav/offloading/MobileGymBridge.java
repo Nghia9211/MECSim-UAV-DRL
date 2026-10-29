@@ -16,6 +16,10 @@ public final class MobileGymBridge implements MobileService.Controller {
     private MobileService.Result result;
     private int steps,requested=-1,executed=-1;
     private boolean done;
+    private boolean jointPolicy;
+    private int policyAction;
+    private static final String[] ROUTES={"DELIVERY_AWARE","DEADLINE_ENERGY","SHORTEST_FINISH"};
+    private static final String[] SCHEDULES={"EDF","SPT","FIFO"};
     private static final class Control extends RuntimeException {
         final Map<String,Object> command;
         Control(Map<String,Object> c) {super(null,null,false,false);command=c;}
@@ -46,8 +50,12 @@ public final class MobileGymBridge implements MobileService.Controller {
         while(true) {
             var c=read();String cmd=(String)c.get("cmd");
             if("reset".equals(cmd)||"close".equals(cmd))throw new Control(c);
-            if("step".equals(cmd)&&c.get("action") instanceof Number n&&n.doubleValue()==n.intValue()&&n.intValue()>=0&&n.intValue()<12) {
+            if("step".equals(cmd)&&c.get("action") instanceof Number n&&n.doubleValue()==n.intValue()&&n.intValue()>=0&&n.intValue()<(jointPolicy?9:12)) {
                 requested=n.intValue();executed=requested;
+                if(jointPolicy) {
+                    policyAction=requested;steps++;
+                    return DeviceSelectionPolicy.baseline(DeviceSelectionPolicy.Baseline.ROUND_ROBIN).choose(frame.context());
+                }
                 // Stable total action space for vanilla DQN; dead IDs map cyclically to a live device.
                 while(!frame.context().devices().get(executed).alive())executed=(executed+1)%12;
                 steps++;return executed;
@@ -78,8 +86,14 @@ public final class MobileGymBridge implements MobileService.Controller {
             if(!"reset".equals(c.get("cmd"))) {send(Map.of("error","RESET required"));c=read();continue;}
             try {
                 long layout=((Number)c.getOrDefault("layout_seed",42)).longValue(),task=((Number)c.getOrDefault("task_seed",0)).longValue();
-                var route=OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf((String)c.getOrDefault("offloading","ALL_UAV")));
-                var scheduler=TaskScheduler.baseline(TaskScheduler.Baseline.valueOf((String)c.getOrDefault("scheduler","EDF")));
+                String mode=(String)c.getOrDefault("control_mode","device");
+                if(!Set.of("device","joint_policy").contains(mode))throw new IllegalArgumentException("Unknown control mode");
+                jointPolicy="joint_policy".equals(mode);policyAction=0;
+                var fixedRoute=OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf((String)c.getOrDefault("offloading","ALL_UAV")));
+                var fixedScheduler=OffloadingBenchmark.scheduler((String)c.getOrDefault("scheduler","EDF"),.75);
+                OffloadingPolicy route=jointPolicy?(job,ctx)->OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf(ROUTES[policyAction/3])).choose(job,ctx):fixedRoute;
+                // A pure selector: forecasts invoke this too, and must not trigger RPCs or change mode.
+                TaskScheduler scheduler=jointPolicy?(ready,ctx)->OffloadingBenchmark.scheduler(SCHEDULES[policyAction%3],.75).choose(ready,ctx):fixedScheduler;
                 episode=MobileTrainingScenario.create(pools,(Map<String,Object>)c.getOrDefault("config",Map.of()),layout,task);
                 done=false;result=null;steps=0;requested=-1;executed=-1;
                 OffloadingSimulation.runControlledMobile(episode.jobs(),episode.cpu(),route,scheduler,episode.mobile(),this);

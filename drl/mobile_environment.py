@@ -39,12 +39,16 @@ class MobileConfig:
     dwellSeconds: float = 30
     estimateError: float = 0
     properties: dict[str, str] = field(default_factory=dict)
+    control_mode: str = "device"
+    allowContactWait: bool = False
 
     def __post_init__(self):
-        if self.offloading not in ("ALL_LOCAL", "ALL_UAV", "SHORTEST_FINISH", "DEADLINE_ENERGY"):
+        if self.offloading not in ("ALL_LOCAL", "ALL_UAV", "SHORTEST_FINISH", "DEADLINE_ENERGY", "DELIVERY_AWARE"):
             raise ValueError("Invalid offloading policy")
         if self.scheduler not in ("FIFO", "EDF", "PRIORITY", "SPT", "FEASIBLE_AGING"):
             raise ValueError("Invalid scheduler")
+        if self.control_mode not in ("device","joint_policy") or type(self.allowContactWait) is not bool:
+            raise ValueError("Invalid control mode / contact wait flag")
         for key in ("areaMetres", "localMips", "uavBatteryJ", "horizonSeconds", "arrivalWindowSeconds", "dwellSeconds"):
             if not math.isfinite(getattr(self, key)) or getattr(self, key) <= 0:
                 raise ValueError(f"Invalid {key}")
@@ -57,7 +61,7 @@ class MobileConfig:
             raise ValueError("Arrival window plus maximum deadline must fit horizon")
 
     def kernel_config(self):
-        return {k: v for k, v in asdict(self).items() if k not in ("layout_seed", "offloading", "scheduler", "properties")}
+        return {k: v for k, v in asdict(self).items() if k not in ("layout_seed", "offloading", "scheduler", "properties", "control_mode")}
 
 
 class MobileEnv(PaperEnv):
@@ -86,7 +90,7 @@ class MobileEnv(PaperEnv):
             self._messages = queue.Queue()
             self._start()
         result = self._request(dict(cmd="reset", config=self.config.kernel_config(), offloading=self.config.offloading,
-                                    scheduler=self.config.scheduler, layout_seed=layout, task_seed=task))
+                                    scheduler=self.config.scheduler, control_mode=self.config.control_mode, layout_seed=layout, task_seed=task))
         self._observation = self._decode(result)
         self._done = False
         self._info = dict(result["info"], task_seed=task, layout_seed=layout)

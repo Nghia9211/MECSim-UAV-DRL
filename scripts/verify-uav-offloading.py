@@ -65,6 +65,12 @@ def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
 
 
 class Audit:
+    def schedule_at(self,now):
+        return self.schedule
+
+    def routing_policy_at(self,now,default):
+        return default
+
     def planned_upload_start(self,tid):
         return num(self.jobs[tid],'arrival_s')
 
@@ -171,7 +177,7 @@ class Audit:
                     continue
                 used = spec["idleWatts"] * (time - now) + spec["cpuWatts"] * busy + (self.projection_flight_extra(now,time) if air else known_tx(time))
                 chosen = select(ready, time, max(0, budget-used), spec["mips"], spec["cpuWatts"], spec["idleWatts"],
-                                self.horizon, self.schedule if air else "FIFO", self.alpha)
+                                self.horizon, self.schedule_at(now) if air else "FIFO", self.alpha)
                 running = next(j for j in pending if j[0] == chosen)
             duration = running[6] / spec["mips"]
             time += duration
@@ -273,7 +279,7 @@ class Audit:
                 if not dispatch_check:
                     continue  # A caller with a different scheduler must independently verify its actions.
                 predicted = select(ready, at, self.battery_at(node, at), cfg["mips"], cfg["cpuWatts"], cfg["idleWatts"],
-                                   self.horizon, self.schedule if node == -1 else "FIFO", self.alpha)
+                                   self.horizon, self.schedule_at(at) if node == -1 else "FIFO", self.alpha)
                 check(chosen == predicted, f"Wrong dispatch {chosen} != {predicted}")
             # If a ready, unexpired task exists during an idle gap, the CPU must dispatch.
             boundaries = {0., powered}
@@ -300,6 +306,7 @@ class Audit:
             seen.add(tid)
             j, o = self.jobs[tid], self.o[tid]
             now = num(j, "arrival_s")
+            policy = self.routing_policy_at(now,policy)
             close(num(d, "at_s"), now, "Decision clock")
             close(num(d, "estimated_mi"), num(j, "estimated_mi"), "Policy estimate visibility")
             check(int(d["device"]) == int(j["device"]), "Policy device")

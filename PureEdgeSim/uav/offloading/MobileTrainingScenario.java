@@ -21,6 +21,7 @@ public final class MobileTrainingScenario {
         var allowed=Set.of("areaMetres","localMips","imageRate","backgroundRate","connectedDevices","uavBatteryJ","horizonSeconds",
                 "arrivalWindowSeconds","dwellSeconds","estimateError");
         for(var e:overrides.entrySet()) {
+            if(e.getKey().equals("allowContactWait") && e.getValue() instanceof Boolean b) {p.put(e.getKey(),b);continue;}
             if(!allowed.contains(e.getKey())||!(e.getValue() instanceof Number n)||!Double.isFinite(n.doubleValue()))
                 throw new IllegalArgumentException("Invalid mobile config: "+e.getKey());
             p.put(e.getKey(),n.doubleValue());
@@ -38,7 +39,7 @@ public final class MobileTrainingScenario {
         var mask=new HashSet<>(ids.subList(0,connected));
         for(int d=0;d<n;d++)sites.add(new MobileService.Site(area*(.1+.8*rng.nextDouble()),area*(.1+.8*rng.nextDouble()),mask.contains(d)));
         var mobility=new MobileService.Config(area,0,0,p.get("altitudeMetres").asDouble(),p.get("speedMps").asDouble(),p.get("rangeMetres").asDouble(),
-                p.get("dwellSeconds").asDouble(),p.get("flightWatts").asDouble(),sites);
+                        p.get("dwellSeconds").asDouble(),p.get("flightWatts").asDouble(),sites,p.path("allowContactWait").asBoolean(false));
         var cpu=new OffloadingSimulation.Config(horizon,p.get("uavMips").asDouble(),p.get("uavCpuWatts").asDouble(),p.get("hoverWatts").asDouble(),battery,devices);
         var wc=new SchedulingWorkload.Config(window,imageRate,bgRate,p.get("criticalFraction").asDouble(),p.get("criticalDeadlineSeconds").asDouble(),
                 p.get("imageDeadlineSeconds").asDouble(),p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageMiPerMegapixel").asDouble(),
