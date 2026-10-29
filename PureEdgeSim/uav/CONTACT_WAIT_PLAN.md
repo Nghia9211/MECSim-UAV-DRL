@@ -1,5 +1,7 @@
 # Hàng đợi chờ tiếp xúc của chuyến bay đã chọn
 
+Đã hoàn tất run30seed và kiểm chứng. Xem [CONTACT_WAIT_RESULTS.md](CONTACT_WAIT_RESULTS.md).
+
 Protocol trước launch server, 29/10/2026. Nối tiếp DELIVERY_AWARE, không train model.
 
 ## Quyền chờ chung
