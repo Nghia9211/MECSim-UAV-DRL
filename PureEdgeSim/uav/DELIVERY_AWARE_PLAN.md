@@ -1,5 +1,8 @@
 # Delivery-aware offloading theo tiếp xúc hiện tại
 
+Đã chạy và kiểm chứng đủ30seed. Kết quả, đánh đổi và recovery test:
+[DELIVERY_AWARE_RESULTS.md](DELIVERY_AWARE_RESULTS.md).
+
 Protocol trước khi chạy, 29/10/2026. Bước tối thiểu sau kết quả mobile:
 policy cũ tối ưu compute completion, chưa biết kết quả local có đến trung tâm không.
 
