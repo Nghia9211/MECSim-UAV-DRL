@@ -449,3 +449,5 @@ def verify(root):
 if __name__ == "__main__":
     check(len(sys.argv) == 2, "Usage: python scripts/verify-uav-offloading.py RUN_DIR")
     print(json.dumps(verify(Path(sys.argv[1])), indent=2))
+    from offloading_metrics import export
+    export(Path(sys.argv[1]))

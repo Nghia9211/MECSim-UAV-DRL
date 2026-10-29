@@ -35,4 +35,7 @@ def verify(root):
             statistics.mean(100*(1-int(r['background_ontime'])/int(r['background_offered'])) for r in g),statistics.mean(float(r['total_j'])/1000 for r in g)]
         lines.append('| '+name+' | '+' | '.join(f'{x:.3f}' for x in vals)+' |')
     (root/'REPORT.md').write_text('\n'.join(lines)+'\n');print(json.dumps(result,indent=2));print('\n'.join(lines))
-if __name__=='__main__':verify(Path(sys.argv[1]))
+if __name__=='__main__':
+    verify(Path(sys.argv[1]))
+    from offloading_metrics import export
+    export(Path(sys.argv[1]))

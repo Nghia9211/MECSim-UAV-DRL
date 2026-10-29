@@ -70,6 +70,13 @@ public final class OffloadingBenchmark {
         }
         var policies=new ArrayList<String>();
         for (var off:p.get("offloading")) for (var schedule:p.get("schedulers")) policies.add(off.asText()+"__"+schedule.asText());
+        String selected=System.getProperty("offloading.policies","");
+        if (!selected.isBlank()) {
+            var subset=List.of(selected.split(","));
+            if (new HashSet<>(subset).size()!=subset.size() || !policies.containsAll(subset))
+                throw new IllegalArgumentException("Unknown/duplicate offloading.policies");
+            policies.retainAll(subset);
+        }
         Path images=Path.of(System.getProperty("offloading.images","datasets/raw/rescuenet/validation/val-org-img"));
         Path masks=Path.of(System.getProperty("offloading.masks","datasets/raw/rescuenet/validation/val-label-img"));
         Path alibaba=Path.of(System.getProperty("offloading.alibaba","datasets/raw/alibaba2018/batch_task.csv"));
