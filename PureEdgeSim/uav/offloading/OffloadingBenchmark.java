@@ -12,6 +12,8 @@ import uav.scheduling.*;
 public final class OffloadingBenchmark {
     public static TaskScheduler scheduler(String name,double alpha) {
         return switch (name) {
+            case "RISK_EDF" -> new DeadlineRiskScheduler(TaskScheduler.Baseline.EDF);
+            case "RISK_SPT" -> new DeadlineRiskScheduler();
             case "SPT" -> TaskScheduler.shortestProcessingTime();
             case "FEASIBLE_AGING" -> new FeasibleAgingScheduler(FeasibleAgingScheduler.Options.full(alpha));
             default -> TaskScheduler.baseline(TaskScheduler.Baseline.valueOf(name));

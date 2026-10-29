@@ -1,4 +1,4 @@
-"""Mandatory fixed-UAV metrics from full task/energy traces (stdlib only).
+"""Mandatory UAV metrics from full task/energy traces (stdlib only).
 
 Run after the independent verifier. Never treats risk drops as completions.
 Lifetime is UAV battery service availability, not whole-network lifetime.
@@ -68,6 +68,18 @@ def export(root):
         outcomes = {o['id']:o for o in read(d/(r['policy']+'-tasks.csv'))}
         horizon = m['protocol']['horizonSeconds']
         values = calculate(jobs, outcomes, read(d/(r['policy']+'-energy.csv')), horizon)
+        if m.get('schema') == 'uav-mobile-service-v1':
+            updates = read(d/(r['policy']+'-updates.csv'))
+            delivered = {u['id'] for u in updates}
+            assert len(delivered) == len(updates) and delivered <= set(jobs)
+            on = sum(outcomes[k]['status']=='COMPLETED_ON_TIME' for k in delivered)
+            coverage = read(d/(r['policy']+'-coverage.csv'))
+            values.update(delivered_ontime_images=on,
+                delivered_image_dvr=1-on/values['image_offered'] if values['image_offered'] else None,
+                j_per_delivered_ontime_image=values['total_energy_j']/on if on else None,
+                covered_images=sum(c['available']=='true' for c in coverage),
+                offloaded_images=sum(jobs[k]['source']=='RESCUENET' and o['route']=='UAV' for k,o in outcomes.items()),
+                flight_j=float(r['flight_j']),hover_j=float(r['hover_j']),travelled_m=float(r['travelled_m']))
         results.append(dict(scenario=r['scenario'], seed=r['seed'], policy=r['policy'],
                             workload_sha256=r['workload_sha256'], **values))
     write_csv(root/'core-metrics-episodes.csv', results)
@@ -102,6 +114,15 @@ def summarize(rows, out):
                 mean_restricted_uav_lifetime_s=mean([r['uav_observed_time_s'] for r in g]),
                 deaths_observed=sum(r['uav_death_observed'] for r in g),
                 censored_cases=sum(1-r['uav_death_observed'] for r in g)))
+            if 'delivered_ontime_images' in g[0]:
+                delivered = sum(r['delivered_ontime_images'] for r in g)
+                summary[-1].update(delivered_image_dvr=mean([r['delivered_image_dvr'] for r in g]),
+                    total_delivered_ontime_images=delivered,
+                    j_per_delivered_ontime_image=sum(r['total_energy_j'] for r in g)/delivered if delivered else None,
+                    mean_covered_images=mean([r['covered_images'] for r in g]),
+                    mean_offloaded_images=mean([r['offloaded_images'] for r in g]),
+                    mean_flight_j=mean([r['flight_j'] for r in g]),mean_hover_j=mean([r['hover_j'] for r in g]),
+                    mean_travelled_m=mean([r['travelled_m'] for r in g]))
     write_csv(out/'core-metrics-summary.csv', summary)
     lines = ['# Core offloading + scheduling metrics', '',
         'Image DVR includes every offered image: drops/rejections/deadline-risk failures remain failures.',
@@ -115,6 +136,17 @@ def summarize(rows, out):
     for r in summary:
         if r['scenario'] == 'ALL':
             lines.append(f"| {r['policy']} | {fmt(100*r['image_dvr']) if r['image_dvr'] is not None else 'NA'} | {fmt(r['j_per_ontime_image'])} | {fmt(r['mean_image_latency_s'])} | {fmt(r['mean_episode_p95_s'])} | {fmt(r['mean_restricted_uav_lifetime_s'])} | {r['censored_cases']}/{r['cases']} |")
+    if 'delivered_ontime_images' in rows[0]:
+        lines += ['', '## Mobile delivery and propulsion', '',
+            'Local computation on a disconnected source does NOT deliver a result. Primary image DVR above is compute completion; delivered DVR below counts received on-time results. Return/backhaul delay is currently zero when delivery is possible.',
+            'Total/UAV energy includes flight + hover + CPU; flight and hover are NOT added again. ALL_UAV means offload when covered; outside coverage the task runs locally immediately. CPU scheduling can run during flight.', '',
+            '| Policy | Delivered DVR % | J/on-time delivered image | Mean covered images | Mean offloaded images | Flight kJ | Hover kJ | Distance m |',
+            '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+        for r in summary:
+            if r['scenario']=='ALL':
+                vals=[None if r['delivered_image_dvr'] is None else 100*r['delivered_image_dvr'],r['j_per_delivered_ontime_image'],
+                    r['mean_covered_images'],r['mean_offloaded_images'],r['mean_flight_j']/1000,r['mean_hover_j']/1000,r['mean_travelled_m']]
+                lines.append('| '+r['policy']+' | '+' | '.join(map(fmt,vals))+' |')
     (out/'CORE_METRICS.md').write_text('\n'.join(lines)+'\n', encoding='utf8')
 
 

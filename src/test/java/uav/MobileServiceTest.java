@@ -11,6 +11,21 @@ import static uav.offloading.OffloadingSimulation.Status.*;
 import static uav.scheduling.SchedulingTask.Source.*;
 
 class MobileServiceTest {
+    @Test void deadlineRiskGuardRunsDuringFlightAndStillCountsDropsAsFailures() {
+        var jobs=List.of(bg(0,0,2,500),bg(1,0,4,100),image(2,0,1,10,100,10));
+        var m=mobility(10,List.of(new MobileService.Site(100,0,false)));
+        var r=OffloadingSimulation.runMobile(jobs,cpu(15,100_000,1),OffloadingPolicy.baseline(ALL_UAV),
+            OffloadingBenchmark.scheduler("RISK_EDF",.75),m,DeviceSelectionPolicy.baseline(ROUND_ROBIN));
+        assertEquals(DROPPED_DEADLINE_RISK,get(r,0).status());
+        assertEquals(0,get(r,0).executedMi());
+        assertEquals(COMPLETED_ON_TIME,get(r,1).status());
+        assertEquals(1,get(r,1).resolvedSeconds(),1e-7);
+        assertEquals(.5,r.execution().metrics(ALIBABA).dvr());
+        assertEquals(OffloadingSimulation.Route.LOCAL,get(r,2).route());
+        assertEquals(2250,r.flightJ(),1e-6);
+        assertEquals(20,r.execution().energy().get(0).computeJ(),1e-6);
+        assertEquals(2270,r.execution().uavEnergyJ(),1e-6);
+    }
     private final TaskScheduler fifo=TaskScheduler.baseline(TaskScheduler.Baseline.FIFO);
     private OffloadingSimulation.Config cpu(double horizon,double battery,int n) {
         return new OffloadingSimulation.Config(horizon,100,20,80,battery,

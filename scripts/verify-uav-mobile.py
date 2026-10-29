@@ -138,6 +138,7 @@ def verify(root):
     m=json.loads((root/'manifest.json').read_text());p=m['protocol']
     check(m['schema']=='uav-mobile-service-v1' and m['status']=='COMPLETE','Incomplete mobile run')
     check(sha(root/'source/mobile-protocol.json')==m['protocol_sha256'],'Protocol hash')
+    check(json.loads((root/'source/mobile-protocol.json').read_text())==p,'Resolved protocol mismatch')
     for path,digest in m['source_sha256'].items():check(sha(root/'source'/path)==digest,'Source hash: '+path)
     rows=read(root/'episodes.csv');expected=len(m['configs'])*m['seeds']*len(m['policies'])
     check(m['episodes']==expected and len(rows)==expected*3,'Episode count')
@@ -179,7 +180,9 @@ def verify(root):
             check(cached_key==key,'Per-episode source rows must be contiguous')
         group=[o for tid,o in a.o.items() if row['source']=='ALL' or jobs[tid]['source']==row['source']]
         statuses=['COMPLETED_ON_TIME','COMPLETED_LATE','EXPIRED_WAITING','DROPPED_UAV_BATTERY','DROPPED_DEVICE_BATTERY','UNFINISHED_HORIZON']
-        for field,status in zip(['on_time','late','expired','uav_dropped','device_dropped','unfinished'],statuses):check(int(row[field])==sum(o['status']==status for o in group),'Summary '+field)
+        for field,status in zip(['on_time','late','expired','uav_dropped','device_dropped','unfinished'],statuses):
+            count=sum(o['status']==status or field=='expired' and o['status']=='DROPPED_DEADLINE_RISK' for o in group)
+            check(int(row[field])==count,'Summary '+field)
         check(int(row['offered'])==len(group),'Offered count')
         for field,route in [('local','LOCAL'),('offloaded','UAV')]:check(int(row[field])==sum(o['route']==route for o in group),'Route count')
         if group:close(num(row,'dvr'),1-int(row['on_time'])/len(group),'DVR')
@@ -211,3 +214,5 @@ def verify(root):
 if __name__=='__main__':
     check(len(sys.argv)==2,'Usage: python scripts/verify-uav-mobile.py RUN_DIR')
     print(json.dumps(verify(Path(sys.argv[1])),indent=2))
+    from offloading_metrics import export
+    export(Path(sys.argv[1]))

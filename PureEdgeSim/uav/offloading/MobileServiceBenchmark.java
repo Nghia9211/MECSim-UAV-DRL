@@ -37,7 +37,11 @@ public final class MobileServiceBenchmark {
     }
     public static void main(String[] args) throws Exception {
         if (args.length>0) throw new IllegalArgumentException("Use -Dmobile.* properties");
-        var json=new ObjectMapper();Path protocol=Path.of("PureEdgeSim/uav/offloading/mobile-protocol.json");var p=json.readTree(protocol.toFile());
+        var json=new ObjectMapper();Path protocol=Path.of(System.getProperty("mobile.protocol","PureEdgeSim/uav/offloading/mobile-protocol.json"));
+        var p=(com.fasterxml.jackson.databind.node.ObjectNode)json.readTree(protocol.toFile());
+        double error=Double.parseDouble(System.getProperty("mobile.estimateError",p.get("estimateError").asText()));
+        if(!Double.isFinite(error)||error<0||error>=1)throw new IllegalArgumentException("Invalid estimate error");
+        p.put("estimateError",error);
         int seeds=Integer.parseInt(System.getProperty("mobile.seeds",p.get("seeds").asText()));
         long first=Long.parseLong(System.getProperty("mobile.firstSeed",p.get("firstSeed").asText()));
         if (seeds<1||seeds>1000||first<0) throw new IllegalArgumentException("Invalid seeds");Math.addExact(first,seeds-1L);
@@ -70,13 +74,22 @@ public final class MobileServiceBenchmark {
             }
         }
         var policies=new ArrayList<String>();
-        for(var selector:p.get("selectors"))for(var route:p.get("offloading"))for(var schedule:p.get("schedulers"))
-            policies.add(selector.asText()+"__"+route.asText()+"__"+schedule.asText());
+        if(p.has("policies"))for(var policy:p.get("policies"))policies.add(policy.asText());
+        else for(var selector:p.get("selectors"))for(var route:p.get("offloading"))for(var schedule:p.get("schedulers"))
+                policies.add(selector.asText()+"__"+route.asText()+"__"+schedule.asText());
+        if(policies.isEmpty()||new HashSet<>(policies).size()!=policies.size())throw new IllegalArgumentException("Empty/duplicate policies");
+        for(String name:policies){
+            var parts=name.split("__");if(parts.length!=3)throw new IllegalArgumentException("Invalid policy: "+name);
+            DeviceSelectionPolicy.baseline(DeviceSelectionPolicy.Baseline.valueOf(parts[0]));
+            OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf(parts[1]));OffloadingBenchmark.scheduler(parts[2],.75);
+        }
         var pools=SchedulingWorkload.Pools.read(Path.of("datasets/raw/rescuenet/validation/val-org-img"),Path.of("datasets/raw/rescuenet/validation/val-label-img"),
                 Path.of("datasets/raw/alibaba2018/batch_task.csv"),449,1000,100000);
         manifest.put("schema",p.get("schema").asText());manifest.put("status","RUNNING");manifest.put("created",Instant.now().toString());
         manifest.put("seeds",seeds);manifest.put("first_seed",first);manifest.put("policies",policies);manifest.put("configs",configs);manifest.put("protocol",p);
-        manifest.put("protocol_sha256",OffloadingBenchmark.hash(Files.readString(protocol)));
+        String resolvedProtocol=json.writerWithDefaultPrettyPrinter().writeValueAsString(p);
+        manifest.put("protocol_sha256",OffloadingBenchmark.hash(resolvedProtocol));
+        manifest.put("protocol_source",protocol.toString().replace('\\','/'));
         manifest.put("assumptions",List.of("Adapted RR/oldest device selection, not original paper/DQN reproduction. Continuous seconds since latest completed delivered generation, not paper slot age.",
                 "12 uniform ground CPUs. Connected local completion delivers instantly; disconnected local completion does not refresh. UAV completion relays instantly, even late; stale generation never rolls freshness back.",
                 "Fixed dwell, extended until already-started uploads finish/expire/die; closed stop admits no new uploads. No uploads in flight, but CPUs continue during flight.",
@@ -86,14 +99,16 @@ public final class MobileServiceBenchmark {
                 "Fixed normalized layout seed42 at two area scales; not 30 independently sampled layouts. All policy/config pairs share task arrivals, device assignments and source pools for a task seed.",
                 "Synthetic MI, power, priority, deadline and geometry. No measured inference, cache, DVFS, Google/C2A, DQN training or novelty claim."));
         Files.createDirectories(out.toAbsolutePath().getParent());Files.createDirectory(out);Files.createDirectory(out.resolve("source"));
-        pools.save(out.resolve("source-pools"));Files.copy(protocol,out.resolve("source/mobile-protocol.json"));
+        pools.save(out.resolve("source-pools"));Files.writeString(out.resolve("source/mobile-protocol.json"),resolvedProtocol,StandardCharsets.UTF_8);
         var snapshots=new TreeMap<String,String>();
         for(String folder:List.of("PureEdgeSim/uav/offloading","PureEdgeSim/uav/scheduling"))try(var files=Files.list(Path.of(folder))) {
             for(var file:files.filter(f->f.toString().endsWith(".java")).toList())snapshot(out,file,snapshots);
         }
         for(String file:List.of("PureEdgeSim/uav/UAVMobilityModel.java","PureEdgeSim/uav/UAVEdgeNode.java","PureEdgeSim/uav/UAVEnergyModel.java","PureEdgeSim/uav/Location3D.java",
                 "PureEdgeSim/uav/PaperParameters.java","PureEdgeSim/uav/RescueNetWorkload.java","PureEdgeSim/uav/AlibabaWorkload.java","scripts/verify-uav-offloading.py",
-                "scripts/verify-uav-mobile.py","src/test/java/uav/MobileServiceTest.java","pom.xml"))snapshot(out,Path.of(file),snapshots);
+                "scripts/verify-uav-mobile.py","scripts/offloading_metrics.py","scripts/test_offloading_metrics.py",
+                "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/run-mobile-comparison-server.sh",
+                "src/test/java/uav/MobileServiceTest.java","pom.xml"))snapshot(out,Path.of(file),snapshots);
         manifest.put("source_sha256",snapshots);json.writerWithDefaultPrettyPrinter().writeValue(out.resolve("manifest.json").toFile(),manifest);
         var episodes=new ArrayList<String>(List.of("scenario,seed,policy,workload_sha256,source,offered,on_time,late,expired,uav_dropped,device_dropped,unfinished,local,offloaded,dvr,mean_completed_latency_s,uav_energy_j,ground_energy_j,total_energy_j,flight_j,hover_j,travelled_m,visits,mean_final_age_s,wall_ms,trace"));
         for(var load:p.get("loads"))for(int n=0;n<seeds;n++) {

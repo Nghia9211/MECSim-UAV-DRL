@@ -43,8 +43,13 @@ Sau mô phỏng phải chạy verifier phù hợp. CLI của `verify-uav-offload
 - `CORE_METRICS.md`: bảng đọc nhanh, định nghĩa và censoring.
 
 Mọi thuật toán fixed-UAV mới phải xuất cùng task/workload/energy trace để dùng bộ này.
-Entrypoint khác hoặc thuật toán mobile phải gắn exporter và định nghĩa phần năng lượng
-bổ sung trước khi kết luận. Không coi một run thiếu bộ metric này là báo cáo hoàn chỉnh.
+Verifier mobile cũng gắn cùng exporter: energy UAV gồm flight+hover+CPU, bổ sung
+flight/hover/distance, coverage và offloaded counts. Tách compute DVR và delivered
+DVR: xử lý local xong trên source disconnected không được tính là đã chuyển kết quả
+về. Báo J/ảnh đúng hạn cho cả compute và delivery. Output/backhaul delay hiện bằng0
+khi có đường delivery; không gọi compute latency là độ trễ truyền kết quả thực.
+Entrypoint mới phải gắn exporter và định nghĩa năng lượng trước khi kết luận.
+Không coi một run thiếu bộ metric này là báo cáo hoàn chỉnh.
 
 ```text
 python scripts/offloading_metrics.py RUN_DIR
