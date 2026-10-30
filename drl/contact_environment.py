@@ -13,6 +13,7 @@ def contact_features(raw,cfg):
     extra=[]
     for site in ds:
         seconds=math.hypot(site[0]-raw[1],site[1]-raw[2])*cfg.areaMetres/5
+        if seconds<1e-7:seconds=0.
         neighbours=sum(d[5]>.5 and d[4]<.5 and
             math.hypot(math.hypot(site[0]-d[0],site[1]-d[1])*cfg.areaMetres,10)<=65+1e-8 for d in ds)
         extra.extend([min(1.,seconds/cfg.horizonSeconds),
@@ -27,7 +28,7 @@ def masks(observation):
 class ContactEnv(JointEnv):
     def __init__(self,config=None,**kwargs):
         config=config or MobileConfig(control_mode='contact_policy',allowContactWait=True)
-        if config.control_mode!='contact_policy':raise ValueError('Expected contact_policy mode')
+        if config.control_mode not in ('contact_policy','service_only'):raise ValueError('Expected contact policy mode')
         super().__init__(config,**kwargs)
         self.action_space=gym.spaces.Discrete(108)
         self.observation_space=gym.spaces.Box(0.,1.,shape=(179,),dtype=np.float32)

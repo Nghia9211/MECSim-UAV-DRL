@@ -47,7 +47,7 @@ class MobileConfig:
             raise ValueError("Invalid offloading policy")
         if self.scheduler not in ("FIFO", "EDF", "PRIORITY", "SPT", "FEASIBLE_AGING", "RISK_EDF", "RISK_SPT"):
             raise ValueError("Invalid scheduler")
-        if self.control_mode not in ("device","joint_policy","contact_policy") or type(self.allowContactWait) is not bool:
+        if self.control_mode not in ("device","joint_policy","contact_policy","service_only") or type(self.allowContactWait) is not bool:
             raise ValueError("Invalid control mode / contact wait flag")
         for key in ("areaMetres", "localMips", "uavBatteryJ", "horizonSeconds", "arrivalWindowSeconds", "dwellSeconds"):
             if not math.isfinite(getattr(self, key)) or getattr(self, key) <= 0:

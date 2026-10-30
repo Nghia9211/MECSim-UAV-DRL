@@ -25,7 +25,7 @@ def utility(info):
 class JointEnv(MobileEnv):
     def __init__(self, config=None, *, random_scenarios=False):
         config=config or MobileConfig(control_mode='joint_policy',allowContactWait=True)
-        if config.control_mode not in ('joint_policy','contact_policy'):
+        if config.control_mode not in ('joint_policy','contact_policy','service_only'):
             raise ValueError('JointEnv requires joint_policy control mode')
         super().__init__(config)
         self.action_space=gym.spaces.Discrete(9)

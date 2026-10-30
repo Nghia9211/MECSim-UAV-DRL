@@ -37,7 +37,8 @@ def verify(root):
     a=audit.MobileAudit(jobs,outcomes,read(root/'episode-energy.csv'),kernel,cfg['scheduler'],p,
                         *[read(root/('episode-'+s+'.csv')) for s in ['visits','positions','coverage','updates','views']])
     history=json.loads((root/'transitions.json').read_text(encoding='utf-8'))
-    contact=cfg.get('control_mode','device')=='contact_policy'
+    service=cfg.get('control_mode')=='service_only'
+    contact=service or cfg.get('control_mode','device')=='contact_policy'
     joint=contact or cfg.get('control_mode','device')=='joint_policy'
     routes=('DELIVERY_AWARE','DEADLINE_ENERGY','SHORTEST_FINISH')
     schedules=('EDF','SPT','FIFO')
@@ -48,7 +49,7 @@ def verify(root):
             i=bisect.bisect_right(times,at)-1
             check(i>=0,'Policy action before first decision')
             return actions[i]
-        a.schedule_at=lambda at:schedules[action_at(at)%3]
+        a.schedule_at=lambda at:cfg['scheduler'] if service else schedules[action_at(at)%3]
         a.routing_policy_at=lambda at,default:routes[action_at(at)//3]
     check(len(history)==len(a.visits)+1,'Transition/visit count')
     choices={}
@@ -128,6 +129,7 @@ def verify(root):
         if contact:
             for site in kernel['sites']:
                 seconds=math.hypot(site['x']-x,site['y']-y)/p['speedMps']
+                if seconds<1e-7:seconds=0.
                 neighbours=sum(alive[d] and not s['connected'] and
                     math.hypot(math.hypot(site['x']-s['x'],site['y']-s['y']),p['altitudeMetres'])<=p['rangeMetres']+1e-8
                     for d,s in enumerate(kernel['sites']))
