@@ -37,12 +37,13 @@ def verify(root):
     a=audit.MobileAudit(jobs,outcomes,read(root/'episode-energy.csv'),kernel,cfg['scheduler'],p,
                         *[read(root/('episode-'+s+'.csv')) for s in ['visits','positions','coverage','updates','views']])
     history=json.loads((root/'transitions.json').read_text(encoding='utf-8'))
-    joint=cfg.get('control_mode','device')=='joint_policy'
+    contact=cfg.get('control_mode','device')=='contact_policy'
+    joint=contact or cfg.get('control_mode','device')=='joint_policy'
     routes=('DELIVERY_AWARE','DEADLINE_ENERGY','SHORTEST_FINISH')
     schedules=('EDF','SPT','FIFO')
     if joint:
         times=[s['info']['seconds'] for s in history[:-1]]
-        actions=[s['action'] for s in history[1:]]
+        actions=[s['action']%9 if contact else s['action'] for s in history[1:]]
         def action_at(at):
             i=bisect.bisect_right(times,at)-1
             check(i>=0,'Policy action before first decision')
@@ -52,15 +53,18 @@ def verify(root):
     check(len(history)==len(a.visits)+1,'Transition/visit count')
     choices={}
     for before,after in zip(history,history[1:]):
-        requested=after['action'];check(type(requested) is int and 0<=requested<(9 if joint else 12),'Action range')
+        requested=after['action'];check(type(requested) is int and 0<=requested<(108 if contact else 9 if joint else 12),'Action range')
         alive=before['info']['alive'];executed=requested
         check(any(alive),'Choice without live source')
         if not joint:
             while not alive[executed]:executed=(executed+1)%12
         check(after['info']['requested_action']==requested and after['info']['executed_action']==executed,'Action mapping')
         if joint:
-            executed=(before['info']['previous_target']+1)%12
-            while not alive[executed]:executed=(executed+1)%12
+            if contact:
+                executed=requested//9;check(alive[executed],'Masked dead-device action')
+            else:
+                executed=(before['info']['previous_target']+1)%12
+                while not alive[executed]:executed=(executed+1)%12
         choices[before['info']['seconds']]=executed
     a.verify_mobile(choices,read(root/'episode-decisions.csv'),cfg['offloading'])
     # Reconstruct every observation from admitted queues and already-executed work.
@@ -117,10 +121,18 @@ def verify(root):
                         unit((at-latest)/h),float(site['connected']),float(alive[d]),*load(d),float(d==previous)])
         if joint:
             previous_action=info['requested_action']
+            if contact and previous_action>=0:previous_action%=9
             obs.extend([cfg['areaMetres']/800,cfg['uavBatteryJ']/1600000,cfg['imageRate']/.24,
                         cfg['backgroundRate']/.1,cfg['estimateError']])
             obs.extend([float(previous_action==i) for i in range(9)])
-        check(len(state['observation'])==len(obs)==(143 if joint else 129),'Observation size')
+        if contact:
+            for site in kernel['sites']:
+                seconds=math.hypot(site['x']-x,site['y']-y)/p['speedMps']
+                neighbours=sum(alive[d] and not s['connected'] and
+                    math.hypot(math.hypot(site['x']-s['x'],site['y']-s['y']),p['altitudeMetres'])<=p['rangeMetres']+1e-8
+                    for d,s in enumerate(kernel['sites']))
+                obs.extend([unit(seconds/h),unit(p['flightWatts']*seconds/max(1e-9,a.battery_at(-1,at))),neighbours/12])
+        check(len(state['observation'])==len(obs)==(179 if contact else 143 if joint else 129),'Observation size')
         for i,(observed,replayed) in enumerate(zip(state['observation'],obs)):close(observed,replayed,'Observation '+str(i))
     return dict(status='PASS',decisions=len(a.visits),tasks=len(jobs),total_reward=cumulative[-1],
                 checks=['shared kernel physics/energy/queues','source-pool cost mapping','requested/executed actions',

@@ -117,14 +117,14 @@ def evaluate(out,smoke):
         return evaluate_with_envs(out,smoke,joint_env,fixed_env)
 
 
-def evaluate_with_envs(out,smoke,joint_env,fixed_env):
+def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case_override=None,proof_override=None):
     metrics=import_metrics();rows=[];proofs=[];audits=0;tasks=0;paired={};action_rows=[]
     policies=[(f'FIXED_{r}_{s}',None,3*i+j,None) for i,r in enumerate(ROUTES) for j,s in enumerate(SCHEDULES)]
     policies += [('ALL_LOCAL_EDF',None,0,('ALL_LOCAL','EDF')),
                  ('ALL_UAV_FIFO',None,2,('ALL_UAV','FIFO')),
                  ('DELIVERY_AWARE_RISK_EDF',None,0,('DELIVERY_AWARE','RISK_EDF')),
                  ('DEADLINE_ENERGY_RISK_EDF',None,0,('DEADLINE_ENERGY','RISK_EDF'))]
-    for config in sorted((out/'models').glob('*/seed-*/config.json')):
+    for config in ([] if policy_override is not None else sorted((out/'models').glob('*/seed-*/config.json'))):
         cfg=json.loads(config.read_text());assert cfg['status']=='COMPLETE'
         for checkpoint in ('best','final'):
             path=config.parent/(checkpoint+'_model.zip')
@@ -132,7 +132,8 @@ def evaluate_with_envs(out,smoke,joint_env,fixed_env):
             policies.append((f"{cfg['algorithm']}_s{cfg['seed']}_{checkpoint}",model,0,None))
             proofs.append(dict(run=config.parent.relative_to(out).as_posix(),checkpoint=checkpoint,
                                sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
-    cases=list(scenarios().items())[:1] if smoke else list(scenarios().items())
+    if policy_override is not None:policies=policy_override;proofs=proof_override or []
+    cases=case_override if case_override is not None else list(scenarios().items())[:1] if smoke else list(scenarios().items())
     count=1 if smoke else 10
     for name,cfg in cases:
         for i in range(count):
@@ -157,7 +158,7 @@ def evaluate_with_envs(out,smoke,joint_env,fixed_env):
                 history=json.loads((trace/'transitions.json').read_text())
                 if not fixed:
                     action_rows.append(dict(scenario=name,seed=seed,policy=policy,
-                        **{f'mode_{k}':sum(s['action']==k for s in history[1:]) for k in range(9)}))
+                        **{f'mode_{k}':sum(s['action']==k for s in history[1:]) for k in range(joint_env.action_space.n)}))
                 if model is not None:
                     for before,after in zip(history,history[1:]):
                         assert int(model.predict(np.asarray(before['observation'],dtype=np.float32),deterministic=True)[0])==after['action'], 'Checkpoint/action mismatch'

@@ -17,6 +17,7 @@ public final class MobileGymBridge implements MobileService.Controller {
     private int steps,requested=-1,executed=-1;
     private boolean done;
     private boolean jointPolicy;
+    private boolean contactPolicy;
     private int policyAction;
     private static final String[] ROUTES={"DELIVERY_AWARE","DEADLINE_ENERGY","SHORTEST_FINISH"};
     private static final String[] SCHEDULES={"EDF","SPT","FIFO"};
@@ -50,10 +51,14 @@ public final class MobileGymBridge implements MobileService.Controller {
         while(true) {
             var c=read();String cmd=(String)c.get("cmd");
             if("reset".equals(cmd)||"close".equals(cmd))throw new Control(c);
-            if("step".equals(cmd)&&c.get("action") instanceof Number n&&n.doubleValue()==n.intValue()&&n.intValue()>=0&&n.intValue()<(jointPolicy?9:12)) {
+            if("step".equals(cmd)&&c.get("action") instanceof Number n&&n.doubleValue()==n.intValue()&&n.intValue()>=0&&n.intValue()<(contactPolicy?108:jointPolicy?9:12)) {
+                if(contactPolicy&&!frame.context().devices().get(n.intValue()/9).alive()) {
+                    send(Map.of("error","Masked dead-device target"));continue;
+                }
                 requested=n.intValue();executed=requested;
                 if(jointPolicy) {
-                    policyAction=requested;steps++;
+                    policyAction=contactPolicy?requested%9:requested;steps++;
+                    if(contactPolicy)return requested/9;
                     return DeviceSelectionPolicy.baseline(DeviceSelectionPolicy.Baseline.ROUND_ROBIN).choose(frame.context());
                 }
                 // Stable total action space for vanilla DQN; dead IDs map cyclically to a live device.
@@ -87,8 +92,9 @@ public final class MobileGymBridge implements MobileService.Controller {
             try {
                 long layout=((Number)c.getOrDefault("layout_seed",42)).longValue(),task=((Number)c.getOrDefault("task_seed",0)).longValue();
                 String mode=(String)c.getOrDefault("control_mode","device");
-                if(!Set.of("device","joint_policy").contains(mode))throw new IllegalArgumentException("Unknown control mode");
-                jointPolicy="joint_policy".equals(mode);policyAction=0;
+                if(!Set.of("device","joint_policy","contact_policy").contains(mode))throw new IllegalArgumentException("Unknown control mode");
+                contactPolicy="contact_policy".equals(mode);
+                jointPolicy=contactPolicy||"joint_policy".equals(mode);policyAction=0;
                 var fixedRoute=OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf((String)c.getOrDefault("offloading","ALL_UAV")));
                 var fixedScheduler=OffloadingBenchmark.scheduler((String)c.getOrDefault("scheduler","EDF"),.75);
                 OffloadingPolicy route=jointPolicy?(job,ctx)->OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf(ROUTES[policyAction/3])).choose(job,ctx):fixedRoute;

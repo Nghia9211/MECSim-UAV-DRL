@@ -25,7 +25,7 @@ def utility(info):
 class JointEnv(MobileEnv):
     def __init__(self, config=None, *, random_scenarios=False):
         config=config or MobileConfig(control_mode='joint_policy',allowContactWait=True)
-        if config.control_mode!='joint_policy':
+        if config.control_mode not in ('joint_policy','contact_policy'):
             raise ValueError('JointEnv requires joint_policy control mode')
         super().__init__(config)
         self.action_space=gym.spaces.Discrete(9)
@@ -34,6 +34,7 @@ class JointEnv(MobileEnv):
 
     def _decode(self,result):
         c=self.config;last=result['info']['requested_action']
+        if c.control_mode=='contact_policy' and last>=0:last%=9
         obs=np.asarray([*result['observation'],c.areaMetres/800,c.uavBatteryJ/1600000,c.imageRate/.24,
                         c.backgroundRate/.1,c.estimateError,*[float(last==i) for i in range(9)]],dtype=np.float32)
         if not self.observation_space.contains(obs):
