@@ -15,8 +15,13 @@ public final class SchedulingWorkload {
     private SchedulingWorkload() { }
     public record Config(double arrivalWindowSeconds,double imageRatePerSecond,double backgroundRatePerSecond,
             double criticalFraction,double criticalDeadlineSeconds,double imageDeadlineSeconds,double backgroundDeadlineSeconds,
-            double imageMiPerMegapixel,double referenceMips,double backgroundWorkScale,double slantDistanceMetres) {
+            double imageMiPerMegapixel,double referenceMips,double backgroundWorkScale,double slantDistanceMetres,double imageFixedMi) {
+        public Config(double window,double imageRate,double bgRate,double critical,double criticalDeadline,double imageDeadline,
+                double bgDeadline,double miPerMp,double reference,double bgScale,double slant) {
+            this(window,imageRate,bgRate,critical,criticalDeadline,imageDeadline,bgDeadline,miPerMp,reference,bgScale,slant,0);
+        }
         public Config {
+            if(!Double.isFinite(imageFixedMi)||imageFixedMi<0)throw new IllegalArgumentException("Invalid fixed image work");
             for(double x:new double[]{arrivalWindowSeconds,criticalDeadlineSeconds,imageDeadlineSeconds,
                     backgroundDeadlineSeconds,imageMiPerMegapixel,referenceMips,backgroundWorkScale})
                 if(!Double.isFinite(x)||x<=0)throw new IllegalArgumentException("Invalid workload cost/time");
@@ -53,21 +58,26 @@ public final class SchedulingWorkload {
     }
     private static String quote(Object x) {return "\""+x.toString().replace("\"","\"\"")+"\"";}
     public static List<SchedulingTask> generate(Pools pools,Config config,long seed) {
+        return generate(pools,config,seed,WorkloadSeeds.Version.LEGACY_V1);
+    }
+    public static List<SchedulingTask> generate(Pools pools,Config config,long seed,WorkloadSeeds.Version version) {
         var result=new ArrayList<SchedulingTask>();
-        var arrivals=new Random(seed^0x48A31F09L);var images=new Random(seed^0x61905BB3L);
-        var priorities=new Random(seed^0x44BA813FL);
+        var arrivals=WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.IMAGE_ARRIVALS);
+        var images=WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.IMAGE_SELECTION);
+        var priorities=WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.IMAGE_PRIORITY);
         double time=0;long index=0;
         if(config.imageRatePerSecond()>0)while((time+=gap(arrivals,config.imageRatePerSecond()))<config.arrivalWindowSeconds()) {
             if(result.size()>=20000)throw new IllegalArgumentException("Too many generated tasks");
             int selected=images.nextInt(pools.images().size());var image=pools.images().get(selected);
             boolean critical=priorities.nextDouble()<config.criticalFraction();
             double upload=image.bytes()*8.0/PaperParameters.rateBps(config.slantDistanceMetres());
-            double mi=image.width()*(double)image.height()/1e6*config.imageMiPerMegapixel();
+            double mi=config.imageFixedMi()>0?config.imageFixedMi():image.width()*(double)image.height()/1e6*config.imageMiPerMegapixel();
             result.add(new SchedulingTask(index++*2,SchedulingTask.Source.RESCUENET,selected,time,time+upload,
                     time+(critical?config.criticalDeadlineSeconds():config.imageDeadlineSeconds()),
                     critical?3:2,image.bytes(),mi));
         }
-        arrivals=new Random(seed^0x3D10EF75L);var background=new Random(seed^0x1B71AC03L);time=0;index=0;
+        arrivals=WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.BACKGROUND_ARRIVALS);
+        var background=WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.BACKGROUND_SELECTION);time=0;index=0;
         if(config.backgroundRatePerSecond()>0)while((time+=gap(arrivals,config.backgroundRatePerSecond()))<config.arrivalWindowSeconds()) {
             if(result.size()>=20000)throw new IllegalArgumentException("Too many generated tasks");
             var row=pools.alibaba().rows().get(background.nextInt(pools.alibaba().rows().size()));

@@ -77,7 +77,7 @@ fully elapsed slots. Không đổi metric sau khi xem kết quả để ép kh�
 ## Verification và artifact
 
 Run được báo cáo:
-[paper-reference-1m-restart-20261023](../../target/paper-reference-1m-restart-20261023/).
+[paper-reference-1m-restart-20261023](../../target/paper-reference-1m-restart-20261023).
 
 - **3/3 model COMPLETE**, đủ1m steps và249.975 updates/model; tất cả process exit0.
 - Kiểm tra config/protocol, source hashes, checkpoint metadata, trọng số finite

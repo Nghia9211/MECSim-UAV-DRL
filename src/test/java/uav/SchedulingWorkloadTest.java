@@ -45,4 +45,20 @@ class SchedulingWorkloadTest {
             }
         }
     }
+
+    @Test void fixedShapeCostsDoNotScaleWithOriginalImageDimensionsOrChangeOtherStreams() {
+        var old=SchedulingWorkload.generate(pools(),config(1,10),42,WorkloadSeeds.Version.MIXED_V2);
+        var c=new SchedulingWorkload.Config(100,1,1,.5,10,30,60,1000,1000,1,10,525);
+        var fixed=SchedulingWorkload.generate(pools(),c,42,WorkloadSeeds.Version.MIXED_V2);
+        assertEquals(old.size(),fixed.size());
+        for(int i=0;i<old.size();i++) {
+            var a=old.get(i);var b=fixed.get(i);
+            assertEquals(a.id(),b.id());assertEquals(a.arrivalSeconds(),b.arrivalSeconds());
+            assertEquals(a.readySeconds(),b.readySeconds());assertEquals(a.deadlineSeconds(),b.deadlineSeconds());
+            assertEquals(a.priority(),b.priority());assertEquals(a.sourceIndex(),b.sourceIndex());
+            assertEquals(a.inputBytes(),b.inputBytes());
+            if(b.source()==SchedulingTask.Source.RESCUENET)assertEquals(525,b.computeMi());else assertEquals(a,b);
+        }
+        assertThrows(IllegalArgumentException.class,()->new SchedulingWorkload.Config(100,1,1,.5,10,30,60,1000,1000,1,10,Double.NaN));
+    }
 }

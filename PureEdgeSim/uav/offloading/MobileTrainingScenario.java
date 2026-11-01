@@ -19,8 +19,15 @@ public final class MobileTrainingScenario {
     public static Episode create(SchedulingWorkload.Pools pools,Map<String,Object> overrides,long layoutSeed,long taskSeed) throws Exception {
         var json=new ObjectMapper();var p=(ObjectNode)json.readTree(Path.of("PureEdgeSim/uav/offloading/mobile-protocol.json").toFile());
         var allowed=Set.of("areaMetres","localMips","imageRate","backgroundRate","connectedDevices","uavBatteryJ","horizonSeconds",
-                "arrivalWindowSeconds","dwellSeconds","estimateError");
+                "arrivalWindowSeconds","dwellSeconds","estimateError","uavMips","imageFixedMi",
+                "criticalDeadlineSeconds","imageDeadlineSeconds","backgroundDeadlineSeconds");
         for(var e:overrides.entrySet()) {
+            if(e.getKey().equals("computeCalibrationId") && e.getValue() instanceof String id && id.matches("[a-f0-9]{64}")) {
+                p.put(e.getKey(),id);continue;
+            }
+            if(e.getKey().equals("workloadGenerator") && e.getValue() instanceof String value) {
+                p.put(e.getKey(),WorkloadSeeds.Version.parse(value).id);continue;
+            }
             if(e.getKey().equals("allowContactWait") && e.getValue() instanceof Boolean b) {p.put(e.getKey(),b);continue;}
             if(!allowed.contains(e.getKey())||!(e.getValue() instanceof Number n)||!Double.isFinite(n.doubleValue()))
                 throw new IllegalArgumentException("Invalid mobile config: "+e.getKey());
@@ -30,7 +37,7 @@ public final class MobileTrainingScenario {
         double battery=p.path("uavBatteryJ").asDouble(1600000);int n=p.get("devices").asInt(),connected=p.get("connectedDevices").asInt();
         if(connected<0||connected>n||p.get("connectedDevices").asDouble()!=connected)throw new IllegalArgumentException("Invalid connected count");
         double horizon=p.get("horizonSeconds").asDouble(),window=p.get("arrivalWindowSeconds").asDouble();
-        double maxDeadline=Math.max(p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageDeadlineSeconds").asDouble());
+        double maxDeadline=Math.max(p.get("criticalDeadlineSeconds").asDouble(),Math.max(p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageDeadlineSeconds").asDouble()));
         if(window+maxDeadline>horizon)throw new IllegalArgumentException("Arrival window plus deadline must fit horizon");
         var devices=Collections.nCopies(n,new OffloadingSimulation.Device(p.get("localMips").asDouble(),p.get("localIdleWatts").asDouble(),
                 p.get("localCpuWatts").asDouble(),p.get("localTxWatts").asDouble(),p.get("localBatteryJ").asDouble()));
@@ -43,8 +50,10 @@ public final class MobileTrainingScenario {
         var cpu=new OffloadingSimulation.Config(horizon,p.get("uavMips").asDouble(),p.get("uavCpuWatts").asDouble(),p.get("hoverWatts").asDouble(),battery,devices);
         var wc=new SchedulingWorkload.Config(window,imageRate,bgRate,p.get("criticalFraction").asDouble(),p.get("criticalDeadlineSeconds").asDouble(),
                 p.get("imageDeadlineSeconds").asDouble(),p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageMiPerMegapixel").asDouble(),
-                p.get("referenceMips").asDouble(),p.get("backgroundWorkScale").asDouble(),p.get("referenceSlantMetres").asDouble());
-        var jobs=OffloadingJob.assign(SchedulingWorkload.generate(pools,wc,taskSeed),n,taskSeed,p.get("estimateError").asDouble());
+                p.get("referenceMips").asDouble(),p.get("backgroundWorkScale").asDouble(),p.get("referenceSlantMetres").asDouble(),p.path("imageFixedMi").asDouble(0));
+        var version=WorkloadSeeds.Version.parse(p.path("workloadGenerator").asText("legacy-v1"));
+        p.put("workloadGenerator",version.id);
+        var jobs=OffloadingJob.assign(SchedulingWorkload.generate(pools,wc,taskSeed,version),n,taskSeed,p.get("estimateError").asDouble(),version);
         var meta=new LinkedHashMap<String,Object>();meta.put("protocol",p);meta.put("layout_seed",layoutSeed);meta.put("task_seed",taskSeed);
         meta.put("areaMetres",area);meta.put("uavBatteryJ",battery);meta.put("imageRate",imageRate);meta.put("backgroundRate",bgRate);
         meta.put("sites",sites.stream().map(s->Map.of("x",s.x(),"y",s.y(),"connected",s.connected())).toList());

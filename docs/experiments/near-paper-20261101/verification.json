@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "episodes": 720,
+  "task_outcomes": 32088,
+  "paired_cases": 90,
+  "checks": [
+    "independent seed reconstruction",
+    "paper layout and hardware tables",
+    "CPU/queue/routing replay",
+    "flight/contact/upload replay",
+    "energy conservation",
+    "delivered update set",
+    "source/protocol hashes"
+  ],
+  "paper_reproduction": false,
+  "training": false,
+  "unseen_layouts": false
+}

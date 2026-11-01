@@ -84,7 +84,7 @@ def snapshot(output):
     files += [ROOT / x for x in ("pom.xml", "drl/requirements.txt", "PureEdgeSim/uav/offloading/mobile-protocol.json",
               "PureEdgeSim/com/mechalikh/pureedgesim/simulationengine/PureEdgeSim.java",
               "scripts/verify-uav-mobile.py", "scripts/verify-uav-offloading.py", "scripts/verify-uav-mobile-trace.py",
-              "scripts/offloading_metrics.py")]
+              "scripts/offloading_metrics.py", "scripts/workload_rng.py")]
     hashes = {}
     for p in files:
         target = output / "source" / p.relative_to(ROOT)

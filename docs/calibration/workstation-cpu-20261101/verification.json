@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "java": {
+    "tests": 134,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python": {
+    "status": "PASS",
+    "tests": 67,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "raw_dataset_checks_enabled": true,
+    "elapsed_s": 78.73400000000038
+  },
+  "post_lineage_guard_tests": {
+    "tests": 7,
+    "status": "PASS"
+  },
+  "input_reconstruction": {
+    "cases": 180,
+    "task_rows": 11868,
+    "status": "PASS"
+  },
+  "non_cost_input_fields_unchanged": {
+    "task_rows": 11868,
+    "status": "PASS"
+  },
+  "preserved_physical_source_sha256": {
+    "PureEdgeSim/uav/offloading/MobileService.java": "2821efb5c63d32ecfc28cc694ace9f560ba16745b3e8eff7af90ff8cd35861da",
+    "PureEdgeSim/uav/offloading/OffloadingSimulation.java": "e6bd4c803dea7f10ca9181b5d1151ec14f9292f6af7e74d206aa411c17566b12",
+    "PureEdgeSim/uav/PaperParameters.java": "4e0be5e18f76c171fb316ac86113461410bd915cb94e814a46b715b60781f728",
+    "PureEdgeSim/uav/PaperSimulation.java": "9a43bb3d84870ba733fdd7422424f1f2f2ea55a7c8e749c23e0b7513e11c70df",
+    "PureEdgeSim/uav/UAVEnergyModel.java": "1013d97fef57d6a71759aa781a7d27b2aab3e9b29089d3f6c1b1acc76bf06ae6",
+    "PureEdgeSim/uav/offloading/mobile-protocol.json": "f48cd723976d4da82345167fc899dd5028b5db38be14bcad8a5e625b42ab3938"
+  },
+  "algorithm_evaluation": false,
+  "calibration_status": "PROVISIONAL_ARCHITECTURE_TIMING",
+  "default_protocol_replaced": false,
+  "training": false,
+  "energy_calibrated": false,
+  "background_compute_calibrated": false,
+  "application_deadline_validated": false
+}

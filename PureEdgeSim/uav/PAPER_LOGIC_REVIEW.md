@@ -1,4 +1,4 @@
-﻿# Rà soát logic nhánh paper / LOCAL_COMPLETION
+# Rà soát logic nhánh paper / LOCAL_COMPLETION
 
 Ngày 2026-10-28. Phạm vi chính: `PaperSimulation`, `PaperConventions`, `PaperGymBridge`, `drl/environment.py`, đường chọn baseline và cập nhật state/reward. Đã đọc thêm UAV motion/energy, CPU plan và một số đường mobile/offloading; không phải audit toàn bộ MECSim hoặc chứng nhận mọi nhánh đều không lỗi.
 
@@ -46,7 +46,7 @@ Kernel gán covered device sang upload; nếu upload chậm/chưa xong, không c
 - Lần rà logic này chạy lại analysis trên 270 trace: 3.465 slot reward, 41.580 chuyển tuổi, 3.465 age-termination checks đạt. Chạy lại test Java/Python tập trung các nhánh paper/completion.
 - Classpath ổ C cũ đã được build lại ở đợt trước; lỗi đó chặn startup, không âm thầm thay kết quả của model.
 
-Chi tiết hành vi thất bại và experiment tiếp theo: [LOCAL_COMPLETION_DIAGNOSIS.md](LOCAL_COMPLETION_DIAGNOSIS.md).
+Chi tiết hành vi thất bại và experiment tiếp theo: [LOCAL_COMPLETION_DIAGNOSIS.md](../../docs/history/uav/LOCAL_COMPLETION_DIAGNOSIS.md).
 
 ## Quyết định
 

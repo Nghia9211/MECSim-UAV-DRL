@@ -1,0 +1,117 @@
+{
+  "status": "COMPLETE",
+  "factor": "deadline",
+  "new_episodes": 1800,
+  "reference_episodes_reused": 900,
+  "plan_sha256": "8e1358a03a2c73c824b0942de98ecc4c9bc6ff66e4bf3d66e24aa9315d5f76e0",
+  "source_unchanged": true,
+  "isolated_factor": true,
+  "case_proofs": {
+    "deadline-low/100": {
+      "manifest.json": "0893ed33cb0d5d746173381f32a54aa3ea12fa29e1b6f95daeb88c17eb1b6307",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "89b3772f5cbe470f2e81ec615f6aaad21d2487c4c85870362999d32aa15fd1d3"
+    },
+    "deadline-low/101": {
+      "manifest.json": "606b94b0886a7160f8f280564cc1394dc91bae7988d3a08001d47ccaa65b4b61",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "5f60d018676618dbaede6bf4278d3efa229213212bb6a5a3a5e930ab6e091062"
+    },
+    "deadline-low/102": {
+      "manifest.json": "58a472c4521460e9c1ccbfb2bb3368d408d63bcd7824118b8b531ebeec2cfcd7",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "74e73be13fccbec2031535bdfb09c1d0967c9283026b844cefaeaa64a0f569c0"
+    },
+    "deadline-low/103": {
+      "manifest.json": "128663475e492ad84b21842ad6fa09876b768102cdabe0d7d62f17b78f4ec958",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "cd1ed96fb944655a8a1b3ac9f3ad99da091340621ba5d67d01c5b68a3d0c0f48"
+    },
+    "deadline-low/104": {
+      "manifest.json": "a15a3b088c97f097706e10c427cd1253d9ee68e6299012a377ac743109c6e6a8",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "cf9f3713793c94623a3f4215b55ff15590d1de841aaa3fe749eb15fb76694b6f"
+    },
+    "deadline-low/105": {
+      "manifest.json": "3164ad2a99dd60bc6871df21eac0735a5f37feaa982cb1de7be4d0ab74b33932",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "f3da81d2549443ba5ae1998ab798f16137d34c920eea3bf3aa00f4fa58969d28"
+    },
+    "deadline-low/106": {
+      "manifest.json": "aaeaa0b2822d9fbad5a1a64497fd6fe6b9cd993e8e42cb4fa4deb9331bdd6aa5",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "a6fdb6b1db88b2432e9f9e2f2dd230fd6f195323aa24c60b81a28cccf273e2ea"
+    },
+    "deadline-low/107": {
+      "manifest.json": "c9a9b1392e901b9ba4f540fb344bdccbd34064378149cc281afdd5963d6c5aaf",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "5be1de22448d76e5e19d038f7fa4e662acfd7be715e991b7bc078ed4a23edfc9"
+    },
+    "deadline-low/108": {
+      "manifest.json": "80104cdfc732eb3404c36602942a6832f5d52c0bf2b884495ff56f5190a3a2b2",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "ca89a31e2ecd3e2bf9b2fb2fd9cadf94571fbed509062f0b74ae11ea60f66241"
+    },
+    "deadline-low/109": {
+      "manifest.json": "f574e4186240ba2dfa34ef7eddb88313812b0d49773724e76b95f1148e9b38fd",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "074fa49834a1e54bd46506ea8472e6b318b4152e5dc4baa26ff82da2a9a27f34"
+    },
+    "deadline-high/100": {
+      "manifest.json": "207183d917b21987f908e7234a17f88d695bd4aaa300d28bbd9a4bc7e633c8b1",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "d4c391c549d4feac8d0ad270570e61f312cff1564d75dc3ed57e33296103317f"
+    },
+    "deadline-high/101": {
+      "manifest.json": "79359894f10f588f3101823bf25534e424ee1ae0855d01a54f5fb1480a304c9e",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "c8205e8a52541f299a2cd533a782cd5935f76e9ea353aed33f76a56bbe6ecb7b"
+    },
+    "deadline-high/102": {
+      "manifest.json": "da3110c5dbacc4646761b39476c4d0dd8d1e45aa7e09b04b50d5f15f3ecc6b15",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "9e4de2d9080e63ae6d817d03bddf688668554bcf876e140a24a59ecb73411039"
+    },
+    "deadline-high/103": {
+      "manifest.json": "a309b53e7ada99be35d1a5d937055c6bb93c43c19bd7b194ac6f0795d96e0a9e",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "955f5be09b264f99c0fc78c8eb4000e41e746fd9291f1eb8208cd63fd2bd309b"
+    },
+    "deadline-high/104": {
+      "manifest.json": "95e5b6a53c9d91f67b2a59059f91b0066d25733aec1297cd994a756e02baefc5",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "5246ef1600daca615f809262761031ce1c369fddee4b3e09ab66e57bbf1027d7"
+    },
+    "deadline-high/105": {
+      "manifest.json": "ceb0516269665c576fa9efbe96d9b8a68a8b34c87bf3771d193baad083559b77",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "62a5b35a146032da0a59db7863b4d66ad1224187b1d89e3f67de07e2d51d3a51"
+    },
+    "deadline-high/106": {
+      "manifest.json": "0bee1d1feff22e3394820ce6a8df2d2d3fc40db7be54a115bc415df87bb64cc8",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "a0e04e772389725634682aec70e3b83384dc4480e7b5af8da8f706d84a0585e3"
+    },
+    "deadline-high/107": {
+      "manifest.json": "a22e350ded99fa652ccac9acdee7c06fb018a9352791fe64c05df7aeb603e6d0",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "d634010e5389550e0b6771186ee058a535e37e5e082bffb4ce2b9c43f35c2e5c"
+    },
+    "deadline-high/108": {
+      "manifest.json": "ed0fd9776fd3aa737b7d972460cc2011c63fcb59f33b49a449baab6d2e38057e",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "fb99ca209527c99465a7d46db930242875297ea6079016e0cf35629fae89ca0a"
+    },
+    "deadline-high/109": {
+      "manifest.json": "1f6d4d8d671cbef118e90d5c2d424c7d4c463d3a49579ebab507fdcb9128776d",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "91eacf0dff63c5cdff38d8dff3adfa56edc75b821d02281d3e3ccd0793d5f764"
+    }
+  },
+  "summary_sha256": "a9e39bd382efaf95dbe619a093cdfa45aa1da7c1cfe8a6abdf61ee79c659edb8",
+  "contrasts_sha256": "620d872e1ddcb3c115f86e9631f5e9f4557ba29722def1f2329422755b68c4ab",
+  "gate": "audited and isolated changes; next phase may proceed regardless of improvement",
+  "training": false,
+  "source_holdout": false,
+  "paper_reproduction": false
+}

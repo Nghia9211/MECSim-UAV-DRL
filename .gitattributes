@@ -1,1 +1,6 @@
 *.sh text eol=lf
+
+# Preserve byte-level provenance/checksums in curated evidence and retired sources.
+/docs/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+/legacy/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+# Archived evidence retains original line endings/spacing; active source uses normal whitespace checks.

@@ -1,0 +1,203 @@
+{
+  "schema": "uav-mobile-service-v1",
+  "firstSeed": 51000,
+  "seeds": 30,
+  "horizonSeconds": 600,
+  "arrivalWindowSeconds": 300,
+  "devices": 12,
+  "layoutSeed": 42,
+  "layouts": [
+    {
+      "name": "hover"
+    }
+  ],
+  "speedMps": 5,
+  "altitudeMetres": 10,
+  "rangeMetres": 65,
+  "dwellSeconds": 30,
+  "flightWatts": 150,
+  "hoverWatts": 80,
+  "uavMips": 1000.0,
+  "uavCpuWatts": 20,
+  "uavBatteriesJ": [
+    1600000,
+    30000
+  ],
+  "localMips": 1000.0,
+  "localIdleWatts": 0.5,
+  "localCpuWatts": 3,
+  "localTxWatts": 0.1,
+  "localBatteryJ": 5000,
+  "connectedDevices": 8,
+  "loads": [
+    {
+      "name": "rho030-tight",
+      "targetRho": 0.3,
+      "imageRate": 0.24,
+      "backgroundRate": 0.020978875962176347,
+      "criticalDeadlineSeconds": 10.0,
+      "imageDeadlineSeconds": 30.0
+    },
+    {
+      "name": "rho030-reference",
+      "targetRho": 0.3,
+      "imageRate": 0.24,
+      "backgroundRate": 0.020978875962176347,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60
+    },
+    {
+      "name": "rho030-relaxed",
+      "targetRho": 0.3,
+      "imageRate": 0.24,
+      "backgroundRate": 0.020978875962176347,
+      "criticalDeadlineSeconds": 40,
+      "imageDeadlineSeconds": 120
+    },
+    {
+      "name": "rho060-tight",
+      "targetRho": 0.6,
+      "imageRate": 0.24,
+      "backgroundRate": 0.05711692330301836,
+      "criticalDeadlineSeconds": 10.0,
+      "imageDeadlineSeconds": 30.0
+    },
+    {
+      "name": "rho060-reference",
+      "targetRho": 0.6,
+      "imageRate": 0.24,
+      "backgroundRate": 0.05711692330301836,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60
+    },
+    {
+      "name": "rho060-relaxed",
+      "targetRho": 0.6,
+      "imageRate": 0.24,
+      "backgroundRate": 0.05711692330301836,
+      "criticalDeadlineSeconds": 40,
+      "imageDeadlineSeconds": 120
+    },
+    {
+      "name": "rho090-tight",
+      "targetRho": 0.9,
+      "imageRate": 0.24,
+      "backgroundRate": 0.09325497064386037,
+      "criticalDeadlineSeconds": 10.0,
+      "imageDeadlineSeconds": 30.0
+    },
+    {
+      "name": "rho090-reference",
+      "targetRho": 0.9,
+      "imageRate": 0.24,
+      "backgroundRate": 0.09325497064386037,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60
+    },
+    {
+      "name": "rho090-relaxed",
+      "targetRho": 0.9,
+      "imageRate": 0.24,
+      "backgroundRate": 0.09325497064386037,
+      "criticalDeadlineSeconds": 40,
+      "imageDeadlineSeconds": 120
+    },
+    {
+      "name": "rho120-tight",
+      "targetRho": 1.2,
+      "imageRate": 0.24,
+      "backgroundRate": 0.12939301798470237,
+      "criticalDeadlineSeconds": 10.0,
+      "imageDeadlineSeconds": 30.0
+    },
+    {
+      "name": "rho120-reference",
+      "targetRho": 1.2,
+      "imageRate": 0.24,
+      "backgroundRate": 0.12939301798470237,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60
+    },
+    {
+      "name": "rho120-relaxed",
+      "targetRho": 1.2,
+      "imageRate": 0.24,
+      "backgroundRate": 0.12939301798470237,
+      "criticalDeadlineSeconds": 40,
+      "imageDeadlineSeconds": 120
+    }
+  ],
+  "selectors": [
+    "ROUND_ROBIN",
+    "OLDEST_DATA"
+  ],
+  "offloading": [
+    "ALL_UAV",
+    "DEADLINE_ENERGY"
+  ],
+  "schedulers": [
+    "FIFO",
+    "EDF"
+  ],
+  "estimateError": 0,
+  "criticalFraction": 0.25,
+  "criticalDeadlineSeconds": 20,
+  "imageDeadlineSeconds": 60,
+  "backgroundDeadlineSeconds": 120,
+  "imageMiPerMegapixel": 833.3333333333334,
+  "referenceMips": 1000,
+  "backgroundWorkScale": 1,
+  "referenceSlantMetres": 10,
+  "studyStage": "hover",
+  "studySchema": "sequential-study-v1",
+  "workloadGenerator": "mixed-v2",
+  "taskSeeds": [
+    1005481242,
+    1317232478,
+    1034349711,
+    1938523942,
+    1461948043,
+    1699075907,
+    1956428729,
+    1026772558,
+    1975162111,
+    1304493260,
+    1481301696,
+    1657798193,
+    1053650848,
+    1070330512,
+    1668393118,
+    1989832701,
+    1059860226,
+    1640763975,
+    1639118278,
+    1339698331,
+    1061744243,
+    1478032066,
+    1391686295,
+    1772085054,
+    1221557002,
+    1956098587,
+    1412402015,
+    1978589029,
+    1991138898,
+    1028046372
+  ],
+  "smoke": false,
+  "seedManifestSha256": "412b90f4f922d2f26806e4f4028e158a41521637bee3b5a1cd7036849411073a",
+  "calibrationSource": "docs\\calibration\\workstation-cpu-20261101\\calibration.json",
+  "calibrationSha256": "1fc76ee50fc5399cf5b731f03c329f74bc478c310fae18fdfde5b9cc74f4b96d",
+  "computeCalibrationId": "6e44ab0f5980b440ceaa794f98e3275e37de3cb47776e35e0fe81eb60ce288b6",
+  "imageFixedMi": 524.3494216666376,
+  "imageRate": 0.24,
+  "slantDistanceMetres": 10,
+  "uavBatteryJ": 1600000,
+  "policies": [
+    "ALL_UAV__FIFO",
+    "ALL_UAV__EDF",
+    "ALL_UAV__SPT",
+    "ALL_UAV__PRIORITY"
+  ],
+  "backgroundSourcePoolSha256": "5af7a681ea894f419fded3920f06092e319469368ee068e101febb6243acf5de",
+  "backgroundServiceMeanSecondsProxy": 8.3015
+}

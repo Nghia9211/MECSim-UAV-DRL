@@ -40,6 +40,8 @@ def select(ready, now, battery, mips, cpu, idle, horizon, name, alpha):
     if name.startswith("RISK_"):
         ready=[t for t in ready if now+t[6]/mips<=t[4]+1e-8]
         name=name[5:]
+    if name=="BG_CAP_EDF":
+        name="EDF"
     if name == "FIFO":
         return min(ready, key=fifo)[0]
     if name == "EDF":
@@ -167,8 +169,10 @@ class Audit:
         while pending and time < self.horizon:
             if running is None:
                 pending = [j for j in pending if j[4] > time + 1e-8]
-                if air and self.schedule.startswith('RISK_'):
-                    pending=[j for j in pending if j[3]>time+1e-8 or time+j[6]/spec['mips']<=j[4]+1e-8]
+                if air:
+                    pending=[j for j in pending if j[3]>time+1e-8 or
+                        (not self.schedule.startswith('RISK_') or time+j[6]/spec['mips']<=j[4]+1e-8)
+                        and (not 'BG_CAP' in self.schedule or j[1]!='ALIBABA' or j[6]/spec['mips']<=self.background_cap_seconds+1e-8)]
                 if all(j[0] != candidate for j in pending):
                     break
                 ready = [j for j in pending if j[3] <= time + 1e-8]
@@ -236,6 +240,14 @@ class Audit:
                 check(end+num(j,'estimated_mi')/spec['mips']>deadline+1e-8, "False risk drop predicate")
                 check(not any(self.node(other)==node and math.isfinite(num(out,'start_s')) and num(out,'start_s')<end-1e-8
                               and num(out,'resolved_s')>end+1e-8 for other,out in self.o.items()), "Risk guard ran while CPU busy")
+            elif status == "DROPPED_BACKGROUND_BUDGET":
+                check('BG_CAP' in self.schedule and node==-1 and self.jobs[tid]['source']=='ALIBABA' and not math.isfinite(start),"Invalid background admission drop")
+                check(num(o,'ready_s')<=end+EPS and end<deadline+EPS,"Background drop not ready/unexpired")
+                check(num(j,'estimated_mi')/spec['mips']>self.background_cap_seconds+1e-8,"False background budget predicate")
+                if self.schedule.startswith('RISK_'):
+                    check(end+num(j,'estimated_mi')/spec['mips']<=deadline+1e-8,"Risk guard should take precedence")
+                check(not any(self.node(other)==node and math.isfinite(num(out,'start_s')) and num(out,'start_s')<end-1e-8
+                    and num(out,'resolved_s')>end+1e-8 for other,out in self.o.items()),"Background guard ran while CPU busy")
             elif status == "UNFINISHED_HORIZON":
                 close(end, self.horizon, "Horizon resolution")
             elif status in {"DROPPED_UAV_BATTERY", "DROPPED_DEVICE_BATTERY"}:
@@ -278,6 +290,8 @@ class Audit:
                             ready.append((tid, j["source"], num(j, "arrival_s"), num(o, "ready_s"), num(j, "deadline_s"), int(j["priority"]), num(j, "estimated_mi")))
                 if not dispatch_check:
                     continue  # A caller with a different scheduler must independently verify its actions.
+                if node==-1 and 'BG_CAP' in self.schedule:
+                    ready=[t for t in ready if t[1]!='ALIBABA' or t[6]/cfg["mips"]<=self.background_cap_seconds+1e-8]
                 predicted = select(ready, at, self.battery_at(node, at), cfg["mips"], cfg["cpuWatts"], cfg["idleWatts"],
                                    self.horizon, self.schedule_at(at) if node == -1 else "FIFO", self.alpha)
                 check(chosen == predicted, f"Wrong dispatch {chosen} != {predicted}")
@@ -302,7 +316,7 @@ class Audit:
             return  # Physics only; caller is responsible for independent routing replay.
         for d in decisions:
             tid = int(d["id"])
-            check(tid not in seen and self.jobs[tid]["source"] == "RESCUENET", "Duplicate/invalid decision")
+            check(tid not in seen and self.jobs[tid]["source"] in {"RESCUENET","SYNTHETIC_IMAGE"}, "Duplicate/invalid decision")
             seen.add(tid)
             j, o = self.jobs[tid], self.o[tid]
             now = num(j, "arrival_s")

@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "image_outcome_rows": 194392,
+  "input_sha256": {
+    "target\\sequential-study-20261101\\stage1-full\\manifest.json": "d18204e8dcce126b0131c42f8ce6cc7627d093a55fd58f7ef7796494298797fc",
+    "target\\sequential-study-20261101\\stage1-full\\verification.json": "1a05093d4796563178e9bd5b040bfa7be74d7e8a658259e734491701fe69607a",
+    "target\\sequential-study-20261101\\stage1-full\\episodes.csv": "c1335c6dd9101784eae45405923cb46c6db9d455099f55f6387bf91dd76ced00",
+    "target\\sequential-study-20261101\\stage1-full\\core-metrics-episodes.csv": "9ccdbb9961544d984479865fb844c191cd9a7c2839f91ece1473d8b1dcdc3fc0",
+    "target\\sequential-study-20261101\\stage2-full\\manifest.json": "4f88198d7892a4e52cfc941538c435b96c42e319465f52a762a017c21a5f0419",
+    "target\\sequential-study-20261101\\stage2-full\\verification.json": "7b4a897941335430349122f10f8b9069233a5e6842c684efc6c8249afc4fe1d6",
+    "target\\sequential-study-20261101\\stage2-full\\episodes.csv": "43e6b168e53275c13a066a650db88ed6e84288492867c60c58e602e4d5f19bad",
+    "target\\sequential-study-20261101\\stage2-full\\core-metrics-episodes.csv": "63b7c5460a69881b7fa4a1364ab8272ae603e148fb8b5e853bd39318285bf368"
+  },
+  "raw_inputs_modified": false,
+  "mutually_exclusive_reason_counts_verified": true,
+  "caveats": [
+    "Reasons follow a declared hierarchy, not proof of unique physical cause",
+    "Background overlap is observed blocking, not a simulated counterfactual rescue count",
+    "CPU-miss group uses isolated actual service for diagnosis only, never policy inputs",
+    "no_eligible_contact overlaps other categories and must not be added to exclusive reason counts",
+    "Same image/seed repeats across policies/scenarios are paired, not independent samples"
+  ]
+}

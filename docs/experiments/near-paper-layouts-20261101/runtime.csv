@@ -1,0 +1,6 @@
+policy,episodes,mean_wall_ms,p95_wall_ms,scope
+ROUND_ROBIN__ALL_LOCAL__EDF,300,3.8968536666666664,3.3698,"Java kernel only; local Windows; excludes startup, IO, audit"
+ROUND_ROBIN__ALL_UAV__EDF,300,2.326952,4.8265,"Java kernel only; local Windows; excludes startup, IO, audit"
+ROUND_ROBIN__SHORTEST_FINISH__EDF,300,2.1467526666666665,3.9293,"Java kernel only; local Windows; excludes startup, IO, audit"
+ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.159625666666667,4.0237,"Java kernel only; local Windows; excludes startup, IO, audit"
+ROUND_ROBIN__DELIVERY_AWARE__EDF,300,2.149280666666667,3.9194,"Java kernel only; local Windows; excludes startup, IO, audit"

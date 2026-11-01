@@ -48,6 +48,8 @@ public final class MobileServiceBenchmark {
         if (seeds<1||seeds>1000||first<0) throw new IllegalArgumentException("Invalid seeds");Math.addExact(first,seeds-1L);
         Path out=Path.of(System.getProperty("mobile.output","target/mobile-service-"+System.currentTimeMillis()));
         if (Files.exists(out)) throw new IllegalArgumentException("Output exists");
+        var version=WorkloadSeeds.Version.parse(p.path("workloadGenerator").asText("legacy-v1"));
+        p.put("workloadGenerator",version.id);
         int count=p.get("devices").asInt();
         var devices=Collections.nCopies(count,new OffloadingSimulation.Device(p.get("localMips").asDouble(),p.get("localIdleWatts").asDouble(),
                 p.get("localCpuWatts").asDouble(),p.get("localTxWatts").asDouble(),p.get("localBatteryJ").asDouble()));
@@ -108,7 +110,7 @@ public final class MobileServiceBenchmark {
         }
         for(String file:List.of("PureEdgeSim/uav/UAVMobilityModel.java","PureEdgeSim/uav/UAVEdgeNode.java","PureEdgeSim/uav/UAVEnergyModel.java","PureEdgeSim/uav/Location3D.java",
                 "PureEdgeSim/uav/PaperParameters.java","PureEdgeSim/uav/RescueNetWorkload.java","PureEdgeSim/uav/AlibabaWorkload.java","scripts/verify-uav-offloading.py",
-                "scripts/verify-uav-mobile.py","scripts/offloading_metrics.py","scripts/test_offloading_metrics.py",
+                "scripts/verify-uav-mobile.py","scripts/workload_rng.py","scripts/offloading_metrics.py","scripts/test_offloading_metrics.py",
                 "scripts/test-uav-mobile-verifier.py","scripts/test-uav-mobile-risk-verifier.py","scripts/test-uav-delivery-verifier.py",
                 "scripts/test-uav-contact-wait-verifier.py","scripts/run-mobile-comparison-server.sh",
                 "src/test/java/uav/MobileServiceTest.java","pom.xml"))snapshot(out,Path.of(file),snapshots);
@@ -117,8 +119,8 @@ public final class MobileServiceBenchmark {
         for(var load:p.get("loads"))for(int n=0;n<seeds;n++) {
             long seed=first+n;
             var wc=new SchedulingWorkload.Config(p.get("arrivalWindowSeconds").asDouble(),load.get("imageRate").asDouble(),load.get("backgroundRate").asDouble(),p.get("criticalFraction").asDouble(),
-                    p.get("criticalDeadlineSeconds").asDouble(),p.get("imageDeadlineSeconds").asDouble(),p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageMiPerMegapixel").asDouble(),p.get("referenceMips").asDouble(),p.get("backgroundWorkScale").asDouble(),p.get("referenceSlantMetres").asDouble());
-            var jobs=OffloadingJob.assign(SchedulingWorkload.generate(pools,wc,seed),count,seed,p.get("estimateError").asDouble());
+                    p.get("criticalDeadlineSeconds").asDouble(),p.get("imageDeadlineSeconds").asDouble(),p.get("backgroundDeadlineSeconds").asDouble(),p.get("imageMiPerMegapixel").asDouble(),p.get("referenceMips").asDouble(),p.get("backgroundWorkScale").asDouble(),p.get("referenceSlantMetres").asDouble(),p.path("imageFixedMi").asDouble(0));
+            var jobs=OffloadingJob.assign(SchedulingWorkload.generate(pools,wc,seed,version),count,seed,p.get("estimateError").asDouble(),version);
             String csv=OffloadingBenchmark.csv(jobs),hash=OffloadingBenchmark.hash(csv);
             for(String scenario:configs.keySet())if(scenario.contains("-"+load.get("name").asText()+"-")) {
                 Path directory=out.resolve(scenario+"/seed-"+seed);Files.createDirectories(directory);Files.writeString(directory.resolve("workload.csv"),csv,StandardCharsets.UTF_8);

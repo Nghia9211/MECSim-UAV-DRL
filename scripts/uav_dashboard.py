@@ -1,6 +1,5 @@
 """Build a self-contained local results dashboard; stdlib only, no training or raw-data mutation."""
 import argparse
-from collections import defaultdict
 import csv
 from datetime import datetime
 from functools import partial
@@ -10,9 +9,6 @@ import json
 import os
 from pathlib import Path
 import shutil
-import subprocess
-import sys
-import webbrowser
 
 ROOT=Path(__file__).resolve().parents[1]
 UI=ROOT/'visualization'

@@ -1,0 +1,120 @@
+{
+  "status": "COMPLETE_INPUT_DIAGNOSTIC",
+  "development_cases": 60,
+  "original_image_shapes": [
+    [
+      4000,
+      3000
+    ],
+    [
+      4056,
+      3040
+    ]
+  ],
+  "assumptions": [
+    "No queue, travel, energy depletion, contention or result-return delay",
+    "Isolated local feasibility ignores disconnected result delivery",
+    "65m is the declared maximum slant range; 10m is directly overhead",
+    "These are marginal optimistic bounds, not simultaneous system feasibility and not algorithm DVR",
+    "Background MI and durations remain uncalibrated Alibaba proxies",
+    "Only development inputs used; no algorithm evaluated; no seed chosen by performance"
+  ],
+  "results": {
+    "light/tight": {
+      "images": 720,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 720,
+      "background_isolated_impossible": 1,
+      "background_tasks": 174,
+      "local_ratios_mean": 0.026702979807097283,
+      "local_ratios_p95": 0.05243494216666376,
+      "uav_near_ratios_mean": 0.13583178928857875,
+      "uav_near_ratios_p95": 0.27873742216666375,
+      "uav_far_ratios_mean": 135.09080125699055,
+      "uav_far_ratios_p95": 280.13741474098964,
+      "all_images_on_uav_offered_utilization": 0.041947953733331,
+      "background_offered_utilization_proxy": 0.1160919540229885
+    },
+    "light/reference": {
+      "images": 720,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 720,
+      "background_isolated_impossible": 1,
+      "background_tasks": 174,
+      "local_ratios_mean": 0.013351489903548642,
+      "local_ratios_p95": 0.02621747108333188,
+      "uav_near_ratios_mean": 0.06791589464428938,
+      "uav_near_ratios_p95": 0.13936871108333188,
+      "uav_far_ratios_mean": 67.54540062849527,
+      "uav_far_ratios_p95": 140.06870737049482,
+      "all_images_on_uav_offered_utilization": 0.041947953733331,
+      "background_offered_utilization_proxy": 0.1160919540229885
+    },
+    "light/relaxed": {
+      "images": 720,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 720,
+      "background_isolated_impossible": 1,
+      "background_tasks": 174,
+      "local_ratios_mean": 0.006675744951774321,
+      "local_ratios_p95": 0.01310873554166594,
+      "uav_near_ratios_mean": 0.03395794732214469,
+      "uav_near_ratios_p95": 0.06968435554166594,
+      "uav_far_ratios_mean": 33.772700314247636,
+      "uav_far_ratios_p95": 70.03435368524741,
+      "all_images_on_uav_offered_utilization": 0.041947953733331,
+      "background_offered_utilization_proxy": 0.1160919540229885
+    },
+    "overload/tight": {
+      "images": 2209,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 2209,
+      "background_isolated_impossible": 8,
+      "background_tasks": 850,
+      "local_ratios_mean": 0.026308462759039836,
+      "local_ratios_p95": 0.05243494216666376,
+      "uav_near_ratios_mean": 0.13285017390435447,
+      "uav_near_ratios_p95": 0.26526278216666377,
+      "uav_far_ratios_mean": 131.88846487336258,
+      "uav_far_ratios_p95": 263.4604244040016,
+      "all_images_on_uav_offered_utilization": 0.12584386119999302,
+      "background_offered_utilization_proxy": 0.6967058823529412
+    },
+    "overload/reference": {
+      "images": 2209,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 2209,
+      "background_isolated_impossible": 8,
+      "background_tasks": 850,
+      "local_ratios_mean": 0.013154231379519918,
+      "local_ratios_p95": 0.02621747108333188,
+      "uav_near_ratios_mean": 0.06642508695217723,
+      "uav_near_ratios_p95": 0.13263139108333188,
+      "uav_far_ratios_mean": 65.94423243668129,
+      "uav_far_ratios_p95": 131.7302122020008,
+      "all_images_on_uav_offered_utilization": 0.12584386119999302,
+      "background_offered_utilization_proxy": 0.6967058823529412
+    },
+    "overload/relaxed": {
+      "images": 2209,
+      "local_isolated_impossible": 0,
+      "uav_at_10m_impossible": 0,
+      "uav_at_65m_impossible": 2209,
+      "background_isolated_impossible": 8,
+      "background_tasks": 850,
+      "local_ratios_mean": 0.006577115689759959,
+      "local_ratios_p95": 0.01310873554166594,
+      "uav_near_ratios_mean": 0.03321254347608862,
+      "uav_near_ratios_p95": 0.06631569554166594,
+      "uav_far_ratios_mean": 32.972116218340645,
+      "uav_far_ratios_p95": 65.8651061010004,
+      "all_images_on_uav_offered_utilization": 0.12584386119999302,
+      "background_offered_utilization_proxy": 0.6967058823529412
+    }
+  }
+}

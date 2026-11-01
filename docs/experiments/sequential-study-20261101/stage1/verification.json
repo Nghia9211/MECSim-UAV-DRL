@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "episodes": 1440,
+  "task_outcomes": 136620,
+  "paired_cases": 360,
+  "seed_partition": "development",
+  "independent_input_and_dispatch_replay": true,
+  "independent_physics_energy_and_routing_replay": true,
+  "unchanged_all_uav_trajectories_across_schedulers": true,
+  "calibration_status": "PROVISIONAL_ARCHITECTURE_TIMING",
+  "training": false
+}

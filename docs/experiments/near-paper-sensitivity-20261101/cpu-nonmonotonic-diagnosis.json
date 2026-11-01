@@ -1,0 +1,8 @@
+{
+  "policy": "ROUND_ROBIN__DEADLINE_ENERGY__EDF",
+  "cpu_high_vs_reference_route_changes": 51,
+  "episodes_with_changed_visit_trace": 17,
+  "delivered_gained": 0,
+  "delivered_lost": 22,
+  "scope": "Observed paired trace changes; faster CPU also changes policy forecasts/routes and pinned contact itinerary. Not a monotonic-performance guarantee."
+}

@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "stage1_run": "target\\sequential-study-20261101\\stage1-full",
+  "stage1_verification_sha256": "1a05093d4796563178e9bd5b040bfa7be74d7e8a658259e734491701fe69607a",
+  "simulation_manifest_sha256": "d18204e8dcce126b0131c42f8ce6cc7627d093a55fd58f7ef7796494298797fc",
+  "stage1_episodes": 1440,
+  "allow_stage2": true,
+  "dispatches": 123311,
+  "multi_ready_dispatches": 25719,
+  "multi_ready_dispatch_fraction": 0.2085702005498293,
+  "isolated_infeasible_offloaded_images": 0,
+  "conclusion": "Measurement valid; scheduling opportunities exist. Mobile stage needs fixed trajectory/route controls.",
+  "limitations": [
+    "Provisional random-weight architecture compute; synthetic deadlines/power",
+    "Alibaba CPU proxy and shared source pools, development seeds only",
+    "No RL training, no novelty or real energy/lifetime claim"
+  ],
+  "stage2_adjustments": [
+    "Keep four schedulers under ALL_UAV to isolate ordering with audited identical service trajectories",
+    "Add STATIC_FIRST against ROUND_ROBIN, reference deadline only, two area scales",
+    "Use heavy offered loads rho0.9 and1.2; actual UAV load falls when images run locally",
+    "DELIVERY_AWARE+EDF is a separate routing arm, not an order-only comparison",
+    "Use same radio/whole JPEG/compute; report radio-infeasible offloads, coverage vs delivery separately"
+  ],
+  "reviewed_before_any_stage2_run": true,
+  "decision": "PROCEED_WITH_LIMITS",
+  "empirical_review": {
+    "fifo_image_dvr": 0.11670756500202865,
+    "edf_image_dvr": 0.10192060469533587,
+    "spt_image_dvr": 0.10169468464169372,
+    "priority_image_dvr": 0.1007332516608279,
+    "fifo_j_per_ontime_image": 841.62,
+    "edf_j_per_ontime_image": 827.873,
+    "reference_realized_offered_mean_by_target": {
+      "rho030": 0.24714309694017794,
+      "rho060": 0.49314309694017827,
+      "rho090": 0.7434764302735115,
+      "rho120": 1.0455319858290666
+    },
+    "reference_edf_cpu_busy_by_target": {
+      "rho030": 0.20887651770793128,
+      "rho060": 0.36572578614244616,
+      "rho090": 0.5073378226151167,
+      "rho120": 0.6361646340441769
+    },
+    "no_observed_uav_depletion": true
+  },
+  "reason_for_stage2_design": "Use heavy load scenarios where ordering opportunities were observed; preserve original radio/deadlines/whole JPEG and isolate route/selector factors. Keep rates/seeds fixed and report realized loads rather than retuning them to policy scores."
+}

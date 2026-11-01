@@ -12,6 +12,8 @@ import sys
 spec=importlib.util.spec_from_file_location('fixed_audit',Path(__file__).with_name('verify-uav-offloading.py'))
 base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 read,num,check,close,sha=base.read,base.num,base.check,base.close,base.sha
+rng_spec=importlib.util.spec_from_file_location("workload_rng",Path(__file__).with_name("workload_rng.py"))
+workload_rng=importlib.util.module_from_spec(rng_spec);rng_spec.loader.exec_module(workload_rng)
 
 
 class MobileAudit(base.Audit):
@@ -83,7 +85,7 @@ class MobileAudit(base.Audit):
 
     def verify_mobile(self,selector,decisions,route):
         super().verify(decisions,route)
-        check(len(self.coverage)==sum(j['source']=='RESCUENET' and o['route']!='UNDECIDED' for tid,j in self.jobs.items() for o in [self.o[tid]]),'Coverage count')
+        check(len(self.coverage)==sum(j['source'] in {'RESCUENET','SYNTHETIC_IMAGE'} and o['route']!='UNDECIDED' for tid,j in self.jobs.items() for o in [self.o[tid]]),'Coverage count')
         check(self.visit_times==sorted(set(self.visit_times)),'Visit ordering')
         view_groups={t:[] for t in self.visit_times}
         for view in self.views:
@@ -155,7 +157,7 @@ class MobileAudit(base.Audit):
                 planned_rate=20e6*math.log1p(.1*1e-8*planned_slant**(-4)/1e-13)/math.log(2)
                 close(num(c,'planned_upload_s'),num(j,'input_bytes')*8/planned_rate,'Planned contact upload duration')
             if self.o[tid]['route']=='UAV':check(eligible,'Upload outside current/known-flight contact')
-        expected={tid for tid,o in self.o.items() if self.jobs[tid]['source']=='RESCUENET' and o['status'].startswith('COMPLETED')
+        expected={tid for tid,o in self.o.items() if self.jobs[tid]['source'] in {'RESCUENET','SYNTHETIC_IMAGE'} and o['status'].startswith('COMPLETED')
                   and (o['route']=='UAV' or self.cfg['sites'][int(self.jobs[tid]['device'])]['connected'])}
         check(len(self.updates)==len(expected) and {int(u['id']) for u in self.updates}==expected,'Delivered update set')
         latest=[0.]*len(self.cfg['devices']);previous_time=-1
@@ -189,9 +191,11 @@ def verify(root):
             inputs=read(directory/'workload.csv');jobs={int(j['id']):j for j in inputs};check(len(jobs)==len(inputs),'Duplicate jobs')
             digest=sha(directory/'workload.csv');cases[scenario,seed]=(jobs,digest)
             load=scenario.split('-')[1];check(pair.setdefault((load,seed),digest)==digest,'Geometry/battery changed offered workload')
+            declared=dict(p);declared.update(next(x for x in p['loads'] if x['name']==load))
+            workload_rng.verify_rows(inputs,list(images.values()),list(background.values()),declared,seed)
             for j in jobs.values():
-                if j['source']=='RESCUENET':
-                    im=images[int(j['source_index'])];close(num(j,'actual_mi'),num(im,'width')*num(im,'height')/1e6*p['imageMiPerMegapixel'],'Image actual MI')
+                if j['source'] in {'RESCUENET','SYNTHETIC_IMAGE'}:
+                    im=images[int(j['source_index'])];close(num(j,'actual_mi'),(p.get('imageFixedMi') or num(im,'width')*num(im,'height')/1e6*p['imageMiPerMegapixel']),'Image actual MI')
                     close(num(j,'input_bytes'),num(im,'bytes'),'Image bytes');check(0<=int(j['device'])<len(cfg['devices']),'Device ID')
                     check(int(j['priority']) in {2,3},'Image priority');budget=p['criticalDeadlineSeconds'] if int(j['priority'])==3 else p['imageDeadlineSeconds']
                     close(num(j,'upload_ready_s')-num(j,'arrival_s'),num(j,'input_bytes')*8/20e6,'Reference link duration')

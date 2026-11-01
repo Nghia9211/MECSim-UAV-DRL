@@ -1,4 +1,4 @@
-﻿# Contact-aware MaskablePPO: thiết kế và pilot
+# Contact-aware MaskablePPO: thiết kế và pilot
 
 Ngày2026-10-30. Đây là adaptation cho bài toán, không phải thuật toán PPO mới.
 Dùng MaskablePPO chuẩn từ sb3-contrib2.6.0, cùng stable-baselines3. Không tự viết framework RL.

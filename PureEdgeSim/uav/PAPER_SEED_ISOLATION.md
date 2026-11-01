@@ -64,7 +64,7 @@ Protocol đã khóa:
   các khởi tạo tác giả không công bố đầy đủ.
 
 Run hiện tại:
-[paper-seed-isolation-20261024](../../target/paper-seed-isolation-20261024/).
+[paper-seed-isolation-20261024](../../target/paper-seed-isolation-20261024).
 
 Sau khi train hoàn tất, runner tự kiểm tra config/checkpoint, replay lựa chọn
 best trên validation, và replay độc lập270physical/action traces. Mọi state

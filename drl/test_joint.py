@@ -1,5 +1,4 @@
 """Integration tests: policy actions, shared physics replay and adversarial traces."""
-import copy
 import importlib.util
 import json
 from pathlib import Path

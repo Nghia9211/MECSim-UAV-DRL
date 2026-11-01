@@ -1,0 +1,117 @@
+{
+  "status": "COMPLETE",
+  "factor": "cpu",
+  "new_episodes": 1800,
+  "reference_episodes_reused": 900,
+  "plan_sha256": "8e1358a03a2c73c824b0942de98ecc4c9bc6ff66e4bf3d66e24aa9315d5f76e0",
+  "source_unchanged": true,
+  "isolated_factor": true,
+  "case_proofs": {
+    "cpu-low/100": {
+      "manifest.json": "21c5f6bc3571b07790db2f2370d08e290f6c2382ef098ccda69b151decb4ead6",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "0c3ef8f78a94bdf323831601b54ca5228b64d99b60d3d43c4f1923b75f3fc3b2"
+    },
+    "cpu-low/101": {
+      "manifest.json": "76e2e74039e04a6109e56e05b3040f2db4ddab6a9a8d5da46ba685ba7d6ee545",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "211e85d75e0b2fcf0076b9077f80c80a4e1cacc74d801f493c1539430f9c5022"
+    },
+    "cpu-low/102": {
+      "manifest.json": "4a2a4357245a4906eac6673482ff3eda889f8ce584fb1b155997be0ae7e5bc13",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "d5fa812215339650b2976a4975aec27a352b3a43f14ded0aea610a857b60ac19"
+    },
+    "cpu-low/103": {
+      "manifest.json": "3f893e4c9e65f9b94431384159d66d44e35e1da01b7321ab9e72a82824dee608",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "5345c7098dc431a64e5db6c7e168566eeee6cf69ae9c577e6d3d75877541e35e"
+    },
+    "cpu-low/104": {
+      "manifest.json": "949797c3e747b8ed2e881442677354dad7049091a63a9c601d10ad25d9746c04",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "6aa770bd8821fc90747acc5ae612a9a710b53f62397afda42ffd0e3448b39dec"
+    },
+    "cpu-low/105": {
+      "manifest.json": "1d31522abeb56f2a73012b11d201794cba9a524bc3e3ecb638594c8a774ec88e",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "bc63a38e48faaf63dbaaa935888395a27649bd225692d67eb29e0910ada636e7"
+    },
+    "cpu-low/106": {
+      "manifest.json": "9d295ad8883dfca40c08d93646dafeca77a1cb74e79dd90b225d953ad2e4e887",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "8593518e56eae2ba939568a628d651cbecc0f8f976cff220e3d5a5b2fd1d0cb8"
+    },
+    "cpu-low/107": {
+      "manifest.json": "bd5e8de9f4611c358c91b21670ad023ac0a9f3e85cccef86b88df5c445c67141",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "200354a7dcf99140bce60b3f43953a1cfc6dd035af79f0b51e56624883782f45"
+    },
+    "cpu-low/108": {
+      "manifest.json": "fe197fcfc09f7a36a38f6f2f690fa5d8f1120fa15ceafbc4ad7f78f652f3caa9",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "366789c1b3e077930fd69b3ab9e4e6835ad935929afa17158ddbac0cec57c04a"
+    },
+    "cpu-low/109": {
+      "manifest.json": "b6a8ec68be26d75308e60c64aee5de9114efe635a90dd8801262bf1234de3dbf",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "851a772823f6e1702fcaa859cafa0c2b04c56401a4a39753c848af63c664a04a"
+    },
+    "cpu-high/100": {
+      "manifest.json": "0d1e3fcfb4ee1731fd7c370e58c70c477cb3f810a16665b4cdc076648d268e02",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "8183a454a5ab1574dd910124081f6ecb829a8375fcca19054039f3898623187f"
+    },
+    "cpu-high/101": {
+      "manifest.json": "e08289186f1f15ae2d6add10c2f0cae1a59bd1e86538981268f6ecf37bcbaabf",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "49d1e10d00e02d80eb47e767cce189fe663a7c454cde485a04465ac137ed001b"
+    },
+    "cpu-high/102": {
+      "manifest.json": "0654b44c46d7d612468a3db12cd686aa2132d5191f3af3911df3b51ced527de1",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "a1c15671febeadc4c1bbb7c714f85276790e05a0437c138c1f2543729de737f3"
+    },
+    "cpu-high/103": {
+      "manifest.json": "76e525c300a83758ceff6dc4e1c7bfcb40b9fd312669de00d0574e1f57458fbe",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "a823dbcef427935cf466fca30e58e6144a372a3e178954955190937ddecb9bd3"
+    },
+    "cpu-high/104": {
+      "manifest.json": "92b5c18caf8d8219816a65150ba897122bb3373b1989a90bb59ab079c70bf1dc",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "6d700116c199d524d4cc55e6f2e95ff9793928d979870173eb626b97b9db14ea"
+    },
+    "cpu-high/105": {
+      "manifest.json": "6d0b9638aad89e030f130a2ccfc9570717ef2ea9d2389f85a68a5555a87bd43b",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "bd64cc5c5941b6388685e98ac54cb529554b678d8ebfdf8b70a8f6aeea820b25"
+    },
+    "cpu-high/106": {
+      "manifest.json": "9d63c293d1ba7b231279633a27f6c271e3498dc9e9c4b76c78a25357606a0994",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "d119e5d535d0df72709c436a633d60ccfb4fe230f7d7032398db09ac63843039"
+    },
+    "cpu-high/107": {
+      "manifest.json": "a94df2263c5129d1e9732f4da48bb979cb9279356859c96ace8dee4f5b5beebb",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "6389cdc1bfa148e1648aeb37564e7d5889f39461b0fd54b6d11a87219bf38557"
+    },
+    "cpu-high/108": {
+      "manifest.json": "f1bff8d8496185f87d8bca102b913bace4ed9066d83c9731641d9276919ca880",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "2b3af124dd2cf8ba005dba8ee8e80a42fcd33ea3172f2ce7a563932680c66916"
+    },
+    "cpu-high/109": {
+      "manifest.json": "782855d47ac5e1934bd88b22c7b1ea7578432667b8bc9a3ba7e00a3f5c4f2fa0",
+      "verification.json": "cf08ae3c5b204be4196cfdaefe16c5cddd49005b7b70937697921f1b515ca07a",
+      "core-metrics-episodes.csv": "ae968aa7de677a6e0a08ce8733668212fbd4124ab67b7e41a913a78299ef8670"
+    }
+  },
+  "summary_sha256": "554815124103000e3117a8fdb260a4e385112545c87a0a6eabc8bfcf70bc4cab",
+  "contrasts_sha256": "87aaa29c08b2ed6db347b4d4bc2295d799b257a3e026898737a97b3bf9f6ca5d",
+  "gate": "audited and isolated changes; next phase may proceed regardless of improvement",
+  "training": false,
+  "source_holdout": false,
+  "paper_reproduction": false
+}

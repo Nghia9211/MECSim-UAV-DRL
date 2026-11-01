@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "verified": true,
+  "new_episodes": 5400,
+  "reused_episodes": 900,
+  "total_analysis_cases": 6300,
+  "phase_review_sha256": {
+    "cpu": "b62cb2eba4a9bb75f1c911f2e9af0b2f3740fab4d97e8522bb5096fcf9eb7140",
+    "deadline": "18f5ba2bff97f0d6324fa23a896d9404883f5c378253654cc71c465b1ec404da",
+    "dwell": "959f65eeddf796d7dcfc33678d8dc2d577b10f418620e467485b24dc1817e22e"
+  },
+  "plan_sha256": "8e1358a03a2c73c824b0942de98ecc4c9bc6ff66e4bf3d66e24aa9315d5f76e0",
+  "summary_sha256": "b463188048887c239e19b804b3d67fcb48daba25dafaeb896bdbe43b99a0159f",
+  "episode_metrics_sha256": "ff1ff97b0fda341fd049c2058512cefba849d1e05ccdaca778462b8226746d91",
+  "source_holdout": false,
+  "training": false,
+  "paper_reproduction": false
+}

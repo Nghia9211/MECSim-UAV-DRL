@@ -1,0 +1,5 @@
+reason,description,count,percent_all,percent_failures
+LOCAL_ON_TIME_DISCONNECTED,Local xử lý xong đúng hạn nhưng mất kết nối,4676,27.49294449670743,79.33491686460808
+UPLOAD_COMPUTE_INTRINSIC,Upload + compute đã vượt deadline dù không có CPU queue,1086,6.385230479774224,18.42551747539871
+CONTACT_WAIT_INTRINSIC,Phần chờ contact làm vượt deadline dù không có CPU queue,52,0.3057384760112888,0.8822531387852053
+CPU_WAIT_OR_RUNNING_MISS,Upload + compute cô lập kịp nhưng chờ CPU / risk rejection,80,0.4703668861712135,1.3573125212080082

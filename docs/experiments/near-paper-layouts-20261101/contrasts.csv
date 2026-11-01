@@ -1,0 +1,13 @@
+baseline,candidate,metric,delta,ci95_low,ci95_high,bootstrap_valid,bootstrap_reps,method
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__ALL_UAV__EDF,delivered_dvr,-0.05296901823433677,-0.07545223678366712,-0.03246115344780205,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__ALL_UAV__EDF,image_dvr,-0.03546785310748921,-0.0496673359458691,-0.021769538991098434,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__ALL_UAV__EDF,j_per_delivered,-4297.734846290947,-6720.248708478379,-2595.3230720926767,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__SHORTEST_FINISH__EDF,delivered_dvr,-0.058051360365026575,-0.07690729601718117,-0.041512270657898455,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__SHORTEST_FINISH__EDF,image_dvr,-0.04209236818870462,-0.054533821671585686,-0.030681425639210717,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__SHORTEST_FINISH__EDF,j_per_delivered,-4308.983952595227,-6692.628609741358,-2612.745424254237,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DEADLINE_ENERGY__EDF,delivered_dvr,-0.06213486408992893,-0.0817616500614847,-0.04421642358304762,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DEADLINE_ENERGY__EDF,image_dvr,-0.04194744065247273,-0.05422256693148522,-0.03065711065724974,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DEADLINE_ENERGY__EDF,j_per_delivered,-4591.573789807386,-7115.635711966828,-2769.6703666275826,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DELIVERY_AWARE__EDF,delivered_dvr,-0.06213486408992893,-0.0817616500614847,-0.04421642358304762,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DELIVERY_AWARE__EDF,image_dvr,-0.04194744065247273,-0.05422256693148522,-0.03065711065724974,5000,5000,crossed environment x shared-workload bootstrap; exploratory
+ROUND_ROBIN__ALL_LOCAL__EDF,ROUND_ROBIN__DELIVERY_AWARE__EDF,j_per_delivered,-4591.573789807386,-7115.635711966828,-2769.6703666275826,5000,5000,crossed environment x shared-workload bootstrap; exploratory

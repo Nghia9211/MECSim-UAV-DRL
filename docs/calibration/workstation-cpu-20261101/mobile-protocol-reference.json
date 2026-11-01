@@ -1,0 +1,73 @@
+{
+  "schema": "uav-mobile-service-v1",
+  "firstSeed": 51000,
+  "seeds": 30,
+  "horizonSeconds": 600,
+  "arrivalWindowSeconds": 300,
+  "devices": 12,
+  "layoutSeed": 42,
+  "layouts": [
+    {
+      "name": "compact",
+      "areaMetres": 250
+    },
+    {
+      "name": "wide",
+      "areaMetres": 800
+    }
+  ],
+  "speedMps": 5,
+  "altitudeMetres": 10,
+  "rangeMetres": 65,
+  "dwellSeconds": 30,
+  "flightWatts": 150,
+  "hoverWatts": 80,
+  "uavMips": 1000.0,
+  "uavCpuWatts": 20,
+  "uavBatteriesJ": [
+    1600000,
+    30000
+  ],
+  "localMips": 1000.0,
+  "localIdleWatts": 0.5,
+  "localCpuWatts": 3,
+  "localTxWatts": 0.1,
+  "localBatteryJ": 5000,
+  "connectedDevices": 8,
+  "loads": [
+    {
+      "name": "light",
+      "imageRate": 0.08,
+      "backgroundRate": 0.02
+    },
+    {
+      "name": "overload",
+      "imageRate": 0.24,
+      "backgroundRate": 0.1
+    }
+  ],
+  "selectors": [
+    "ROUND_ROBIN",
+    "OLDEST_DATA"
+  ],
+  "offloading": [
+    "ALL_UAV",
+    "DEADLINE_ENERGY"
+  ],
+  "schedulers": [
+    "FIFO",
+    "EDF"
+  ],
+  "estimateError": 0,
+  "criticalFraction": 0.25,
+  "criticalDeadlineSeconds": 20.0,
+  "imageDeadlineSeconds": 60.0,
+  "backgroundDeadlineSeconds": 120,
+  "imageMiPerMegapixel": 833.3333333333334,
+  "referenceMips": 1000,
+  "backgroundWorkScale": 1,
+  "referenceSlantMetres": 10,
+  "workloadGenerator": "mixed-v2",
+  "imageFixedMi": 524.3494216666376,
+  "computeCalibrationId": "6e44ab0f5980b440ceaa794f98e3275e37de3cb47776e35e0fe81eb60ce288b6"
+}

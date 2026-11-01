@@ -1,0 +1,150 @@
+{
+  "status": "PASS",
+  "full_episodes": 6480,
+  "task_outcomes": 658458,
+  "runs": [
+    {
+      "stage": "hover",
+      "partition": "development",
+      "episodes": 2160,
+      "task_outcomes": 204930,
+      "manifest_sha256": "bf65d8dcdc338a8ad9fdcc3068de4ceafe7d538fb18d1067f3405b8d43a6d6fa",
+      "verification_sha256": "85047a38768b811fe3d787f93e25a4ecfb835749d58466d147649cfa432d7da0",
+      "raw_path": "target\\admission-study-20261101\\hover-full"
+    },
+    {
+      "stage": "mobile",
+      "partition": "development",
+      "episodes": 1440,
+      "task_outcomes": 151320,
+      "manifest_sha256": "b9b58a39754eb0405782b57406a2dac3701f652249e85cea7f1efb40efa0c45e",
+      "verification_sha256": "78da7d0d4739208068512297c80887366c2379cb4520eaa73b66d03c5e17a33f",
+      "raw_path": "target\\admission-study-20261101\\mobile-full"
+    },
+    {
+      "stage": "validation",
+      "partition": "validation",
+      "episodes": 1440,
+      "task_outcomes": 152160,
+      "manifest_sha256": "d2cd037574a38eb371820f87db298b8b0c4b10fa38ae60be153a9e0e69f306b6",
+      "verification_sha256": "e76c402cf13ed74f332e12c228a7d94eb58dc46cbad19d18a6e7e7d00799c647",
+      "raw_path": "target\\admission-study-20261101\\validation-full"
+    },
+    {
+      "stage": "evaluation",
+      "partition": "evaluation",
+      "episodes": 1440,
+      "task_outcomes": 150048,
+      "manifest_sha256": "3119fd36b81a61cdbd33298acc132416f2b43c7d7ec617d0a953b87d37193623",
+      "verification_sha256": "a44f248aa8b0972051d2e1c5f6732bbbf69a718ac8bcd6948376ec101e1678ec",
+      "raw_path": "target\\admission-study-20261101\\evaluation-full"
+    }
+  ],
+  "heldout_lock_sha256": "71714c6af203019374da4130c49a16ddda59fa340de6c2185add963c3c606e34",
+  "no_threshold_change_after_lock": true,
+  "training": false,
+  "report_source_sha256": "a8bcbf8aecfe9172a16ac9a1dd75e2c590e6936194f7346c0d84e6515f7f22ed",
+  "artifact_sha256": {
+    "admission-tradeoff.png": "cf6126ac090160d8fe40f2971cc831cd2f77f9b0b0c9f2d04abe6c3900be2c87",
+    "background-admission-work.csv": "1ab18fda99a1ef01f6caf7366165d1b4fe870bb3211add973f0d20e027cca5a1",
+    "diagnosis-blocking-summary.csv": "0b51a5676e9c2e05b956be84c0903afe449a4c30e6a1e347686737fa7f1c2645",
+    "diagnosis-dispatch-threats.csv": "85a2a193f009ebc06f81789eafc4c552a9fae6aa7e6feb60d96661d33951435f",
+    "diagnosis-failure-summary.csv": "8584a6ceb3048ef863bbbc407675834b3770148ef4c0f2d8274c9a67fb1550fb",
+    "diagnosis-verification.json": "961e7ae6197031d2cff4e2a8a202e044d78a9466900f3625d9be86ba56783c16",
+    "EXPERIMENT_LOCK.json": "71714c6af203019374da4130c49a16ddda59fa340de6c2185add963c3c606e34",
+    "overall-paired-intervals.csv": "f70d44bcb692fe8f40fb32f08a9efbe62b264abdc8d4ff13fd224af51c23d2be",
+    "overall-summary.csv": "4b3aa1e4b5be4f686d91ea9a94147843f41fac12a9863d659b5d12baf92353c8",
+    "README.md": "91c4c16b073206ff473e5abf76b972f717f9faf82acc17b3a99d70cde2dde66c",
+    "evaluation/background-admission-work.csv": "9060acb8034f32267c64cb1f2ff5fe5fc6295d4fd1f6f2cce5b7ff15882cb3d6",
+    "evaluation/core-metrics-summary.csv": "dc2ac82b5081a054d56a8908160c136ac032501ae5e563a7291c1d3d84e849f2",
+    "evaluation/CORE_METRICS.md": "d2c29291a3c4c870c5cfae593ba71d4563e126bf65b37bf01d0544f278096cfb",
+    "evaluation/paired-vs-risk-edf.csv": "787ee63823484e70e6a569ad053e58e2d6ed87a4f99d7c556ba47b475d17009d",
+    "evaluation/protocol.json": "c4a2f2306b579c3239cbf8130186c24a1b6a2b11be6e169dc5160d0924bf66c7",
+    "evaluation/queue-diagnostics.csv": "160a3084731d8a27d16ef850b7ef2768b94daabcbca5d985faf2a2693c4fc5c0",
+    "evaluation/verification.json": "a44f248aa8b0972051d2e1c5f6732bbbf69a718ac8bcd6948376ec101e1678ec",
+    "hover/background-admission-work.csv": "956fb4cb66c296e0d294a36e9ac4821700917505907feb797236cfcff6be460f",
+    "hover/core-metrics-summary.csv": "f2ae9ad82c30a9605eb3d01ba8bb0170aa344ffc39adb77aae76440e895e7fd0",
+    "hover/CORE_METRICS.md": "4d77bd39e74bc873685fabca122d478aea294835d7176a698dfebc04d422d728",
+    "hover/paired-vs-risk-edf.csv": "d2669368ab85a515a700ca0eb46dd2577cdb2b639dde24145edcba1b1de82a66",
+    "hover/protocol.json": "895b47aa445cf08151976ecd367407dd7b322e02e940e5ee0584c012f4e4162b",
+    "hover/queue-diagnostics.csv": "2ca628d6e13e3f7d74199d695bcdca3a5d6bc974c7ec789fda6c2c0b34b58440",
+    "hover/verification.json": "85047a38768b811fe3d787f93e25a4ecfb835749d58466d147649cfa432d7da0",
+    "mobile/background-admission-work.csv": "8ff9dce36a220b37c0951bbca6161a041ac2e505b246a3c872af2a550a0ceeb8",
+    "mobile/core-metrics-summary.csv": "3bee08238f0dd0f192b7eaa142c4b95bbcffc0cf1c8e5bf13d56e650ef23bf8a",
+    "mobile/CORE_METRICS.md": "18c43051fc5e080fe062ca42814753cb36c8310c84ddab2d394d92e18f7e8e8c",
+    "mobile/paired-vs-risk-edf.csv": "443aaa5d9af25d0c2f29f59e03e4164bf1f762a0039d9758b121d932b909b749",
+    "mobile/protocol.json": "b7caf6d5d52cd1b29310f3d4e961ffbf3ffbdddf6a1696b7813b2a5a4f01b16c",
+    "mobile/queue-diagnostics.csv": "273eff27e1531ff55d51cdd1b3c196698911ed950cb55e5b7d8f1deaf6eab77c",
+    "mobile/verification.json": "78da7d0d4739208068512297c80887366c2379cb4520eaa73b66d03c5e17a33f",
+    "validation/background-admission-work.csv": "3ea161e60b6a70346fe2e4187957e61a6eda0d38b1697fb7903a8209d31cebd5",
+    "validation/core-metrics-summary.csv": "a37c3a07890107134169fd9009edef508bd8a23ba90d48ed61bf5a0d547cfa2f",
+    "validation/CORE_METRICS.md": "f9039d3c82adbc905cb0f05c9843bc2904e9d0ee59317e7b85b9aabb77f63153",
+    "validation/paired-vs-risk-edf.csv": "aadce15dd3bc03673214d015e123df964ac9ffc8e283130949dd77b94932ed3e",
+    "validation/protocol.json": "ab908147bdf1c2b870ee9411f8ca8a7d1d874e68bf9fc95811cf6b7812aeb2a9",
+    "validation/queue-diagnostics.csv": "5e918c29d6487d4566d21f4e6619ab2214ab8462eab4392eb31bbda90ee4adc1",
+    "validation/verification.json": "e76c402cf13ed74f332e12c228a7d94eb58dc46cbad19d18a6e7e7d00799c647"
+  },
+  "final_checks": {
+    "status": "PASS",
+    "full_experiment_episodes": 6480,
+    "verified_task_outcomes": 658458,
+    "smoke_episodes_excluded": 120,
+    "diagnosis_image_outcomes": 194392,
+    "raw_diagnosis_inputs_unchanged": true,
+    "run_order": "diagnosis,hover,mobile,validation,evaluation",
+    "heldout_source_protocol_lock": "PASS",
+    "heldout_seed_disjointness": "PASS",
+    "no_threshold_tuning_after_lock": true,
+    "baseline_control_byte_replay": {
+      "hover_episodes": 720,
+      "mobile_episodes": 480,
+      "status": "PASS"
+    },
+    "full_java_tests": {
+      "tests": 139,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "stage": "admission implementation"
+    },
+    "full_python_tests": {
+      "status": "PASS",
+      "tests": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "dataset_tests_enabled": true,
+      "elapsed_s": 81.23500000000058
+    },
+    "post_heldout_wiring_targeted_tests": {
+      "java": 39,
+      "python": 5,
+      "status": "PASS"
+    },
+    "additional_script_tests": {
+      "diagnosis": 2,
+      "negative_admission_verifier": 3,
+      "status": "PASS"
+    },
+    "negative_java_protocol_drift": {
+      "expected_exit_code": 1,
+      "rejected_before_output": true,
+      "status": "PASS"
+    },
+    "artifact_checksums": "PASS",
+    "plot_visually_inspected": true,
+    "unchanged_radio_mobility_energy_paper_defaults_sha256": {
+      "PureEdgeSim/uav/offloading/MobileService.java": "2821efb5c63d32ecfc28cc694ace9f560ba16745b3e8eff7af90ff8cd35861da",
+      "PureEdgeSim/uav/PaperParameters.java": "4e0be5e18f76c171fb316ac86113461410bd915cb94e814a46b715b60781f728",
+      "PureEdgeSim/uav/PaperSimulation.java": "9a43bb3d84870ba733fdd7422424f1f2f2ea55a7c8e749c23e0b7513e11c70df",
+      "PureEdgeSim/uav/UAVEnergyModel.java": "1013d97fef57d6a71759aa781a7d27b2aab3e9b29089d3f6c1b1acc76bf06ae6",
+      "PureEdgeSim/uav/offloading/mobile-protocol.json": "f48cd723976d4da82345167fc899dd5028b5db38be14bcad8a5e625b42ab3938"
+    },
+    "kernel_extension": "Opt-in background admission/status and forecast parity; original controls retain byte-identical outputs",
+    "method_promoted": false,
+    "decision": "Tradeoff mechanism only; retain RISK_EDF as main baseline",
+    "calibrated_real_energy": false,
+    "training": false,
+    "pushed": false
+  }
+}

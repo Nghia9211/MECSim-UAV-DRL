@@ -1,0 +1,22 @@
+setting,policy,cases,mean_wall_ms,p95_wall_ms,scope
+reference,ROUND_ROBIN__ALL_LOCAL__EDF,300,3.8968536666666664,3.3698,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+reference,ROUND_ROBIN__ALL_UAV__EDF,300,2.326952,4.8265,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+reference,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.159625666666667,4.0237,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-low,ROUND_ROBIN__ALL_LOCAL__EDF,300,4.0731193333333335,4.644,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-low,ROUND_ROBIN__ALL_UAV__EDF,300,2.659658,6.3143,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-low,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.5196483333333335,4.6487,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-high,ROUND_ROBIN__ALL_LOCAL__EDF,300,4.308982333333334,5.8433,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-high,ROUND_ROBIN__ALL_UAV__EDF,300,2.7595366666666665,6.7934,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+cpu-high,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.666387,5.5737,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-low,ROUND_ROBIN__ALL_LOCAL__EDF,300,4.3417623333333335,6.7564,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-low,ROUND_ROBIN__ALL_UAV__EDF,300,2.7404776666666666,7.0367,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-low,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.511437,4.936,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-high,ROUND_ROBIN__ALL_LOCAL__EDF,300,5.143814666666667,5.9438,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-high,ROUND_ROBIN__ALL_UAV__EDF,300,3.390738333333333,8.7397,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+deadline-high,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,3.2439723333333332,6.5906,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-low,ROUND_ROBIN__ALL_LOCAL__EDF,300,4.277871666666667,4.9661,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-low,ROUND_ROBIN__ALL_UAV__EDF,300,2.889057333333333,8.3685,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-low,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.6587663333333333,5.1478,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-high,ROUND_ROBIN__ALL_LOCAL__EDF,300,4.166645333333333,5.3465,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-high,ROUND_ROBIN__ALL_UAV__EDF,300,2.739221,6.5113,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency
+dwell-high,ROUND_ROBIN__DEADLINE_ENERGY__EDF,300,2.6366426666666665,5.0812,Java kernel wall time on local Windows; excludes startup IO audit; not per-decision latency

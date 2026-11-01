@@ -2,7 +2,7 @@
 
 **Cập nhật 29/10/2026:** Đợt đưa các baseline mới và RISK_EDF vào cùng policy
 Round Robin, estimate error0/±40% và bộ metric thống nhất được mô tả tại
-[MOBILE_COMPARISON_PLAN.md](MOBILE_COMPARISON_PLAN.md). Các cấu hình và kết quả
+[MOBILE_COMPARISON_PLAN.md](../../docs/history/uav/MOBILE_COMPARISON_PLAN.md). Các cấu hình và kết quả
 23/10 phía dưới là lịch sử; không thay cho kết quả của đợt mới.
 
 Ngày **23/10/2026**. Đã bổ sung tầng phục vụ thiết bị di động vào cùng
@@ -158,7 +158,7 @@ khai này chạy local, **chưa push GitHub hoặc triển khai run mới trên 
 
 ## 6. Đọc artifact và bước tiếp
 
-Run chính: [mobile-verified-20261023](../../target/mobile-verified-20261023/).
+Run chính: [mobile-verified-20261023](../../target/mobile-verified-20261023).
 `episodes.csv` có từng source/case; `summary.csv` do verifier tạo. Flight/hover
 và total energy được tách riêng trong episodes. Dòng energy UAV `idle_j` ở mobile
 mode là **tổng propulsion flight+hover**, không chỉ hover; legacy fixed mode

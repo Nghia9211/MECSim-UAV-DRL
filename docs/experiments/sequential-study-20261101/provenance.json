@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "full_episodes": 2640,
+  "smoke_episodes_excluded": 88,
+  "stage1_review_before_stage2": true,
+  "roots": [
+    "target\\sequential-study-20261101\\stage1-full",
+    "target\\sequential-study-20261101\\stage2-full"
+  ],
+  "manifests_sha256": [
+    "d18204e8dcce126b0131c42f8ce6cc7627d093a55fd58f7ef7796494298797fc",
+    "4f88198d7892a4e52cfc941538c435b96c42e319465f52a762a017c21a5f0419"
+  ],
+  "verification_sha256": [
+    "1a05093d4796563178e9bd5b040bfa7be74d7e8a658259e734491701fe69607a",
+    "7b4a897941335430349122f10f8b9069233a5e6842c684efc6c8249afc4fe1d6"
+  ],
+  "review_sha256": "487bd6e73817c07f8b1f974d3c3fef133e40255f575f4a4f1420db815f5ea001",
+  "analysis_script_sha256": "a68cd63b9d3c806ae1161b754d29637b8da77ba06b92eac9e9dd1504bfd7bf2b",
+  "raw_traces_retained": true,
+  "training": false,
+  "physical_kernel_defaults_unchanged": true,
+  "artifact_sha256": {
+    "README.md": "11a2d37490461c7d4dd8eeb2531ee5c7b93a40d375cd3cff9ddc31c7b25c4294",
+    "stage1-dvr.png": "067ab54633023578343eaeaf8f07b441934312bdfb0a80b08537ea8882418cca",
+    "STAGE1_REVIEW.json": "487bd6e73817c07f8b1f974d3c3fef133e40255f575f4a4f1420db815f5ea001",
+    "stage1/core-metrics-episodes.csv": "9ccdbb9961544d984479865fb844c191cd9a7c2839f91ece1473d8b1dcdc3fc0",
+    "stage1/core-metrics-summary.csv": "e4866c116bc803ac63797f72853ba52375512cfd1701f033fd78ede4f2f28ecc",
+    "stage1/CORE_METRICS.md": "86d1b7af7881f47d7787155b5ac1594393ae76e2f35cf0c01b6560e4db2beff4",
+    "stage1/paired-statistics.csv": "a7ddefdb16f0b9f34cd03a3dcaa8f67c8da9f30ad11e27053d913b3a64c85e9d",
+    "stage1/protocol.json": "d0062e4eb0f0a535425d224580790a94f24bcb1e02c199d6402dd47c5609b34e",
+    "stage1/queue-diagnostics.csv": "2b6369ce80e0f937d1fd5ce40476ef64bc8ad999a6d20a48fa5a551c03c30878",
+    "stage1/REPORT.md": "2124d36cadee22486f96c702453178fb957f780a63085d8d2a0c1678ab731d95",
+    "stage1/verification.json": "1a05093d4796563178e9bd5b040bfa7be74d7e8a658259e734491701fe69607a",
+    "stage2/core-metrics-episodes.csv": "63b7c5460a69881b7fa4a1364ab8272ae603e148fb8b5e853bd39318285bf368",
+    "stage2/core-metrics-summary.csv": "37d0ab22e7831c5650a24f0864c5f63828a6ef0e5deb3b7626a3383cc874bc3d",
+    "stage2/CORE_METRICS.md": "8d6f59d6980891b4b1d10de3c449bee0fa5d873f816aa12f20b4396341b21add",
+    "stage2/delivery-decomposition.csv": "fecf6daa82804d7628badd562dda1650e15a8844cd444133d54475bf396d61e2",
+    "stage2/paired-statistics.csv": "2791172773dd44f0898b49ba4fc17c422e0d1e15d6cc15722f774ee2fb6ff0a2",
+    "stage2/protocol.json": "bed5ed75628ef22ec979b329514db614fa293a32794950c6f304aedf71ec0800",
+    "stage2/queue-diagnostics.csv": "55ab5e78928632d77e8389be6cb647149bda5738bc274b0fcad7e4b9f17fbde1",
+    "stage2/radio-readiness-summary.csv": "5d6e9209b5a504ffc79740512f07518e658a28ee7c3626e6c198df2ad2393121",
+    "stage2/REPORT.md": "656db8c40d780ea715766df6b1bc98819da0ac13f1973e9919ff7cfcd4ea85f9",
+    "stage2/verification.json": "7b4a897941335430349122f10f8b9069233a5e6842c684efc6c8249afc4fe1d6"
+  },
+  "final_checks": {
+    "status": "PASS",
+    "targeted_java_regression_tests": 43,
+    "python_study_tests": 3,
+    "negative_java_review_hash_gate": {
+      "status": "PASS",
+      "expected_process_exit_code": 1,
+      "output_directory_created": false
+    },
+    "artifact_checksums": "PASS",
+    "protected_physical_and_default_hashes": "PASS",
+    "documentation_links": "PASS",
+    "plot_visually_inspected": true,
+    "packaging_self_checksum_fixed": true,
+    "stage1_full_verified": 1440,
+    "stage2_full_verified": 1200,
+    "full_task_outcomes_verified": 262720
+  }
+}

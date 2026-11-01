@@ -126,7 +126,7 @@ quy tắc completion nên không thể quy toàn bộ chênh lệch cho dữ li�
 
 Runner ở đây đánh giá heuristic trên môi trường mở rộng. **Cập nhật 01/10/2026:**
 đã có 5 DQN mixed runs với 1.000.000 bước/model, seeds 0–4; kết quả và chẩn đoán
-xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md). Cần phân biệt implementation mixed
+xem [WEEK1_2_RESULTS.md](../../docs/history/uav/WEEK1_2_RESULTS.md). Cần phân biệt implementation mixed
 với workload paper gốc. Không cần tải dataset mới cho giai đoạn này.
 
 ## Kết quả đã kiểm chứng ngày 21/09/2026

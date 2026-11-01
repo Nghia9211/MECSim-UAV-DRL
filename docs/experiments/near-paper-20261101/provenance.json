@@ -1,0 +1,27 @@
+{
+  "run": "target/near-paper-final-20261101",
+  "status": "VERIFIED_CURATED_SUMMARIES",
+  "files_sha256": {
+    "core-metrics-summary.csv": "dfd2bf37ab693cd2f7455f625a7b3f46425b468ca1a249f36029435f8576fd75",
+    "manifest.json": "72da597106d713cb989bd282b82c5bb1dec10a78a95fb158728a319b6b4bbc82",
+    "paired-contrasts.csv": "f76f06c4ddda1d1f67a24d1c71d3cb554b1bdd4694b99ee6d1a1f6cfc098e06a",
+    "paper-layout.json": "a3f1a619864ecb0ff0d202fc9ccda55039c10756173abecf3a757308335dde72",
+    "protocol.json": "45a536b3341eb1b83d8240104072e8bd0cbed554dc62d751b6f118a13752c0ad",
+    "README.md": "bcbf3799e3960f9477effb7c24e9fec7733ee2e8e9955b744dd17e090dcfc40f",
+    "RESULTS.md": "0cd0e8abfbcbea4b5e4053781595e55c29296e1e629a22cdbfcd57c418a7d33e",
+    "runtime.csv": "b58be12f4393959eb6392dfd21e541b84b7c846b0ad6eb60551934e7078240f9",
+    "verification.json": "b43cf8518f26a426feb58ed03d264b7172b61666d7de176063041aeca3aa11d0"
+  },
+  "full_traces_location": "target/near-paper-final-20261101",
+  "task_outcomes": 32088,
+  "episodes": 720,
+  "protocol_sha256": "45a536b3341eb1b83d8240104072e8bd0cbed554dc62d751b6f118a13752c0ad",
+  "note": "Final rerun uses isolated per-source estimates. Earlier full/smoke outputs in target are superseded pilot artifacts, not additional independent samples.",
+  "tests": {
+    "java": 143,
+    "java_failures": 0,
+    "scripts": 21,
+    "drl": 72,
+    "drl_skipped": 3
+  }
+}

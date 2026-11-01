@@ -18,7 +18,7 @@ from stable_baselines3.common.logger import configure
 from .environment import ROOT
 from .contact_environment import ContactEnv,heuristic,masks
 from .joint_environment import REWARD
-from .mobile_environment import MobileConfig,MobileEnv
+from .mobile_environment import MobileEnv
 from .mobile_run import save_json,snapshot
 from .joint_campaign import scenarios,parameters,evaluate_with_envs
 from .run import write_csv

@@ -157,7 +157,7 @@ Xem mô hình gốc của extension tại [ADAPTED_PAPER_SERVICE.md](ADAPTED_PAP
   9 cấu hình local/routing ×3 selector. Có **27 trace seed đầu** được audit độc
   lập toàn bộ physics/queue/observation/reward; không gọi mọi270 episode đã audit.
   [Biên bản kiểm tra](../../target/mobile-signal-20261023/verification.json).
-- Train: [mobile-dqn-smoke-20261023](../../target/mobile-dqn-smoke-20261023/),
+- Train: [mobile-dqn-smoke-20261023](../../target/mobile-dqn-smoke-20261023),
   seed0, **2.000 decision steps / 468 gradient updates**, learning+validation
   khoảng16,16 s trên local CPU (không gồm build, audit và final evaluation).
   Checkpoint best theo validation nằm tại bước1.000; final ở bước2.000.

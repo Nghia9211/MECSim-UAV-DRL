@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "episodes": 1500,
+  "task_outcomes": 36600,
+  "environment_count": 10,
+  "workload_seeds": 30,
+  "plan_sha256": "edf2f01d7989965f62a6c543c71db6e3852780366f4e00c576e069b7320cd933",
+  "case_proofs": {
+    "100": {
+      "manifest_sha256": "c78dc10b29fc349d5c34cb77f4602c2f780b82682cb2e5d042a73cfdc9754c8a",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "f6aa31f341b2e1347028b810326630e36c680af5c96fc7d00bbcd67aede8b749"
+    },
+    "101": {
+      "manifest_sha256": "3e140d67198077446ffab4b5daf4d7c2888e2c55b2a541a6673113afc9cb16a2",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "9ccf40d278427fe668b3f81db208303aeb86d6cfaccd3c9ecc1b071d4c070f34"
+    },
+    "102": {
+      "manifest_sha256": "b457ed68db906f039a87a891e6463c675ab144a1d31a864df8133978eb23550a",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "bc7b74315e44d926c1261a5a78c61f181d0cc3b9a5291966baae5bd63c24d504"
+    },
+    "103": {
+      "manifest_sha256": "241ce2c3183f8e4a07132c5b65919d2de545f4e8e28b00d613b10b7db8b779b3",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "11b0c3eaa34159ed7b9142eb52b1536d838f5a37c2e8abf16ae0f503a7b3e4f8"
+    },
+    "104": {
+      "manifest_sha256": "7bbdc159d789983434ccc02f18e542d5d794bbc2d5757db092dc279a7cd9e9f4",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "ec77b0f652354d7338b8c341d3b123dd9e17e64502d694c552a346b9c1bf900c"
+    },
+    "105": {
+      "manifest_sha256": "a0ba6946105ade527a1816dec1dd8aa867bc114389e2522d1028457da2a09b69",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "d3cec9a6b91ef569b4cc0951e2213d4fe653d409a56a3f02fa6d75fcb6f16a40"
+    },
+    "106": {
+      "manifest_sha256": "65263bb8fafc5592228eac752ab5b4bdcdde72ead7f104b825c70e16191c52fb",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "7ed9804ad5958bd2610e2fdaae81a3c2083e0f3585d49431ae6369d8f05b042e"
+    },
+    "107": {
+      "manifest_sha256": "8cecc3fd7d83962315bcb026123be862ee2146e732e198a84ee83e8312644528",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "cf7b0ce286e18215b45f8362e31e73bd37875d7655f416c554c341d490f40c6a"
+    },
+    "108": {
+      "manifest_sha256": "0a939000c6d6bff099af66dd0ad4f39ec036bcec78f273039e67be55dd5a639b",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "6ffcebb88648d8c9b343eca0af2e00e9c3068f2bb9257bb53d96fda51ce6ac93"
+    },
+    "109": {
+      "manifest_sha256": "0284d050c8077e18fe833212d3086445710796beda5ed645007460805c0f1d36",
+      "verification_sha256": "bf5fcfcbef0cfe95b02d6b7a6b27a0e5e7de8124876b4871bceaebf3f2827727",
+      "core_metrics_sha256": "2c25a58ca5dba2001974edf8c49136e5dacb1e67251398ce7b4ec4945f6e332b"
+    }
+  },
+  "identical_workload_across_environments": true,
+  "source_holdout": false,
+  "training": false,
+  "paper_reproduction": false,
+  "paired_all_uav_task_changes": {
+    "retained_success": 2766,
+    "rescued": 415,
+    "failed_both": 4105,
+    "harmed": 34
+  }
+}

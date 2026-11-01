@@ -2,6 +2,7 @@ package uav.offloading;
 
 import java.util.*;
 import uav.scheduling.SchedulingTask;
+import uav.scheduling.WorkloadSeeds;
 
 /** Actual MI stays in the kernel. Policies receive estimated MI, never this record. */
 public record OffloadingJob(SchedulingTask task, int device, double estimatedMi) {
@@ -17,13 +18,16 @@ public record OffloadingJob(SchedulingTask task, int device, double estimatedMi)
 
     /** Independent streams: assignment/noise cannot change original arrivals, priorities or actual work. */
     public static List<OffloadingJob> assign(List<SchedulingTask> tasks, int devices, long seed, double estimateError) {
+        return assign(tasks,devices,seed,estimateError,WorkloadSeeds.Version.LEGACY_V1);
+    }
+    public static List<OffloadingJob> assign(List<SchedulingTask> tasks,int devices,long seed,double estimateError,WorkloadSeeds.Version version) {
         if (devices <= 0 || !Double.isFinite(estimateError) || estimateError < 0 || estimateError >= 1)
             throw new IllegalArgumentException("Invalid device count or relative estimation error");
-        var assignment = new Random(seed ^ 0x758FD20AL);
-        var estimates = new Random(seed ^ 0x6BBD910CL);
+        var assignment = WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.DEVICE_ASSIGNMENT);
+        var estimates = WorkloadSeeds.random(seed,version,WorkloadSeeds.Stream.COMPUTE_ESTIMATE);
         var result = new ArrayList<OffloadingJob>();
         for (var task : tasks.stream().sorted(Comparator.comparingLong(SchedulingTask::id)).toList()) {
-            int device = task.source() == SchedulingTask.Source.RESCUENET ? assignment.nextInt(devices) : -1;
+            int device = task.source().isImage() ? assignment.nextInt(devices) : -1;
             double mi = task.computeMi() * (1 + estimateError * (2 * estimates.nextDouble() - 1));
             result.add(new OffloadingJob(task, device, mi));
         }

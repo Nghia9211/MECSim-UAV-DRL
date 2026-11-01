@@ -35,7 +35,7 @@ public final class OffloadingSimulation extends SimulationManager {
     private static void nonnegative(double x) { if (!Double.isFinite(x) || x < 0) throw new IllegalArgumentException("Expected nonnegative finite value"); }
     public enum Route { UNDECIDED, LOCAL, UAV, BACKGROUND }
     public enum Status { FUTURE, TRANSFERRING, WAITING, RUNNING, COMPLETED_ON_TIME,
-        COMPLETED_LATE, EXPIRED_WAITING, DROPPED_UAV_BATTERY, DROPPED_DEVICE_BATTERY, UNFINISHED_HORIZON, DROPPED_DEADLINE_RISK }
+        COMPLETED_LATE, EXPIRED_WAITING, DROPPED_UAV_BATTERY, DROPPED_DEVICE_BATTERY, UNFINISHED_HORIZON, DROPPED_DEADLINE_RISK, DROPPED_BACKGROUND_BUDGET }
     public record Outcome(OffloadingJob job, Route route, Status status, double decisionSeconds,
             double readySeconds, double startSeconds, double resolvedSeconds, double executedMi,
             double remainingMi, double uploadedSeconds, double plannedUploadStartSeconds) { }
@@ -64,7 +64,7 @@ public final class OffloadingSimulation extends SimulationManager {
                 switch (o.status()) {
                     case COMPLETED_ON_TIME -> on++;
                     case COMPLETED_LATE -> late++;
-                    case EXPIRED_WAITING, DROPPED_DEADLINE_RISK -> expired++;
+                    case EXPIRED_WAITING, DROPPED_DEADLINE_RISK, DROPPED_BACKGROUND_BUDGET -> expired++;
                     case DROPPED_UAV_BATTERY -> uav++;
                     case DROPPED_DEVICE_BATTERY -> device++;
                     case UNFINISHED_HORIZON -> unfinished++;
@@ -253,9 +253,13 @@ public final class OffloadingSimulation extends SimulationManager {
         return device<0?s.route==Route.UAV||s.route==Route.BACKGROUND:s.route==Route.LOCAL && s.job.device()==device;
     }
     private State dispatch(int device,double now,TaskScheduler selector) {
-        if(device<0&&selector instanceof DeadlineRiskScheduler)for(var s:states)
-            if(s.status==Status.WAITING&&assigned(s,device)&&now+s.estimate()/config.uavMips()>s.job.task().deadlineSeconds()+EPS)
+        if(device<0)for(var s:states)if(s.status==Status.WAITING&&assigned(s,device)) {
+            boolean risk=selector instanceof DeadlineRiskScheduler || selector instanceof BackgroundBudgetScheduler b&&b.deadlineRisk();
+            if(risk&&now+s.estimate()/config.uavMips()>s.job.task().deadlineSeconds()+EPS)
                 end(s,Status.DROPPED_DEADLINE_RISK,now);
+            else if(selector instanceof BackgroundBudgetScheduler b&&b.backgroundRejected(view(s,s.ready,s.estimate()),config.uavMips()))
+                end(s,Status.DROPPED_BACKGROUND_BUDGET,now);
+        }
         var ready=states.stream().filter(s->s.status==Status.WAITING && assigned(s,device)).toList();
         if (ready.isEmpty()) return null;
         var views=ready.stream().map(s->view(s,s.ready,s.estimate())).toList();
@@ -364,8 +368,10 @@ public final class OffloadingSimulation extends SimulationManager {
             final double at=time;
             if (running==null) {
                 jobs.removeIf(p->p.task().deadlineSeconds()<=at+EPS);
-                if(air&&selector instanceof DeadlineRiskScheduler)
-                    jobs.removeIf(p->p.task().readySeconds()<=at+EPS&&at+p.task().remainingMi()/mips>p.task().deadlineSeconds()+EPS);
+                if(air)jobs.removeIf(p->p.task().readySeconds()<=at+EPS&&(
+                    ((selector instanceof DeadlineRiskScheduler || selector instanceof BackgroundBudgetScheduler b&&b.deadlineRisk())
+                        &&at+p.task().remainingMi()/mips>p.task().deadlineSeconds()+EPS)
+                    ||selector instanceof BackgroundBudgetScheduler b&&b.backgroundRejected(p.task(),mips)));
                 if (jobs.stream().noneMatch(p->p.task().id()==candidate.job.task().id())) break;
                 var ready=jobs.stream().map(Projected::task).filter(t->t.readySeconds()<=at+EPS).toList();
                 if (ready.isEmpty()) { time=jobs.stream().mapToDouble(p->Math.min(p.task().readySeconds(),p.task().deadlineSeconds())).min().orElseThrow(); continue; }

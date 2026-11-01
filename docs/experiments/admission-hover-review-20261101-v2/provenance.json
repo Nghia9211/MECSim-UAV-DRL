@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "runs": [
+    {
+      "stage": "hover",
+      "root": "target\\admission-study-20261101\\hover-full",
+      "manifest_sha256": "bf65d8dcdc338a8ad9fdcc3068de4ceafe7d538fb18d1067f3405b8d43a6d6fa",
+      "verification_sha256": "85047a38768b811fe3d787f93e25a4ecfb835749d58466d147649cfa432d7da0",
+      "episodes": 2160,
+      "outcomes": 204930
+    }
+  ],
+  "diagnosis_sha256": "961e7ae6197031d2cff4e2a8a202e044d78a9466900f3625d9be86ba56783c16",
+  "training": false,
+  "analysis_tool_sha256": "e9c9b5f521914dd0aebae81a12020d6a7410b257b85ccff21097493c5aa1d0c5",
+  "artifact_sha256": {
+    "diagnosis-blocking-summary.csv": "0b51a5676e9c2e05b956be84c0903afe449a4c30e6a1e347686737fa7f1c2645",
+    "diagnosis-dispatch-threats.csv": "85a2a193f009ebc06f81789eafc4c552a9fae6aa7e6feb60d96661d33951435f",
+    "diagnosis-failure-summary.csv": "8584a6ceb3048ef863bbbc407675834b3770148ef4c0f2d8274c9a67fb1550fb",
+    "diagnosis-verification.json": "961e7ae6197031d2cff4e2a8a202e044d78a9466900f3625d9be86ba56783c16",
+    "README.md": "9a488a23740b3aaeab438058120261cb972012af1a3cab3b9093ec454dbae5b0",
+    "hover/background-admission-work.csv": "956fb4cb66c296e0d294a36e9ac4821700917505907feb797236cfcff6be460f",
+    "hover/core-metrics-episodes.csv": "b5f48077e01f60096954726f2aa7de4533238ff5fb3e5db8c76d3a9739d6fb22",
+    "hover/core-metrics-summary.csv": "f2ae9ad82c30a9605eb3d01ba8bb0170aa344ffc39adb77aae76440e895e7fd0",
+    "hover/CORE_METRICS.md": "4d77bd39e74bc873685fabca122d478aea294835d7176a698dfebc04d422d728",
+    "hover/paired-vs-risk-edf.csv": "d2669368ab85a515a700ca0eb46dd2577cdb2b639dde24145edcba1b1de82a66",
+    "hover/protocol.json": "895b47aa445cf08151976ecd367407dd7b322e02e940e5ee0584c012f4e4162b",
+    "hover/queue-diagnostics.csv": "2ca628d6e13e3f7d74199d695bcdca3a5d6bc974c7ec789fda6c2c0b34b58440",
+    "hover/verification.json": "85047a38768b811fe3d787f93e25a4ecfb835749d58466d147649cfa432d7da0"
+  }
+}

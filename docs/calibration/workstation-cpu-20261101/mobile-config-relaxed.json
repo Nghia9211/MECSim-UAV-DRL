@@ -1,0 +1,10 @@
+{
+  "workloadGenerator": "mixed-v2",
+  "localMips": 1000.0,
+  "uavMips": 1000.0,
+  "imageFixedMi": 524.3494216666376,
+  "computeCalibrationId": "6e44ab0f5980b440ceaa794f98e3275e37de3cb47776e35e0fe81eb60ce288b6",
+  "criticalDeadlineSeconds": 40.0,
+  "imageDeadlineSeconds": 120.0,
+  "backgroundDeadlineSeconds": 120
+}

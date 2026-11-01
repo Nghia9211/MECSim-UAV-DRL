@@ -264,7 +264,7 @@ Các lần evaluate tách riêng bằng trường `unseen_layouts` trong `evalua
 Phần trên ghi lại pilot ngày 21/09. Sau đó đã có **5 DQN mixed runs, seeds 0–4,
 1.000.000 bước/model** trong `result/target/drl-server-*`. Chưa hoàn tất lưới
 Table5/6 hoặc đối chứng PPO/A2C cùng ngân sách. Kết quả cập nhật và chẩn đoán
-same/unseen layout xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md); không dùng pilot
+same/unseen layout xem [WEEK1_2_RESULTS.md](../../docs/history/uav/WEEK1_2_RESULTS.md); không dùng pilot
 hoặc run mixed để tuyên bố tái lập kết quả paper.
 
 ## Chẩn đoán tuần 1–2

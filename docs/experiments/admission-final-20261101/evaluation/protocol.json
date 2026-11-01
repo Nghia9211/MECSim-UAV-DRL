@@ -1,0 +1,163 @@
+{
+  "schema": "uav-mobile-service-v1",
+  "firstSeed": 51000,
+  "seeds": 30,
+  "horizonSeconds": 600,
+  "arrivalWindowSeconds": 300,
+  "devices": 12,
+  "layoutSeed": 42,
+  "layouts": [
+    {
+      "name": "layout130363-compact",
+      "seed": 130363,
+      "areaMetres": 250
+    },
+    {
+      "name": "layout130363-wide",
+      "seed": 130363,
+      "areaMetres": 800
+    },
+    {
+      "name": "layout130367-compact",
+      "seed": 130367,
+      "areaMetres": 250
+    },
+    {
+      "name": "layout130367-wide",
+      "seed": 130367,
+      "areaMetres": 800
+    }
+  ],
+  "speedMps": 5,
+  "altitudeMetres": 10,
+  "rangeMetres": 65,
+  "dwellSeconds": 30,
+  "flightWatts": 150,
+  "hoverWatts": 80,
+  "uavMips": 1000.0,
+  "uavCpuWatts": 20,
+  "uavBatteriesJ": [
+    1600000,
+    30000
+  ],
+  "localMips": 1000.0,
+  "localIdleWatts": 0.5,
+  "localCpuWatts": 3,
+  "localTxWatts": 0.1,
+  "localBatteryJ": 5000,
+  "connectedDevices": 8,
+  "loads": [
+    {
+      "name": "rho090-reference",
+      "targetRho": 0.9,
+      "imageRate": 0.24,
+      "backgroundRate": 0.09325497064386037,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60,
+      "backgroundBudgetSeconds": 15.212110178333361
+    },
+    {
+      "name": "rho120-reference",
+      "targetRho": 1.2,
+      "imageRate": 0.24,
+      "backgroundRate": 0.12939301798470237,
+      "criticalDeadlineSeconds": 20,
+      "imageDeadlineSeconds": 60,
+      "backgroundBudgetSeconds": 15.212110178333361
+    }
+  ],
+  "selectors": [
+    "ROUND_ROBIN",
+    "OLDEST_DATA"
+  ],
+  "offloading": [
+    "ALL_UAV",
+    "DEADLINE_ENERGY"
+  ],
+  "schedulers": [
+    "FIFO",
+    "EDF"
+  ],
+  "estimateError": 0,
+  "criticalFraction": 0.25,
+  "criticalDeadlineSeconds": 20,
+  "imageDeadlineSeconds": 60,
+  "backgroundDeadlineSeconds": 120,
+  "imageMiPerMegapixel": 833.3333333333334,
+  "referenceMips": 1000,
+  "backgroundWorkScale": 1,
+  "referenceSlantMetres": 10,
+  "studyStage": "mobile",
+  "studySchema": "sequential-study-v1",
+  "workloadGenerator": "mixed-v2",
+  "taskSeeds": [
+    1247514862,
+    1269606518,
+    1373385823,
+    1900603124,
+    1002490865,
+    1389815905,
+    1001128524,
+    1441900101,
+    1703206493,
+    1388190614,
+    1800125176,
+    1922768678,
+    1319032028,
+    1155428447,
+    1120196561,
+    1001222841,
+    1464517285,
+    1383073742,
+    1967142810,
+    1221798857,
+    1719499389,
+    1993152952,
+    1512899492,
+    1118994075,
+    1288065343,
+    1286647658,
+    1793272368,
+    1980944927,
+    1701269786,
+    1215472389
+  ],
+  "smoke": false,
+  "seedManifestSha256": "412b90f4f922d2f26806e4f4028e158a41521637bee3b5a1cd7036849411073a",
+  "calibrationSource": "docs\\calibration\\workstation-cpu-20261101\\calibration.json",
+  "calibrationSha256": "1fc76ee50fc5399cf5b731f03c329f74bc478c310fae18fdfde5b9cc74f4b96d",
+  "computeCalibrationId": "6e44ab0f5980b440ceaa794f98e3275e37de3cb47776e35e0fe81eb60ce288b6",
+  "imageFixedMi": 524.3494216666376,
+  "imageRate": 0.24,
+  "slantDistanceMetres": 10,
+  "uavBatteryJ": 1600000,
+  "policies": [
+    "STATIC_FIRST__ALL_UAV__EDF",
+    "STATIC_FIRST__ALL_UAV__RISK_EDF",
+    "STATIC_FIRST__ALL_UAV__BG_CAP_EDF",
+    "ROUND_ROBIN__ALL_UAV__EDF",
+    "ROUND_ROBIN__ALL_UAV__RISK_EDF",
+    "ROUND_ROBIN__ALL_UAV__BG_CAP_EDF"
+  ],
+  "backgroundSourcePoolSha256": "5af7a681ea894f419fded3920f06092e319469368ee068e101febb6243acf5de",
+  "backgroundServiceMeanSecondsProxy": 8.3015,
+  "stage1Review": "D:\\Document\\AgenticCode\\uav\\MECSim\\target\\sequential-study-20261101\\stage1-full\\STAGE1_REVIEW.json",
+  "stage1ReviewSha256": "487bd6e73817c07f8b1f974d3c3fef133e40255f575f4a4f1420db815f5ea001",
+  "allowContactWait": true,
+  "ablation": "background-budget-v1",
+  "ablationProtocolBaseSha256": "bed5ed75628ef22ec979b329514db614fa293a32794950c6f304aedf71ec0800",
+  "backgroundBudgetDerivation": {
+    "rule": "critical deadline - max frozen JPEG upload at10m - reference compute",
+    "max_source_bytes": 10658851,
+    "reference_rate_bps": 20000000.0,
+    "reference_compute_seconds": 0.5243494216666376,
+    "source_pool_sha256": "603ee88485321727c6608bc394c70f1d57acfa4f462d9dc12d5e2d3706a0d1c3",
+    "no_future_tasks_or_policy_scores": true,
+    "guarantee": "isolated reference10m head-of-line blocking budget only; not global schedulability"
+  },
+  "policyOrdering": "Rotate by seed index; no result-based policy selection",
+  "taskSeedPartition": "evaluation",
+  "heldoutPurpose": "Frozen characterization of image/background tradeoff; no automatic winner or tuning",
+  "experimentLock": "D:\\Document\\AgenticCode\\uav\\MECSim\\target\\admission-study-20261101\\heldout-locked\\EXPERIMENT_LOCK.json",
+  "experimentLockSha256": "71714c6af203019374da4130c49a16ddda59fa340de6c2185add963c3c606e34"
+}

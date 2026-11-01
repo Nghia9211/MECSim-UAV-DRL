@@ -1,0 +1,48 @@
+{
+  "schema": "retired-source-v1",
+  "date": "2026-10-30",
+  "files": [
+    {
+      "original": "drl/service_experiment.py",
+      "archived": "legacy/retired-20261030/drl/service_experiment.py.txt",
+      "sha256": "a5cb0fb55db28e49722b35e2b0952abc81661ef865e6fddcc9cfb28269d70f21",
+      "reason": "Retired P1 service-policy experiment driver; current mobile baseline does not import it."
+    },
+    {
+      "original": "drl/service_policy.py",
+      "archived": "legacy/retired-20261030/drl/service_policy.py.txt",
+      "sha256": "8dd650c2e996d8646ce7d194c7873317eb9bf43ec2dac661e0bab4b4a0c6ee7a",
+      "reason": "P1 heuristic library only imported by its retired driver/tests."
+    },
+    {
+      "original": "drl/test_service.py",
+      "archived": "legacy/retired-20261030/drl/test_service.py.txt",
+      "sha256": "dcd83497ef96bb884cd7bb0c15282d7164bed9734bdd84d51d8fe432300828f7",
+      "reason": "Retired P1 policy tests; causal forecast API tests retained in test_service_estimates.py."
+    },
+    {
+      "original": "scripts/analyze-local-completion.py",
+      "archived": "legacy/retired-20261030/scripts/analyze-local-completion.py.txt",
+      "sha256": "9fd64b7728d9e7321e6e338dc040610b15a50a4ce783e7eb8ea0ff48d78fc4a1",
+      "reason": "One-off diagnosis hardcoded to the completed20261024 convention campaign."
+    },
+    {
+      "original": "scripts/report-paper-seed-isolation.py",
+      "archived": "legacy/retired-20261030/scripts/report-paper-seed-isolation.py.txt",
+      "sha256": "aaf5a4d26f677c3afee0e7f94d1ccb8e5b0f368c64f4fee3028164580b14037e",
+      "reason": "Historical one-off report for the completed seed-isolation campaign."
+    },
+    {
+      "original": "scripts/finalize-workload-baselines.py",
+      "archived": "legacy/retired-20261030/scripts/finalize-workload-baselines.py.txt",
+      "sha256": "545d0968e67c7294a7d2350f6fd652fa87168932e0ee2da1b7adea7b776fdae1",
+      "reason": "One-off float-checker recovery; snapshot preserved with original result."
+    },
+    {
+      "original": "PureEdgeSim/uav/scheduling/QueueImpactPilot.java",
+      "archived": "legacy/retired-20261030/PureEdgeSim/uav/scheduling/QueueImpactPilot.java.txt",
+      "sha256": "8ac4f0d62c380c173735d4f0159f82d00b6444105b99e34f3f3d3bf3f58da8d5",
+      "reason": "Early synthetic ready-queue toy pilot; full projection/kernel and tests are retained."
+    }
+  ]
+}

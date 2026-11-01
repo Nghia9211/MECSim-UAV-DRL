@@ -6,7 +6,9 @@ import java.util.Objects;
 public record SchedulingTask(long id, Source source, long sourceIndex,
         double arrivalSeconds, double readySeconds, double deadlineSeconds,
         int priority, long inputBytes, double computeMi) {
-    public enum Source { RESCUENET, ALIBABA }
+    public enum Source { RESCUENET, ALIBABA, SYNTHETIC_IMAGE;
+        public boolean isImage() { return this != ALIBABA; }
+    }
     public SchedulingTask {
         Objects.requireNonNull(source);
         for (double value : new double[]{arrivalSeconds, readySeconds, deadlineSeconds, computeMi})

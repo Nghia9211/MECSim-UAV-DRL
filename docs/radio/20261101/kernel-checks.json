@@ -1,0 +1,86 @@
+{
+  "schema" : "radio-kernel-checks-v1",
+  "parallel_uploads" : {
+    "each_tx_j" : 0.1,
+    "shared_bandwidth_modeled" : false,
+    "each_ready_s" : 2,
+    "arrival_s" : 1,
+    "each_payload_bytes" : 2500000,
+    "simultaneous_sources" : 2
+  },
+  "status" : "PASS",
+  "rates" : [ {
+    "rate_bps" : 2.0E7,
+    "slant_m" : 10.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 1.9934452517671984E8,
+    "slant_m" : 10.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 5201256.786050059,
+    "slant_m" : 15.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 1.5266439000465673E8,
+    "slant_m" : 15.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 1749256.8250067881,
+    "slant_m" : 20.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 1.1977369373544331E8,
+    "slant_m" : 20.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 729363.341385833,
+    "slant_m" : 25.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 9.466708681227656E7,
+    "slant_m" : 25.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 354040.03466917935,
+    "slant_m" : 30.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 7.476601609700051E7,
+    "slant_m" : 30.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 112490.98387756213,
+    "slant_m" : 40.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 4.589241497783254E7,
+    "slant_m" : 40.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 46129.34766337887,
+    "slant_m" : 50.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 2.7570232465074603E7,
+    "slant_m" : 50.0,
+    "mode" : "GAIN_DB"
+  }, {
+    "rate_bps" : 16159.558442763058,
+    "slant_m" : 65.0,
+    "mode" : "LITERAL_DBM"
+  }, {
+    "rate_bps" : 1.2834702315187307E7,
+    "slant_m" : 65.0,
+    "mode" : "GAIN_DB"
+  } ],
+  "coverage_vs_deadline" : {
+    "far_slant_m" : 65,
+    "near_ready_s" : 12.433426878252934,
+    "near_slant_m" : 20,
+    "far_uploaded_s" : 30.0,
+    "near_resolved_s" : 12.533426878252934,
+    "far_status" : "EXPIRED_WAITING",
+    "outside_route" : "LOCAL"
+  }
+}

@@ -1,5 +1,4 @@
 """Integration checks against Java plus corruption checks on completed Gym traces."""
-import copy
 import importlib.util
 import json
 from pathlib import Path

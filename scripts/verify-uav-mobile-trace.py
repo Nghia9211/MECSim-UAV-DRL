@@ -6,12 +6,17 @@ import math
 from pathlib import Path
 import sys
 
+rng_spec=importlib.util.spec_from_file_location("workload_rng",Path(__file__).with_name("workload_rng.py"))
+workload_rng=importlib.util.module_from_spec(rng_spec);rng_spec.loader.exec_module(workload_rng)
+verify_workload_trace=workload_rng.verify_trace
+
 spec=importlib.util.spec_from_file_location('mobile_audit',Path(__file__).with_name('verify-uav-mobile.py'))
 audit=importlib.util.module_from_spec(spec);spec.loader.exec_module(audit)
 read,num,check,close=audit.read,audit.num,audit.check,audit.close
 
 
 def verify(root):
+    verify_workload_trace(root)
     meta=json.loads((root/'scenario.json').read_text(encoding='utf-8'));p=meta['protocol']
     ec=json.loads((root/'environment.json').read_text(encoding='utf-8'));cfg=ec['config']
     for key,value in cfg.items():
@@ -27,7 +32,7 @@ def verify(root):
         if j['source']=='RESCUENET':
             im=images[int(j['source_index'])]
             close(num(j,'input_bytes'),num(im,'bytes'),'Image bytes')
-            close(num(j,'actual_mi'),num(im,'width')*num(im,'height')/1e6*p['imageMiPerMegapixel'],'Image MI')
+            close(num(j,'actual_mi'),(p.get('imageFixedMi') or num(im,'width')*num(im,'height')/1e6*p['imageMiPerMegapixel']),'Image MI')
         else:
             row=bg[int(j['source_index'])]
             close(num(j,'actual_mi'),(num(row,'end_s')-num(row,'start_s'))*num(row,'plan_cpu')/100*p['referenceMips']*p['backgroundWorkScale'],'Background MI')

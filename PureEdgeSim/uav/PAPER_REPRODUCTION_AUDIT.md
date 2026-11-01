@@ -50,7 +50,7 @@ Radio của môi trường mobile vẫn dùng default riêng không bị global 
 
 ## Benchmark đã chạy
 
-Run: [paper-convention-v2-20261023](../../target/paper-convention-v2-20261023/).
+Run: [paper-convention-v2-20261023](../../target/paper-convention-v2-20261023).
 
 - 7 profile: reference +6 can thiệp, mỗi profile đổi đúng một lựa chọn.
 - 4 cấu hình còn nguồn/còn kết nối:12/12,8/8,6/6,10/8.

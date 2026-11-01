@@ -1,0 +1,137 @@
+{
+  "schema": "uav-task-cost-calibration-v1",
+  "status": "PROVISIONAL_ARCHITECTURE_TIMING",
+  "model": {
+    "model": "torchvision.deeplabv3_mobilenet_v3_large",
+    "input_shape": [
+      1,
+      3,
+      512,
+      512
+    ],
+    "classes": 11,
+    "precision": "float32",
+    "weights": "random",
+    "checkpoint_sha256": null,
+    "resize": "square bilinear; declared adaptation, not original RescueNet benchmark preprocessing"
+  },
+  "local": {
+    "profile_sha256": "b6a2d6978ee00cf297796eb0c4d80b519e5d50a979c0962668179f93a5714741",
+    "csv_sha256": "31b6399a6472d8720754e662acfdae227ae13735cf21efa8cee8ad2378629a33",
+    "summary": {
+      "preprocess_s": {
+        "mean_s": 0.13639848888871914,
+        "p50_s": 0.1313248999977077,
+        "p95_s": 0.1738331999986258
+      },
+      "transfer_s": {
+        "mean_s": 1.5260555563953758e-05,
+        "p50_s": 1.1600001016631722e-05,
+        "p95_s": 2.3799999326001853e-05
+      },
+      "inference_s": {
+        "mean_s": 0.32172099722225134,
+        "p50_s": 0.3121169000005466,
+        "p95_s": 0.40159090000088327
+      },
+      "postprocess_s": {
+        "mean_s": 0.06621191666660403,
+        "p50_s": 0.06410529999993742,
+        "p95_s": 0.08108480000009877
+      },
+      "total_s": {
+        "mean_s": 0.5243494216666376,
+        "p50_s": 0.5141820999997435,
+        "p95_s": 0.6409617000026628
+      }
+    }
+  },
+  "uav": {
+    "profile_sha256": "b6a2d6978ee00cf297796eb0c4d80b519e5d50a979c0962668179f93a5714741",
+    "csv_sha256": "31b6399a6472d8720754e662acfdae227ae13735cf21efa8cee8ad2378629a33",
+    "summary": {
+      "preprocess_s": {
+        "mean_s": 0.13639848888871914,
+        "p50_s": 0.1313248999977077,
+        "p95_s": 0.1738331999986258
+      },
+      "transfer_s": {
+        "mean_s": 1.5260555563953758e-05,
+        "p50_s": 1.1600001016631722e-05,
+        "p95_s": 2.3799999326001853e-05
+      },
+      "inference_s": {
+        "mean_s": 0.32172099722225134,
+        "p50_s": 0.3121169000005466,
+        "p95_s": 0.40159090000088327
+      },
+      "postprocess_s": {
+        "mean_s": 0.06621191666660403,
+        "p50_s": 0.06410529999993742,
+        "p95_s": 0.08108480000009877
+      },
+      "total_s": {
+        "mean_s": 0.5243494216666376,
+        "p50_s": 0.5141820999997435,
+        "p95_s": 0.6409617000026628
+      }
+    }
+  },
+  "local_hardware": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "machine": "AMD64",
+    "board": null,
+    "accelerator": "CPU"
+  },
+  "uav_hardware": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "machine": "AMD64",
+    "board": null,
+    "accelerator": "CPU"
+  },
+  "local_runtime": {
+    "device": "cpu",
+    "threads": 1,
+    "packages": {
+      "torch": "2.9.1+cu126",
+      "torchvision": "0.24.1+cu126"
+    }
+  },
+  "uav_runtime": {
+    "device": "cpu",
+    "threads": 1,
+    "packages": {
+      "torch": "2.9.1+cu126",
+      "torchvision": "0.24.1+cu126"
+    }
+  },
+  "shared_hardware": true,
+  "fit": {
+    "model": "constant_work_for_fixed_shape",
+    "statistic": "mean_total_service_time",
+    "imageFixedMi": 524.3494216666376,
+    "localMips": 1000.0,
+    "uavMips": 1000.0,
+    "units": "MI and MI/s are abstract normalized service units, not measured machine instructions",
+    "fitted_local_seconds": 0.5243494216666376,
+    "fitted_uav_seconds": 0.5243494216666376,
+    "local_p95_relative_to_mean": 1.2223942156079333
+  },
+  "image_count": 60,
+  "measurements_per_role": 180,
+  "energy_calibrated": false,
+  "background_compute_calibrated": false,
+  "application_deadline_validated": false,
+  "accuracy_measured": false,
+  "limitations": [
+    "One observed architecture/input shape; decode/preprocess approximated by mean CPU work",
+    "No per-image compute heterogeneity introduced from original pixel count or semantic labels",
+    "No measured Jetson/Raspberry Pi result; shared-hardware roles explicitly have equal effective speed",
+    "Power/radio/background-work mappings remain prior assumptions; this is not energy calibration",
+    "Deadlines remain scenario parameters; never fitted to algorithm success",
+    "Runtime variance is reported, not replayed as a calibrated service-time distribution"
+  ],
+  "calibration_id": "6e44ab0f5980b440ceaa794f98e3275e37de3cb47776e35e0fe81eb60ce288b6"
+}

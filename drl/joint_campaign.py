@@ -8,7 +8,6 @@ import importlib.metadata
 import itertools
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import time
@@ -117,7 +116,7 @@ def evaluate(out,smoke):
         return evaluate_with_envs(out,smoke,joint_env,fixed_env)
 
 
-def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case_override=None,proof_override=None):
+def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case_override=None,proof_override=None,seed_override=None):
     metrics=import_metrics();rows=[];proofs=[];audits=0;tasks=0;paired={};action_rows=[]
     policies=[(f'FIXED_{r}_{s}',None,3*i+j,None) for i,r in enumerate(ROUTES) for j,s in enumerate(SCHEDULES)]
     policies += [('ALL_LOCAL_EDF',None,0,('ALL_LOCAL','EDF')),
@@ -134,11 +133,13 @@ def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case
                                sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
     if policy_override is not None:policies=policy_override;proofs=proof_override or []
     cases=case_override if case_override is not None else list(scenarios().items())[:1] if smoke else list(scenarios().items())
-    count=1 if smoke else 10
+    seeds=list(seed_override) if seed_override is not None else list(range(2800000,2800000+(1 if smoke else 10)))
+    if not seeds or len(set(seeds))!=len(seeds) or any(type(s) is not int or not 0<=s<2**63 for s in seeds):
+        raise ValueError("Explicit, unique nonnegative int64 task seeds required")
     for name,cfg in cases:
-        for i in range(count):
-            seed=2800000+i
+        for seed in seeds:
             for policy,model,action,fixed in policies:
+                simulation_started=time.perf_counter()
                 trace=out/'evaluation'/name/f'seed-{seed}'/policy
                 # The two external baselines use the original device-control environment,
                 # with the identical contact-wait physics and fixed RR target choices.
@@ -154,7 +155,10 @@ def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case
                 else:
                     joint_env.config=MobileConfig(**asdict(cfg))
                     rollout(joint_env,seed,model,action,trace)
+                simulation_wall_s=time.perf_counter()-simulation_started
+                audit_started=time.perf_counter()
                 result=audit_trace(trace);assert result['status']=='PASS';audits+=1;tasks+=result['tasks']
+                audit_wall_s=time.perf_counter()-audit_started
                 history=json.loads((trace/'transitions.json').read_text())
                 if not fixed:
                     action_rows.append(dict(scenario=name,seed=seed,policy=policy,
@@ -189,7 +193,8 @@ def evaluate_with_envs(out,smoke,joint_env,fixed_env,*,policy_override=None,case
                               reserved_delivered_ontime_images=sum(k in delivered and outcomes[k]['status']=='COMPLETED_ON_TIME' for k in reserved),
                               actual_contact_wait_s=sum(max(0,min(float(outcomes[k]['planned_upload_start_s']),float(outcomes[k]['resolved_s']))
                                                         -float(jobs[k]['arrival_s'])) for k in reserved))
-                rows.append(dict(scenario=name,seed=seed,policy=policy,workload_sha256=digest,**values))
+                rows.append(dict(scenario=name,seed=seed,policy=policy,workload_sha256=digest,
+                    simulation_wall_s=simulation_wall_s,audit_wall_s=audit_wall_s,decisions=len(history)-1,**values))
             print(f'evaluation {name} seed={seed} audited={audits}',flush=True)
     # Reuse the mandatory exporter on the same audited task/energy traces. Its
     # general summarizer handles compute metrics; delivery details get a separate table.

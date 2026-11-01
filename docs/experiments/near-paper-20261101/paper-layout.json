@@ -1,0 +1,97 @@
+[ {
+  "powered" : false,
+  "capacityJ" : 55321.35433728135,
+  "hardware" : "RASPBERRY_PI_4B",
+  "y" : 599.924945004358,
+  "x" : 349.1927795386292,
+  "connected" : true,
+  "task" : "DLIB"
+}, {
+  "powered" : false,
+  "capacityJ" : 55166.53813063557,
+  "hardware" : "FIREFLY",
+  "y" : 167.81405509306566,
+  "x" : 475.47992871174733,
+  "connected" : true,
+  "task" : "DNN"
+}, {
+  "powered" : false,
+  "capacityJ" : 67400.74653506183,
+  "hardware" : "JETSON_NANO",
+  "y" : 601.0243254139681,
+  "x" : 469.94190542903647,
+  "connected" : false,
+  "task" : "DNN"
+}, {
+  "powered" : false,
+  "capacityJ" : 74533.90792506919,
+  "hardware" : "JETSON_NANO",
+  "y" : 25.134591061264633,
+  "x" : 602.0079588725208,
+  "connected" : true,
+  "task" : "HAAR"
+}, {
+  "powered" : false,
+  "capacityJ" : 64417.23549669303,
+  "hardware" : "RASPBERRY_PI_3B",
+  "y" : 779.2285451967051,
+  "x" : 334.150037402335,
+  "connected" : true,
+  "task" : "DLIB"
+}, {
+  "powered" : false,
+  "capacityJ" : 69099.33643568846,
+  "hardware" : "JETSON_NANO",
+  "y" : 759.8881077275732,
+  "x" : 233.32519792944328,
+  "connected" : true,
+  "task" : "YOLOV3"
+}, {
+  "powered" : false,
+  "capacityJ" : 63719.512833343084,
+  "hardware" : "JETSON_NANO",
+  "y" : 288.2039002929081,
+  "x" : 295.2971951535179,
+  "connected" : true,
+  "task" : "DLIB"
+}, {
+  "powered" : false,
+  "capacityJ" : 54530.94663586275,
+  "hardware" : "JETSON_NANO",
+  "y" : 375.21801649245486,
+  "x" : 378.1507367006843,
+  "connected" : true,
+  "task" : "DNN"
+}, {
+  "powered" : false,
+  "capacityJ" : 55878.92622269468,
+  "hardware" : "FIREFLY",
+  "y" : 368.24509812892893,
+  "x" : 667.0929883553325,
+  "connected" : false,
+  "task" : "MMOD"
+}, {
+  "powered" : false,
+  "capacityJ" : 62629.151198930864,
+  "hardware" : "RASPBERRY_PI_3B",
+  "y" : 692.5494370618818,
+  "x" : 143.4187526999339,
+  "connected" : true,
+  "task" : "DLIB"
+}, {
+  "powered" : false,
+  "capacityJ" : 67148.6091658993,
+  "hardware" : "NANOPC_T4",
+  "y" : 559.8869160537377,
+  "x" : 506.29583308262323,
+  "connected" : false,
+  "task" : "MMOD"
+}, {
+  "powered" : false,
+  "capacityJ" : 68486.41055105536,
+  "hardware" : "RASPBERRY_PI_3B",
+  "y" : 697.4516767718709,
+  "x" : 296.80983174700873,
+  "connected" : false,
+  "task" : "HAAR"
+} ]

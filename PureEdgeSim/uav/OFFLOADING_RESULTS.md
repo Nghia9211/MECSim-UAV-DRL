@@ -16,8 +16,8 @@ thực, SOTA hoặc reproduce paper Azfar. Mô hình và lệnh chạy:
 | Run noise | 5 seed 41000–41004, estimate sai số uniform ±40%, cùng grid = **600 episode** |
 | Independent trace audit | **238.200 + 40.280 = 278.480 task outcomes đạt kiểm chứng** |
 
-Run chính: [offloading-verified-20261022](../../target/offloading-verified-20261022/).
-Run noise: [offloading-noise40-20261022](../../target/offloading-noise40-20261022/).
+Run chính: [offloading-verified-20261022](../../target/offloading-verified-20261022).
+Run noise: [offloading-noise40-20261022](../../target/offloading-noise40-20261022).
 Log: [Java tests](../../target/offloading-tests-20261022.log),
 [Python regression](../../target/offloading-python-regression-20261022.log).
 

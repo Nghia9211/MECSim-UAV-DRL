@@ -41,8 +41,18 @@ class MobileConfig:
     properties: dict[str, str] = field(default_factory=dict)
     control_mode: str = "device"
     allowContactWait: bool = False
+    workloadGenerator: str = "legacy-v1"
+    # Explicit opt-in; old saved configs retain the original pixel cost/deadlines.
+    imageFixedMi: float | None = None
+    uavMips: float | None = None
+    criticalDeadlineSeconds: float | None = None
+    imageDeadlineSeconds: float | None = None
+    backgroundDeadlineSeconds: float | None = None
+    computeCalibrationId: str | None = None
 
     def __post_init__(self):
+        if self.workloadGenerator not in ("legacy-v1", "mixed-v2"):
+            raise ValueError("Invalid workload generator")
         if self.offloading not in ("ALL_LOCAL", "ALL_UAV", "SHORTEST_FINISH", "DEADLINE_ENERGY", "DELIVERY_AWARE"):
             raise ValueError("Invalid offloading policy")
         if self.scheduler not in ("FIFO", "EDF", "PRIORITY", "SPT", "FEASIBLE_AGING", "RISK_EDF", "RISK_SPT"):
@@ -57,11 +67,18 @@ class MobileConfig:
             raise ValueError("Invalid connected count / estimate error")
         if any(not math.isfinite(x) or x < 0 for x in (self.imageRate, self.backgroundRate)) or self.imageRate + self.backgroundRate <= 0:
             raise ValueError("Invalid task rates")
-        if self.arrivalWindowSeconds + 120 > self.horizonSeconds:
+        for name in ("imageFixedMi","uavMips","criticalDeadlineSeconds","imageDeadlineSeconds","backgroundDeadlineSeconds"):
+            x=getattr(self,name)
+            if x is not None and (not math.isfinite(x) or x<=0):
+                raise ValueError(f"Invalid {name}")
+        if self.computeCalibrationId is not None and (len(self.computeCalibrationId)!=64 or any(c not in "0123456789abcdef" for c in self.computeCalibrationId)):
+            raise ValueError("Invalid compute calibration ID")
+        maximum=max(self.criticalDeadlineSeconds or 20,self.imageDeadlineSeconds or 60,self.backgroundDeadlineSeconds or 120)
+        if self.arrivalWindowSeconds + maximum > self.horizonSeconds:
             raise ValueError("Arrival window plus maximum deadline must fit horizon")
 
     def kernel_config(self):
-        return {k: v for k, v in asdict(self).items() if k not in ("layout_seed", "offloading", "scheduler", "properties", "control_mode")}
+        return {k: v for k, v in asdict(self).items() if v is not None and k not in ("layout_seed", "offloading", "scheduler", "properties", "control_mode")}
 
 
 class MobileEnv(PaperEnv):

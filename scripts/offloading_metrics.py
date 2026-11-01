@@ -28,7 +28,7 @@ def mean(values):
 
 def calculate(jobs, outcomes, energies, horizon):
     assert set(jobs) == set(outcomes), 'Missing/extra outcomes'
-    images = [k for k, j in jobs.items() if j['source'] == 'RESCUENET']
+    images = [k for k, j in jobs.items() if j['source'] in {'RESCUENET','SYNTHETIC_IMAGE'}]
     bg = [k for k, j in jobs.items() if j['source'] == 'ALIBABA']
     on = lambda keys: sum(outcomes[k]['status'] == 'COMPLETED_ON_TIME' for k in keys)
     latency = [float(outcomes[k]['resolved_s'])-float(jobs[k]['arrival_s'])
@@ -61,20 +61,22 @@ def export(root):
     assert len(rows) == m['episodes']
     results = []
     for r in rows:
-        d = root/r['scenario']/('seed-'+r['seed'])
+        gym_trace = m.get('trace_format') == 'gym-mobile-v1'
+        d = root/'evaluation'/r['scenario']/('seed-'+r['seed'])/r['policy'] if gym_trace else root/r['scenario']/('seed-'+r['seed'])
+        prefix = 'episode' if gym_trace else r['policy']
         workload = d/'workload.csv'
         assert hashlib.sha256(workload.read_bytes()).hexdigest() == r['workload_sha256']
         jobs = {j['id']:j for j in read(workload)}
-        outcomes = {o['id']:o for o in read(d/(r['policy']+'-tasks.csv'))}
+        outcomes = {o['id']:o for o in read(d/(prefix+'-tasks.csv'))}
         horizon = m['protocol']['horizonSeconds']
-        values = calculate(jobs, outcomes, read(d/(r['policy']+'-energy.csv')), horizon)
-        if m.get('schema') == 'uav-mobile-service-v1':
-            updates = read(d/(r['policy']+'-updates.csv'))
+        values = calculate(jobs, outcomes, read(d/(prefix+'-energy.csv')), horizon)
+        if m.get('schema') == 'uav-mobile-service-v1' or gym_trace:
+            updates = read(d/(prefix+'-updates.csv'))
             delivered = {u['id'] for u in updates}
             assert len(delivered) == len(updates) and delivered <= set(jobs)
             on = sum(outcomes[k]['status']=='COMPLETED_ON_TIME' for k in delivered)
             delivered_latency=[float(outcomes[k]['resolved_s'])-float(jobs[k]['arrival_s']) for k in delivered]
-            coverage = read(d/(r['policy']+'-coverage.csv'))
+            coverage = read(d/(prefix+'-coverage.csv'))
             reserved={k for k,o in outcomes.items() if o['route']=='UAV' and
                 float(o.get('planned_upload_start_s') or jobs[k]['arrival_s'])>float(jobs[k]['arrival_s'])+1e-8}
             actual_wait=sum(max(0,min(float(outcomes[k]['planned_upload_start_s']),float(outcomes[k]['resolved_s']))
@@ -85,8 +87,13 @@ def export(root):
                 delivered_image_dvr=1-on/values['image_offered'] if values['image_offered'] else None,
                 j_per_delivered_ontime_image=values['total_energy_j']/on if on else None,
                 covered_images=sum(c['available']=='true' for c in coverage),
-                offloaded_images=sum(jobs[k]['source']=='RESCUENET' and o['route']=='UAV' for k,o in outcomes.items()),
+                offloaded_images=sum(jobs[k]['source'] in {'RESCUENET','SYNTHETIC_IMAGE'} and o['route']=='UAV' for k,o in outcomes.items()),
                 flight_j=float(r['flight_j']),hover_j=float(r['hover_j']),travelled_m=float(r['travelled_m']))
+            if gym_trace:
+                visits=read(d/(prefix+'-visits.csv'))
+                powered=values['uav_observed_time_s']
+                flight_s=sum(max(0,min(powered,float(v['planned_arrival_s']))-float(v['at_s'])) for v in visits)
+                values.update(flight_j=150*flight_s,hover_j=80*(powered-flight_s),travelled_m=5*flight_s)
             values.update(contact_wait_enabled=int(m['protocol'].get('allowContactWait',False)),
                 offload_eligible_images=sum(c.get('offload_available',c['available'])=='true' for c in coverage),
                 reserved_images=len(reserved),reserved_uploaded_images=sum(float(outcomes[k]['uploaded_s'])>0 for k in reserved),

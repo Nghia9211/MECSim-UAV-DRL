@@ -9,7 +9,7 @@ Protocol máy đọc được:
 [paper_convention_retrain_protocol.json](../../drl/paper_convention_retrain_protocol.json).
 
 Run:
-[paper-convention-retrain-20261024](../../target/paper-convention-retrain-20261024/).
+[paper-convention-retrain-20261024](../../target/paper-convention-retrain-20261024).
 
 | Nhóm | Trạng thái tại thời điểm kiểm tra | Ngân sách |
 | --- | --- | --- |

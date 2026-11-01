@@ -1,0 +1,53 @@
+"""Recover only postprocessing after a float-string equality failure. Never reruns/changes simulation traces."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import sys
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from drl.metric_recount import validate_recount
+from drl.workload_baselines import write_report
+from drl.mobile_run import save_json
+from drl.workload_protocol import load_seed_manifest
+from drl.joint_campaign import import_metrics
+
+def finalize(out):
+    m=json.loads((out/"manifest.json").read_text());proof=json.loads((out/"verification.json").read_text())
+    assert m["status"]=="FAILED" and m["error"].startswith("AssertionError('Exporter mismatch: actual_contact_wait_s")
+    assert proof["status"]=="PASS" and proof["traces"]==m["episodes"]==m["expected_episodes"]==4320
+    # The frozen simulator/evaluator/metrics source must still match the actual original run.
+    assert all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in m["source_sha256"].items())
+    metrics=import_metrics()
+    original=metrics.read(out/"episodes.csv");recounted=metrics.read(out/"core-metrics-episodes.csv")
+    comparison=validate_recount(original,recounted)
+    assert len(original)==4320
+    expected={(n,s,p)for n in m["scenarios"] for s in m["task_seeds"] for p in m["policies"]}
+    assert {(r["scenario"],int(r["seed"]),r["policy"])for r in original}==expected
+    plan=load_seed_manifest()
+    assert set(m["task_seeds"])==set(plan["development"])
+    audits=list((out/"evaluation").rglob("verification.json"))
+    assert len(audits)==4320 and all(json.loads(p.read_text())["status"]=="PASS" for p in audits)
+    assert hashlib.sha256((out/"seed-manifest.json").read_bytes()).hexdigest()==m["seed_manifest_sha256"]
+    save_json(out/"initial-finalization-failure.json",dict(exit_code=1,manifest=m,note="All physical audits passed; string equality failed on float summation roundoff."))
+    recovery=out/"postprocessing-source";recovery.mkdir(exist_ok=False)
+    hashes={}
+    for file in [Path(__file__),ROOT/"drl/metric_recount.py"]:
+        shutil.copy2(file,recovery/file.name);hashes[file.name]=hashlib.sha256(file.read_bytes()).hexdigest()
+    save_json(out/"metric-recount-verification.json",comparison)
+    proof.update(standalone_exporter_recount=True,postprocessing_recovered=True,
+                 simulation_traces_modified=False,rounding_comparison=comparison,finalization_source_sha256=hashes)
+    save_json(out/"verification.json",proof)
+    m.update(status="COMPLETE",initial_process_exit_code=1,postprocessing_recovered=True,finalizer_exit_code=0,
+             elapsed_s=None,elapsed_note="Original worker did not reach elapsed-time assignment; see per-episode runtimes.",
+             trace_audit_span_s=max(p.stat().st_mtime for p in audits)-min(p.stat().st_mtime for p in audits))
+    m.pop("error",None);save_json(out/"manifest.json",m)
+    write_report(out)
+    with (out/"REPORT.md").open("a",encoding="utf-8") as f:
+        f.write("\nPostprocessing recovery: all4320 physical audits passed in the original process. Exact string comparison failed on actual_contact_wait_s only (max5.69e-14s); finite floats were rechecked at rtol1e-12/atol1e-9, counts/identities exact. No trace was modified or simulation repeated. Initial process exit1 and finalizer exit0 are recorded separately.\n")
+    print(json.dumps(dict(status="COMPLETE",episodes=4320,recount=comparison,trace_audit_span_s=m["trace_audit_span_s"]),indent=2))
+
+if __name__=="__main__":
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument("output",type=Path);a=p.parse_args()
+    finalize(a.output.resolve())

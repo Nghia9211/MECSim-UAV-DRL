@@ -26,7 +26,7 @@ Stable-Baselines3, PPO/A2C, 11 reward của Table 6, train/save/load/evaluate v�
 runner lưới Table 5/6. Dùng trực tiếp kernel Java cho cả synthetic lẫn mixed.
 Xem [DRL.md](DRL.md) về tham số được công bố, lựa chọn bổ sung và lệnh chạy.
 **Cập nhật 01/10/2026:** đã có 5 mixed DQN runs đủ 1 triệu bước/model (seeds 0–4).
-Chẩn đoán và đối chứng nhỏ xem [WEEK1_2_RESULTS.md](WEEK1_2_RESULTS.md).
+Chẩn đoán và đối chứng nhỏ xem [WEEK1_2_RESULTS.md](../../docs/history/uav/WEEK1_2_RESULTS.md).
 Chưa chạy trọn lưới Table5/6, chưa có SUMO case study hoặc bằng chứng tái lập
 toàn bộ kết quả paper trên synthetic.
 

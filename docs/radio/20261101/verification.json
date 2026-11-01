@@ -1,0 +1,100 @@
+{
+  "schema": "radio-upload-audit-v1",
+  "status": "PASS",
+  "algorithm_evaluation": false,
+  "training": false,
+  "original_defaults_modified": false,
+  "measured_wireless": false,
+  "compute_status": "PROVISIONAL_ARCHITECTURE_TIMING",
+  "image_count": 449,
+  "images_stat_size_checked": 449,
+  "raw_image_contents_rehashed": false,
+  "jpeg_bytes": {
+    "min": 4622497,
+    "p50": 4997215,
+    "p95": 7253089,
+    "max": 10658851
+  },
+  "pool_sha256": "603ee88485321727c6608bc394c70f1d57acfa4f462d9dc12d5e2d3706a0d1c3",
+  "background_pool_sha256": "5af7a681ea894f419fded3920f06092e319469368ee068e101febb6243acf5de",
+  "calibration_sha256": "1fc76ee50fc5399cf5b731f03c329f74bc478c310fae18fdfde5b9cc74f4b96d",
+  "production_rate_points_verified": 16,
+  "geometry_links": 576,
+  "modes": {
+    "LITERAL_DBM": 1e-08,
+    "GAIN_DB": 1e-05
+  },
+  "source_sha256": {
+    "PureEdgeSim/uav/PaperParameters.java": "4e0be5e18f76c171fb316ac86113461410bd915cb94e814a46b715b60781f728",
+    "PureEdgeSim/uav/offloading/OffloadingSimulation.java": "e6bd4c803dea7f10ca9181b5d1151ec14f9292f6af7e74d206aa411c17566b12",
+    "PureEdgeSim/uav/offloading/MobileService.java": "2821efb5c63d32ecfc28cc694ace9f560ba16745b3e8eff7af90ff8cd35861da",
+    "PureEdgeSim/uav/offloading/mobile-protocol.json": "f48cd723976d4da82345167fc899dd5028b5db38be14bcad8a5e625b42ab3938",
+    "scripts/audit-radio-upload.py": "577f3d439b12e17aae7caec064f99ef4ed576b67e1f9544dbe561387ead3adbf",
+    "scripts/workload_rng.py": "b358e01b4f8fa0b4d74316c9fb8a898dcd8ff4d0c94ead88f305f66879e284ba",
+    "src/test/java/uav/RadioUploadAuditTest.java": "9fb7c1d041ee95a1e3354f2a5dd14da876dc26f366a0bf37da9d11ff7b161762"
+  },
+  "preserved_physical_hashes": {
+    "PureEdgeSim/uav/offloading/MobileService.java": "2821efb5c63d32ecfc28cc694ace9f560ba16745b3e8eff7af90ff8cd35861da",
+    "PureEdgeSim/uav/offloading/OffloadingSimulation.java": "e6bd4c803dea7f10ca9181b5d1151ec14f9292f6af7e74d206aa411c17566b12",
+    "PureEdgeSim/uav/PaperParameters.java": "4e0be5e18f76c171fb316ac86113461410bd915cb94e814a46b715b60781f728",
+    "PureEdgeSim/uav/PaperSimulation.java": "9a43bb3d84870ba733fdd7422424f1f2f2ea55a7c8e749c23e0b7513e11c70df",
+    "PureEdgeSim/uav/UAVEnergyModel.java": "1013d97fef57d6a71759aa781a7d27b2aab3e9b29089d3f6c1b1acc76bf06ae6",
+    "PureEdgeSim/uav/offloading/mobile-protocol.json": "f48cd723976d4da82345167fc899dd5028b5db38be14bcad8a5e625b42ab3938"
+  },
+  "paper_pdf_sha256": "fadde72b3fbdbd501ac03e294c4bd436f064580e43cd6544a78a19c559da09f3",
+  "paper_evidence": "Section4, PDF pages7-8, Eq4 and Table1 visually inspected",
+  "author_convention_confirmed": false,
+  "assumptions": [
+    "LITERAL_DBM is current default; GAIN_DB is sensitivity, not author-confirmed replacement",
+    "20MHz is independently available to each upload; no shared radio queue/interference/fading/LoS",
+    "65m is slant range, ground radius sqrt(65^2-10^2)",
+    "Full original JPEG bytes uploaded, not a resized 512x512 payload",
+    "Useful radii are per-task isolated bounds, not simultaneous service feasibility or DVR",
+    "Compute profile is provisional random-weight architecture timing; no actual RF/power measurement"
+  ],
+  "artifact_sha256": {
+    "compute-calibration.json": "1fc76ee50fc5399cf5b731f03c329f74bc478c310fae18fdfde5b9cc74f4b96d",
+    "deadline-radius.csv": "ed3d6816aaeaf03432ebb2a9bb7a31f42b76372f78ca214d2fc4e3d68104f7fb",
+    "image-metadata.csv": "cbdfe6e79c5f08fbbe608f3e21437605b85c428dd47bb795d592b1118e9133b6",
+    "kernel-checks.json": "37fceddba12b41c551e031368a1cc9ccd9fe6dcd3cd9838263de1261d09830b8",
+    "layout-links.csv": "888e11bcf0b4f2a943f71d7fb20b14758995614980e6bfa5257267a6688456a2",
+    "proposed-queue-loads.csv": "3e0cc6c792daf38c2a9ff2ff6c111f5db9e87d4d87db17ef89ccebd67beb9ce4",
+    "radio-upload.png": "65d1da65e0bfaea13385556bf770bcad100bc4faabed0456246063d8bdf89521",
+    "rates-and-upload.csv": "69ea56b39a65a9b608c2a8950cd2bdcccdfe9d762036b357e540451ac269cc79",
+    "README.md": "877bc15758ffa96511288a3d3cfc76218e7539959cd78f9cd848e8574553d998"
+  },
+  "source_unchanged_at_finish": true,
+  "targeted_java_tests": [
+    {
+      "suite": "RadioUploadAuditTest",
+      "tests": 3
+    },
+    {
+      "suite": "MobileServiceTest",
+      "tests": 17
+    },
+    {
+      "suite": "PaperSimulationTest",
+      "tests": 12
+    }
+  ],
+  "python_numerical_and_corruption_tests": {
+    "tests": 3,
+    "status": "PASS"
+  },
+  "layout_reconstruction_against_saved_java_scenarios": [
+    {
+      "area_m": 250,
+      "site_count": 12,
+      "actual_trace_sha256": "9fd2378c5efeaff648a35adaab3de5b9bb719c63669519a0bb0ed45bb3ff1b87"
+    },
+    {
+      "area_m": 800,
+      "site_count": 12,
+      "actual_trace_sha256": "d8480dab8964877d9515367ec451eb081c6d7d5e8fe6e8005d4e1558fe427e22"
+    }
+  ],
+  "artifact_hashes_checked": true,
+  "plot_visually_inspected": true,
+  "recommendations_are_proposed_not_executed": true
+}

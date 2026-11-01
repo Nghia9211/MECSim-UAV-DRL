@@ -1,0 +1,69 @@
+{
+  "schema": "uav-inference-profile-v2",
+  "status": "COMPLETE",
+  "purpose": "untrained_architecture_timing_smoke",
+  "model": "torchvision.deeplabv3_mobilenet_v3_large",
+  "checkpoint_sha256": null,
+  "started_unix_s": 1793529382.6050823,
+  "finished_unix_s": 1793529480.8360333,
+  "source_script_sha256": "020745e62a9bb745b8fe3826807b960e997d2d5cd804283a163e22f817b6e2ce",
+  "latency_csv_sha256": "31b6399a6472d8720754e662acfdae227ae13735cf21efa8cee8ad2378629a33",
+  "classes": 11,
+  "input_shape": [
+    1,
+    3,
+    512,
+    512
+  ],
+  "precision": "float32",
+  "weights": "random",
+  "resize": "square bilinear; declared adaptation, not original RescueNet benchmark preprocessing",
+  "actual_hardware": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "machine": "AMD64",
+    "board": null,
+    "accelerator": "CPU"
+  },
+  "packages": {
+    "torch": "2.9.1+cu126",
+    "torchvision": "0.24.1+cu126"
+  },
+  "device": "cpu",
+  "inter_op_threads": 8,
+  "threads": 1,
+  "warmup": 10,
+  "images": 60,
+  "repeats": 3,
+  "segmentation_accuracy_measured": false,
+  "energy_measured": false,
+  "simulator_calibration_applied": false,
+  "timing_scope": "decode/resize/normalize + transfer + model forward + argmax + CPU mask materialization; excludes disk hashing, mask encoding, result relay and energy measurement",
+  "summary": {
+    "preprocess_s": {
+      "mean_s": 0.13639848888871914,
+      "p50_s": 0.1313248999977077,
+      "p95_s": 0.1738331999986258
+    },
+    "transfer_s": {
+      "mean_s": 1.5260555563953758e-05,
+      "p50_s": 1.1600001016631722e-05,
+      "p95_s": 2.3799999326001853e-05
+    },
+    "inference_s": {
+      "mean_s": 0.32172099722225134,
+      "p50_s": 0.3121169000005466,
+      "p95_s": 0.40159090000088327
+    },
+    "postprocess_s": {
+      "mean_s": 0.06621191666660403,
+      "p50_s": 0.06410529999993742,
+      "p95_s": 0.08108480000009877
+    },
+    "total_s": {
+      "mean_s": 0.5243494216666376,
+      "p50_s": 0.5141820999997435,
+      "p95_s": 0.6409617000026628
+    }
+  }
+}
