@@ -15,7 +15,8 @@ import threading
 import gymnasium as gym
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+from .registry import ROOT, load as load_registry
+
 SCENARIO_MODES = ("legacy", "position", "hardware_task", "capacity", "power", "connectivity", "outage", "full")
 
 
@@ -30,24 +31,20 @@ def validate_scenario(mode, shift_seed, decision_state):
 
 REWARDS = ("paper", "age", "uptime", "min_battery", "negative_oldest",
            "sum", "log_age", "log_uptime", "log_min_battery", "negative_log_oldest", "log_sum")
-DATASET_PROPERTIES = {
-    "paper.workload": "datasets",
-    "rescuenet.images": "datasets/raw/rescuenet/validation/val-org-img",
-    "rescuenet.masks": "datasets/raw/rescuenet/validation/val-label-img",
-    "alibaba.csv": "datasets/raw/alibaba2018/batch_task.csv",
-    "paper.imageLimit": "449", "paper.alibabaLimit": "1000", "paper.alibabaScanLimit": "100000",
-    "paper.uavMips": "2000", "paper.imageMiPerMegapixel": "833.3333333333334", "paper.cpuPowerW": "20",
-    "alibaba.assumedMips": "1000", "alibaba.durationScale": "1",
-    "paper.backgroundScale": "1", "paper.backgroundTasksPerSlot": "1",
-}
+REGISTRY = load_registry()
+SEEDS = REGISTRY.seed_protocol
+# Legacy name kept for existing callers; identical to the former literal (paper.workload=datasets).
+DATASET_PROPERTIES = REGISTRY.workload_properties("datasets")
+_DEFAULT_SCENARIO = REGISTRY.scenario(REGISTRY.defaults["scenario"])
 
 
 @dataclass
 class EnvConfig:
-    layout_seed: int = 42
-    powered: int = 8
-    connected: int = 8
-    max_slots: int = 200
+    """Defaults come from scenarios.json; `properties` are the Java -D values (see Registry.workload_properties)."""
+    layout_seed: int = REGISTRY.defaults["layout_seed"]
+    powered: int = _DEFAULT_SCENARIO.powered
+    connected: int = _DEFAULT_SCENARIO.connected
+    max_slots: int = REGISTRY.defaults["max_slots"]
     reward: str = "paper"
     properties: dict[str, str] = field(default_factory=dict)
     scenario_mode: str = "legacy"
@@ -171,8 +168,8 @@ class PaperEnv(gym.Env):
         if self._process is None:
             self._messages = queue.Queue()
             self._start()
-        # Reserve >=1,000,000 for validation/test; automatic resets never sample them.
-        task_seed = int(options.get("task_seed", self.np_random.integers(0, 1_000_000)))
+        # Validation/test task seeds (scenarios.json seed_protocol) are never sampled by automatic resets.
+        task_seed = int(options.get("task_seed", self.np_random.integers(0, SEEDS.drl_training_task_seed_end)))
         layout_seed = int(options.get("layout_seed", self.config.layout_seed))
         result = self._request({"cmd": "reset", "layout_seed": layout_seed, "task_seed": task_seed,
             "powered": self.config.powered, "connected": self.config.connected,

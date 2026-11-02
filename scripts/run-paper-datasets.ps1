@@ -11,18 +11,22 @@ $ErrorActionPreference = 'Stop'
 $project = Split-Path -Parent $PSScriptRoot
 Push-Location $project
 try {
-    # Explicit EXAMPLE assumptions, not hardware measurements or paper parameters.
+    # Dataset paths and EXAMPLE compute assumptions live in scenarios.json (dataset_defaults);
+    # 'evaluate' runs the dataset_evaluation suite. Only explicitly given options override them.
     $mainClass = if ($Mode -eq 'single') { 'uav.PaperSimulation' } else { 'uav.PaperDatasetEvaluation' }
-    $mavenArgs = @('compile','exec:java',"-Dexec.mainClass=$mainClass",'-Dexec.classpathScope=compile',
-        '-Dpaper.workload=datasets',"-Dpaper.seeds=$Seeds", "-Dpaper.powered=$Powered", "-Dpaper.connected=$Connected",
-        '-Drescuenet.images=datasets/raw/rescuenet/validation/val-org-img',
-        '-Drescuenet.masks=datasets/raw/rescuenet/validation/val-label-img',
-        '-Dalibaba.csv=datasets/raw/alibaba2018/batch_task.csv',
-        '-Dpaper.imageLimit=449','-Dpaper.alibabaLimit=1000','-Dpaper.alibabaScanLimit=100000',
-        '-Dpaper.uavMips=2000','-Dpaper.imageMiPerMegapixel=833.3333333333334','-Dpaper.cpuPowerW=20',
-        '-Dalibaba.assumedMips=1000','-Dalibaba.durationScale=1',
-        "-Dpaper.backgroundScale=$($BackgroundScale.ToString([Globalization.CultureInfo]::InvariantCulture))",
-        "-Dpaper.backgroundTasksPerSlot=$BackgroundTasksPerSlot")
+    $mavenArgs = @('compile','exec:java',"-Dexec.mainClass=$mainClass",'-Dexec.classpathScope=compile')
+    if ($Mode -eq 'single') { $mavenArgs += '-Dpaper.workload=mixed' }
+    $invariant = [Globalization.CultureInfo]::InvariantCulture
+    $overrides = [ordered]@{
+        Seeds = 'paper.seeds'; Powered = 'paper.powered'; Connected = 'paper.connected'
+        BackgroundScale = 'paper.backgroundScale'; BackgroundTasksPerSlot = 'paper.backgroundTasksPerSlot'
+    }
+    foreach ($name in $overrides.Keys) {
+        if ($PSBoundParameters.ContainsKey($name)) {
+            $value = (Get-Variable -Name $name -ValueOnly).ToString($invariant)
+            $mavenArgs += "-D$($overrides[$name])=$value"
+        }
+    }
     if ($Offline) { $mavenArgs = @('-o') + $mavenArgs }
     & mvn @mavenArgs
     if ($LASTEXITCODE -ne 0) { throw "Maven exited with code $LASTEXITCODE" }

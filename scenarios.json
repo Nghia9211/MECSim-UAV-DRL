@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "description": "Single source of truth for experiment scenarios, workloads, seed protocol and suites. Read by uav.ScenarioRegistry (Java) and drl/scenarios.py (Python). See PureEdgeSim/uav/SCENARIOS.md.",
+
+  "defaults": {
+    "scenario": "p8c8",
+    "workload": "synthetic",
+    "seed": 42,
+    "layout_seed": 42,
+    "policy": "OLDEST_DATA",
+    "max_slots": 200
+  },
+
+  "seed_protocol": {
+    "description": "Java heuristic runners: layout seed = seed, task seed = seed + task_seed_offset, policy seed = seed + policy_seed_offset. DRL: training task seeds in [0, drl_validation_first_task_seed), validation from drl_validation_first_task_seed, test from drl_test_first_task_seed.",
+    "task_seed_offset": 1,
+    "policy_seed_offset": 2,
+    "drl_validation_first_task_seed": 1000000,
+    "drl_test_first_task_seed": 2000000
+  },
+
+  "scenarios": {
+    "p12c12": {"powered": 12, "connected": 12},
+    "p12c10": {"powered": 12, "connected": 10},
+    "p12c8":  {"powered": 12, "connected": 8},
+    "p12c6":  {"powered": 12, "connected": 6},
+    "p12c4":  {"powered": 12, "connected": 4},
+    "p10c12": {"powered": 10, "connected": 12},
+    "p10c10": {"powered": 10, "connected": 10},
+    "p10c8":  {"powered": 10, "connected": 8},
+    "p10c6":  {"powered": 10, "connected": 6},
+    "p10c4":  {"powered": 10, "connected": 4},
+    "p8c12":  {"powered": 8,  "connected": 12},
+    "p8c10":  {"powered": 8,  "connected": 10},
+    "p8c8":   {"powered": 8,  "connected": 8},
+    "p8c6":   {"powered": 8,  "connected": 6},
+    "p8c4":   {"powered": 8,  "connected": 4},
+    "p6c12":  {"powered": 6,  "connected": 12},
+    "p6c10":  {"powered": 6,  "connected": 10},
+    "p6c8":   {"powered": 6,  "connected": 8},
+    "p6c6":   {"powered": 6,  "connected": 6},
+    "p6c4":   {"powered": 6,  "connected": 4},
+    "p4c12":  {"powered": 4,  "connected": 12},
+    "p4c10":  {"powered": 4,  "connected": 10},
+    "p4c8":   {"powered": 4,  "connected": 8},
+    "p4c6":   {"powered": 4,  "connected": 6},
+    "p4c4":   {"powered": 4,  "connected": 4}
+  },
+
+  "dataset_defaults": {
+    "description": "Java -D properties shared by every dataset workload. EXAMPLE assumptions (MIPS, W, MI/MP), not hardware measurements or paper parameters; see DATASET_EVALUATION.md.",
+    "properties": {
+      "rescuenet.images": "datasets/raw/rescuenet/validation/val-org-img",
+      "rescuenet.masks": "datasets/raw/rescuenet/validation/val-label-img",
+      "alibaba.csv": "datasets/raw/alibaba2018/batch_task.csv",
+      "paper.imageLimit": "449",
+      "paper.alibabaLimit": "1000",
+      "paper.alibabaScanLimit": "100000",
+      "paper.uavMips": "2000",
+      "paper.imageMiPerMegapixel": "833.3333333333334",
+      "paper.cpuPowerW": "20",
+      "alibaba.assumedMips": "1000",
+      "alibaba.durationScale": "1",
+      "paper.backgroundScale": "1",
+      "paper.backgroundTasksPerSlot": "1"
+    }
+  },
+
+  "workloads": {
+    "synthetic": {
+      "dataset": false,
+      "description": "Paper model: 2-4 MB random task per device per slot, negligible UAV compute."
+    },
+    "rescuenet": {
+      "dataset": true,
+      "fixed": {"paper.backgroundScale": "0"},
+      "description": "RescueNet image payloads on a finite UAV CPU, no Alibaba background load."
+    },
+    "mixed": {
+      "dataset": true,
+      "fixed": {},
+      "description": "RescueNet images plus Alibaba-derived background load on the same UAV CPU."
+    }
+  },
+
+  "workload_aliases": {
+    "datasets": "mixed"
+  },
+
+  "suites": {
+    "heuristic_baselines": {
+      "runner": "java",
+      "description": "Paired-seed heuristic baselines (uav.PaperBaselines).",
+      "scenarios": ["p12c12", "p6c6", "p8c8", "p10c8"],
+      "workloads": ["synthetic"],
+      "policies": ["ROUND_ROBIN", "OLDEST_DATA", "RANDOM"],
+      "seeds": 30,
+      "first_seed": 0
+    },
+    "dataset_evaluation": {
+      "runner": "java",
+      "description": "Workload ablation synthetic / rescuenet / mixed (uav.PaperDatasetEvaluation).",
+      "scenarios": ["p8c8"],
+      "workloads": ["synthetic", "rescuenet", "mixed"],
+      "policies": ["ROUND_ROBIN", "OLDEST_DATA", "RANDOM"],
+      "seeds": 30,
+      "first_seed": 0
+    },
+    "table5": {
+      "runner": "drl",
+      "description": "Paper Table 5: average lifetime over the 5x5 powered/connected grid (python -m drl.experiments).",
+      "scenarios": [
+        "p12c12", "p12c10", "p12c8", "p12c6", "p12c4",
+        "p10c12", "p10c10", "p10c8", "p10c6", "p10c4",
+        "p8c12",  "p8c10",  "p8c8",  "p8c6",  "p8c4",
+        "p6c12",  "p6c10",  "p6c8",  "p6c6",  "p6c4",
+        "p4c12",  "p4c10",  "p4c8",  "p4c6",  "p4c4"
+      ],
+      "workloads": ["synthetic"],
+      "algorithms": ["DQN"],
+      "rewards": ["paper"],
+      "seeds": 3
+    },
+    "table6": {
+      "runner": "drl",
+      "description": "Paper Table 6: maximum lifetime, reward x algorithm ablation (python -m drl.experiments).",
+      "scenarios": ["p6c6", "p8c8", "p10c8"],
+      "workloads": ["synthetic"],
+      "algorithms": ["DQN", "PPO", "A2C"],
+      "rewards": ["paper", "age", "uptime", "min_battery", "negative_oldest", "sum",
+                  "log_age", "log_uptime", "log_min_battery", "negative_log_oldest", "log_sum"],
+      "seeds": 3
+    }
+  }
+}

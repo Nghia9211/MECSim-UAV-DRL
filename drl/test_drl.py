@@ -1,5 +1,6 @@
 """Integration tests require scripts/build-drl.ps1 and drl/requirements.txt."""
 import csv
+import json
 from dataclasses import replace
 import math
 import os
@@ -14,9 +15,10 @@ from gymnasium.utils.env_checker import check_env as gym_check
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_checker import check_env
 
-from .environment import DATASET_PROPERTIES, EnvConfig, PaperEnv, REWARDS, ROOT, reward_value
+from .environment import DATASET_PROPERTIES, REGISTRY, EnvConfig, PaperEnv, REWARDS, ROOT, reward_value
 from .run import episode, model_options
-from .experiments import configurations
+from .experiments import configurations, suite_workload
+from .registry import Registry
 
 
 class EnvironmentTests(unittest.TestCase):
@@ -86,7 +88,7 @@ class EnvironmentTests(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get("DRL_TEST_DATASETS") == "1", "Set DRL_TEST_DATASETS=1 for real raw data test")
     def test_java_trace_parity_real_mixed(self):
-        self.compare_java(dict(DATASET_PROPERTIES))
+        self.compare_java(REGISTRY.workload_properties("mixed"))
 
     def test_rewards_and_paper_hyperparameters(self):
         before = np.array([1.] * 12 + [0.] * 12)
@@ -106,6 +108,55 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(len(table6), 198)
         self.assertEqual({(r["powered"],r["connected"]) for r in table6}, {(6,6),(8,8),(10,8)})
         self.assertEqual({r["algorithm"] for r in table6}, {"DQN","PPO","A2C"})
+        self.assertEqual({r["reward"] for r in table6}, set(REWARDS))
+        self.assertEqual(suite_workload("table5", None), "synthetic")
+        self.assertEqual(suite_workload("table5", "datasets"), "mixed")
+
+
+class RegistryTests(unittest.TestCase):
+    """scenarios.json is shared with Java (uav.ScenarioRegistryTest checks the same file there)."""
+    FORMER_DATASET_PROPERTIES = {  # Values that used to be hard-coded here and in run-paper-datasets.ps1.
+        "rescuenet.images": "datasets/raw/rescuenet/validation/val-org-img",
+        "rescuenet.masks": "datasets/raw/rescuenet/validation/val-label-img",
+        "alibaba.csv": "datasets/raw/alibaba2018/batch_task.csv",
+        "paper.imageLimit": "449", "paper.alibabaLimit": "1000", "paper.alibabaScanLimit": "100000",
+        "paper.uavMips": "2000", "paper.imageMiPerMegapixel": "833.3333333333334", "paper.cpuPowerW": "20",
+        "alibaba.assumedMips": "1000", "alibaba.durationScale": "1",
+        "paper.backgroundScale": "1", "paper.backgroundTasksPerSlot": "1",
+    }
+
+    def test_workload_properties_keep_former_values_and_pin_workload_identity(self):
+        self.assertEqual(REGISTRY.workload_properties("datasets"), {"paper.workload": "datasets", **self.FORMER_DATASET_PROPERTIES})
+        self.assertEqual(list(DATASET_PROPERTIES), ["paper.workload", *self.FORMER_DATASET_PROPERTIES])
+        self.assertEqual(REGISTRY.workload_properties("mixed")["paper.workload"], "mixed")
+        rescue = REGISTRY.workload_properties("rescuenet", {"paper.cpuPowerW": "7"})
+        self.assertEqual((rescue["paper.backgroundScale"], rescue["paper.cpuPowerW"]), ("0", "7"))
+        self.assertEqual(REGISTRY.workload_properties("synthetic"), {})
+        with self.assertRaisesRegex(ValueError, "pins"):
+            REGISTRY.workload_properties("rescuenet", {"paper.backgroundScale": "5"})
+        with self.assertRaisesRegex(ValueError, "Unknown workload"):
+            REGISTRY.workload_properties("google")
+
+    def test_defaults_and_seed_protocol(self):
+        config = EnvConfig()
+        self.assertEqual((config.layout_seed, config.powered, config.connected, config.max_slots), (42, 8, 8, 200))
+        seeds = REGISTRY.seed_protocol
+        self.assertEqual((seeds.task_seed_offset, seeds.policy_seed_offset), (1, 2))
+        self.assertEqual((seeds.drl_training_task_seed_end, seeds.drl_test_first_task_seed), (1_000_000, 2_000_000))
+
+    def test_every_drl_suite_expands_and_invalid_registries_fail(self):
+        for name in REGISTRY.suite_names("drl"):
+            self.assertTrue(configurations(name, range(1)))
+        data = json.loads(REGISTRY.source.read_text(encoding="utf-8"))
+        bad = json.loads(json.dumps(data)); bad["scenarios"]["p8c8"]["powered"] = 13
+        with self.assertRaisesRegex(ValueError, "p8c8"):
+            Registry(bad, REGISTRY.source)
+        bad = json.loads(json.dumps(data)); bad["suites"]["table6"]["scenarios"].append("p9c9")
+        with self.assertRaisesRegex(ValueError, "p9c9"):
+            Registry(bad, REGISTRY.source)
+        bad = json.loads(json.dumps(data)); bad["workloads"]["rescuenet"]["fixed"] = {"alibaba.csv": "x"}
+        with self.assertRaisesRegex(ValueError, "pins unsupported"):
+            Registry(bad, REGISTRY.source)
 
     def test_dqn_learns_and_save_reload_preserves_policy(self):
         torch.set_num_threads(1)

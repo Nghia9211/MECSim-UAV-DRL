@@ -4,30 +4,54 @@ import com.mechalikh.pureedgesim.scenariomanager.SimulationParameters;
 import com.mechalikh.pureedgesim.simulationengine.PureEdgeSim;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/** Paired ablation: original synthetic / RescueNet with finite CPU / RescueNet + Alibaba. */
+/** Paired workload ablation (default suite dataset_evaluation: synthetic / rescuenet / mixed).
+ * Workloads, scenario, policies and seeds come from a java suite in scenarios.json.
+ */
 public final class PaperDatasetEvaluation {
+    public static final String DEFAULT_SUITE = "dataset_evaluation";
     record Result(String mode,PaperSimulation.Baseline policy,int slots,double seconds,long submitted,long delivered,
                   double latency,double computeJ,long cpuSubmitted,long cpuCompleted,boolean truncated,String reason) { }
     public static void main(String[] args) throws Exception {
-        int seeds=Integer.parseInt(System.getProperty("paper.seeds","30"));
-        long first=Long.parseLong(System.getProperty("paper.firstSeed","0"));
-        int powered=Integer.parseInt(System.getProperty("paper.powered","8"));
-        int connected=Integer.parseInt(System.getProperty("paper.connected","8"));
-        int limit=Integer.parseInt(System.getProperty("paper.maxSlots","200"));
+        var registry=ScenarioRegistry.load();
+        var suite=registry.suite(System.getProperty("paper.suite",DEFAULT_SUITE),"java");
+        int seeds=Integer.parseInt(System.getProperty("paper.seeds",String.valueOf(suite.seeds())));
+        long first=Long.parseLong(System.getProperty("paper.firstSeed",String.valueOf(suite.firstSeed())));
+        int limit=Integer.parseInt(System.getProperty("paper.maxSlots",String.valueOf(registry.defaults().maxSlots())));
         if(seeds<2||seeds>1000||limit<1)throw new IllegalArgumentException("Use 2..1000 seeds and positive slot limit");
+        var scenarios=registry.scenariosFromSystemProperties(suite);
+        // Trace paths have no scenario component; multi-scenario dataset suites need a new output layout first.
+        if(scenarios.size()!=1)throw new IllegalArgumentException("PaperDatasetEvaluation runs exactly one scenario; select it with -Dpaper.scenario");
+        int powered=scenarios.get(0).powered(),connected=scenarios.get(0).connected();
+        var protocol=registry.seedProtocol();
         PaperSimulation.layout(first,powered,connected); // validate before reading large files
-        var mixed=PaperDatasetWorkload.fromProperties();var rescue=mixed.withBackgroundScale(0);
-        if(mixed.config().backgroundScale()==0||mixed.config().backgroundTasksPerSlot()==0)
-            throw new IllegalArgumentException("Evaluation requires nonzero mixed background");
+        // Pool keys cannot be pinned per workload, so one loaded pool serves every dataset workload.
+        Map<String,PaperDatasetWorkload> datasets=new LinkedHashMap<>();
+        PaperDatasetWorkload pools=null;
+        for(var w:suite.workloads()) {
+            if(!w.dataset()){datasets.put(w.id(),null);continue;}
+            var properties=registry.properties(w);
+            if(pools==null)pools=PaperDatasetWorkload.load(properties);
+            var data=pools.withConfig(PaperDatasetWorkload.config(properties));
+            if(!w.fixed().containsKey("paper.backgroundScale")
+                    &&(data.config().backgroundScale()==0||data.config().backgroundTasksPerSlot()==0))
+                throw new IllegalArgumentException("Workload "+w.id()+" would have no background load; it would duplicate a background-free workload");
+            datasets.put(w.id(),data);
+        }
+        if(pools==null)throw new IllegalArgumentException("Suite "+suite.id()+" has no dataset workload; use PaperBaselines");
         Files.createDirectories(Path.of("target"));
         Path output=Files.createTempDirectory(Path.of("target"),"uav-dataset-evaluation-");
-        mixed.save(output.resolve("source-pools"));
-        for(String name:List.of("PaperParameters.java","PaperSimulation.java","PaperDatasetWorkload.java","PaperDatasetEvaluation.java","RescueNetWorkload.java","AlibabaWorkload.java","UAVEnergyModel.java","UAVEdgeNode.java","UAVMobilityModel.java"))
+        // Pools are shared. dataset-config.txt records the LAST dataset workload's config (mixed in the default
+        // suite, as before the registry); per-workload pinned values are archived in scenarios.json.
+        datasets.values().stream().filter(Objects::nonNull).reduce((a,b)->b).orElseThrow().save(output.resolve("source-pools"));
+        for(String name:List.of("PaperParameters.java","PaperSimulation.java","PaperDatasetWorkload.java","PaperDatasetEvaluation.java","ScenarioRegistry.java","RescueNetWorkload.java","AlibabaWorkload.java","UAVEnergyModel.java","UAVEdgeNode.java","UAVMobilityModel.java"))
             Files.copy(Path.of("PureEdgeSim/uav",name),output.resolve(name));
-        Files.writeString(output.resolve("run.txt"),"created="+java.time.Instant.now()+"\nseeds="+seeds+" firstSeed="+first
+        Files.copy(registry.source(),output.resolve("scenarios.json"));
+        Files.writeString(output.resolve("run.txt"),"created="+java.time.Instant.now()+"\nsuite="+suite.id()+" seeds="+seeds+" firstSeed="+first
                 +" powered="+powered+" connected="+connected+" maxSlots="+limit
-                +"\nlayoutSeed=seed; workloadSeed=seed+1; policySeed=seed+2. Sequential engines. Source pools and source snapshots archived."
+                +"\nworkloads="+String.join(",",datasets.keySet())
+                +"\nlayoutSeed=seed; workloadSeed=seed+"+protocol.taskSeedOffset()+"; policySeed=seed+"+protocol.policySeedOffset()+". Sequential engines. Source pools and source snapshots archived."
                 +"\nSynthetic is original model; RescueNet and mixed share finite CPU and image selection. Compare rescue/mixed to isolate background."
                 +"\nFinal partial slot counted. Image delivery fraction includes local connected results and completed UAV results; not a deadline metric."
                 +"\nIncomplete jobs discarded at slot cap, no carry-over. Hardware/MI assumptions uncalibrated; no trained DQN.\n");
@@ -36,10 +60,11 @@ public final class PaperDatasetEvaluation {
         SimulationParameters.DISPLAY_REAL_TIME_CHARTS=false;
         for(int k=0;k<seeds;k++) {
             long seed=Math.addExact(first,k);var layout=PaperSimulation.layout(seed,powered,connected);
-            for(String mode:List.of("synthetic","rescuenet","mixed"))for(var policy:PaperSimulation.Baseline.values()) {
+            for(var entry:datasets.entrySet())for(var policy:suite.policies()) {
+                String mode=entry.getKey();
                 var engine=new PureEdgeSim();
-                var data=mode.equals("synthetic")?null:mode.equals("rescuenet")?rescue:mixed;
-                var m=new PaperSimulation.Manager(engine,layout,seed+1,PaperSimulation.policy(policy,seed+2),limit,data);
+                var m=new PaperSimulation.Manager(engine,layout,seed+protocol.taskSeedOffset(),
+                        PaperSimulation.policy(policy,seed+protocol.policySeedOffset()),limit,entry.getValue());
                 engine.start();
                 if(!m.terminated()&&!m.truncated())throw new IllegalStateException("Incomplete episode");
                 Path relative=Path.of("traces","seed-"+seed,mode,policy.name());m.save(output.resolve(relative));
@@ -58,7 +83,7 @@ public final class PaperDatasetEvaluation {
                 "No training or calibrated inference benchmark. Config and source selections: source-pools/dataset-config.txt.","",
                 "| Mode | Policy | Slots mean +/- SD | Seconds mean | Image delivery fraction | Compute J mean | Truncated |",
                 "|---|---|---|---|---|---|---|"));
-        for(String mode:List.of("synthetic","rescuenet","mixed"))for(var policy:PaperSimulation.Baseline.values()) {
+        for(String mode:datasets.keySet())for(var policy:suite.policies()) {
             var group=results.stream().filter(r->r.mode().equals(mode)&&r.policy()==policy).toList();
             double mean=group.stream().mapToInt(Result::slots).average().orElseThrow();
             double sd=Math.sqrt(group.stream().mapToDouble(r->Math.pow(r.slots()-mean,2)).sum()/(seeds-1));
@@ -73,6 +98,7 @@ public final class PaperDatasetEvaluation {
                     submitted==0?"N/A":String.format(Locale.ROOT,"%.2f%%",fraction*100),compute,truncated));
         }
         Files.write(output.resolve("summary.csv"),summary);Files.write(output.resolve("REPORT.md"),report);
-        System.out.println("Completed "+results.size()+" episodes with "+mixed.imageCount()+" images / "+mixed.backgroundCount()+" Alibaba rows. Output: "+output.toAbsolutePath());
+        System.out.println("Completed "+results.size()+" episodes with "+pools.imageCount()+" images / "+pools.backgroundCount()
+                +" Alibaba rows; workloads "+datasets.keySet().stream().collect(Collectors.joining(","))+". Output: "+output.toAbsolutePath());
     }
 }

@@ -6,6 +6,8 @@ mở rộng từ MECSim/PureEdgeSim.
 Bắt đầu với [tổng quan dự án](PureEdgeSim/uav/PROJECT_OVERVIEW.md).
 Hướng dẫn MECSim/PureEdgeSim trước khi dọn được giữ tại
 [docs/upstream/MECSim-original.md](docs/upstream/MECSim-original.md).
+Scenario, workload, seed protocol và các bộ thực nghiệm của nhánh paper khai báo một lần
+trong [`scenarios.json`](scenarios.json): [hướng dẫn registry](PureEdgeSim/uav/SCENARIOS.md).
 
 ## Trạng thái hiện tại
 

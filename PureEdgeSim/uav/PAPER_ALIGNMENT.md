@@ -31,7 +31,8 @@ Chưa chạy trọn lưới Table5/6, chưa có SUMO case study hoặc bằng ch
 toàn bộ kết quả paper trên synthetic.
 
 **Cập nhật 21/09/2026:** theo yêu cầu mở rộng đánh giá, đã tích hợp RescueNet và
-Alibaba vào cùng `PaperSimulation.Manager` qua chế độ `paper.workload=datasets`.
+Alibaba vào cùng `PaperSimulation.Manager` qua chế độ `paper.workload=datasets`
+(nay là `mixed`/`rescuenet`, `datasets` còn là alias; xem [SCENARIOS.md](SCENARIOS.md)).
 Xem [DATASET_EVALUATION.md](DATASET_EVALUATION.md) để chạy và đọc giả định,
 queue CPU hữu hạn, ảnh hưởng tải nền và kết quả. Chế độ synthetic vẫn giữ nguyên;
 những mục dưới mô tả mô hình paper gốc trừ khi ghi rõ là extension.
@@ -191,7 +192,9 @@ entity tĩnh, vì vậy không chạy các episode song song trong cùng JVM.
 mvn compile exec:java "-Dexec.mainClass=uav.PaperBaselines" "-Dexec.classpathScope=compile"
 ```
 
-Có thể đặt `-Dpaper.seeds=30`, `-Dpaper.firstSeed=0`, `-Dpaper.maxSlots=200`.
+Cấu hình là suite `heuristic_baselines` trong [`scenarios.json`](../../scenarios.json)
+([SCENARIOS.md](SCENARIOS.md)). Có thể đặt `-Dpaper.seeds=30`, `-Dpaper.firstSeed=0`,
+`-Dpaper.maxSlots=200`, `-Dpaper.scenario=<id>` hoặc `-Dpaper.suite=<id>`.
 Output mỗi lần chạy nằm trong `target/uav-baselines-*/`: `REPORT.md`,
 `summary.csv`, `episodes.csv`, `run.txt`, toàn bộ trace và bản chụp source/config.
 

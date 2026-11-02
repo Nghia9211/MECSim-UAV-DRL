@@ -20,6 +20,7 @@ Bắt đầu với [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 | Dataset | [DATASET_SETUP.md](DATASET_SETUP.md) |
 | Dashboard | [VISUALIZATION.md](VISUALIZATION.md) |
 | Đối chiếu paper lifetime | [PAPER_ALIGNMENT.md](PAPER_ALIGNMENT.md), [PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md) |
+| Scenario/workload/seed/suite của nhánh paper (`scenarios.json`) | [SCENARIOS.md](SCENARIOS.md) |
 
 Chạy từ gốc MECSim:
 ```powershell
