@@ -22,12 +22,17 @@ Từ thư mục `uav/MECSim`, dữ liệu đã có sẵn trong `datasets/raw`:
 
 `-Offline` dùng dependency Maven đã cache; bỏ cờ này ở máy cần tải dependency.
 Có thể đổi `-Powered`, `-Connected`, `-BackgroundTasksPerSlot`. Các số power/comms
-là số thiết bị **còn** nguồn/kết nối. Script chứa các giả định thử nghiệm rõ ràng,
-không tự suy ra chúng từ ảnh hoặc từ bài báo.
+là số thiết bị **còn** nguồn/kết nối. Các giả định thử nghiệm (MIPS, W, MI/MP,
+đường dẫn) khai báo một lần trong `dataset_defaults` của
+[`scenarios.json`](../../scenarios.json), không tự suy ra từ ảnh hoặc từ bài báo.
+Script chỉ truyền các tham số bạn đặt tường minh; còn lại lấy từ registry.
 
-Entry point trực tiếp vẫn là `uav.PaperSimulation` với `-Dpaper.workload=datasets`.
-Không đặt cờ này thì synthetic gốc giữ nguyên. `uav.PaperDatasetEvaluation`
-là runner chạy nhiều episode trên cùng manager, không phải environment khác.
+`evaluate` chạy suite `dataset_evaluation` (8/8 × synthetic/rescuenet/mixed); xem
+[SCENARIOS.md](SCENARIOS.md) để đổi scenario (`-Dpaper.scenario=p6c6`) hoặc thêm suite.
+Entry point trực tiếp vẫn là `uav.PaperSimulation` với `-Dpaper.workload=mixed`
+(hoặc `rescuenet`; tên cũ `datasets` là alias của `mixed`). Không đặt cờ này thì
+synthetic gốc giữ nguyên. `uav.PaperDatasetEvaluation` là runner chạy nhiều episode
+trên cùng manager, không phải environment khác.
 
 ## Dataset ảnh làm gì?
 

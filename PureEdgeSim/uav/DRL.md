@@ -63,12 +63,16 @@ nhưng không đồng nghĩa đã lưu đầy đủ trạng thái để resume y
 Chạy cấu hình khác của Table6 hoặc dataset extension:
 
 ```bash
-POWERED=6 CONNECTED=6 SEED=1 LAYOUT_SEED=1 bash scripts/train-paper-server.sh synthetic
-POWERED=10 CONNECTED=8 SEED=2 LAYOUT_SEED=2 bash scripts/train-paper-server.sh synthetic
-bash scripts/train-paper-server.sh datasets
+SCENARIO=p6c6 SEED=1 LAYOUT_SEED=1 bash scripts/train-paper-server.sh synthetic
+SCENARIO=p10c8 SEED=2 LAYOUT_SEED=2 bash scripts/train-paper-server.sh synthetic
+bash scripts/train-paper-server.sh mixed
 ```
 
-Đối với `datasets`, cần **copy raw dataset lên server** theo các đường dẫn phía
+`SCENARIO` là id trong [`scenarios.json`](../../scenarios.json); `POWERED`/`CONNECTED`
+vẫn dùng được để override số lượng. Biến nào không đặt sẽ lấy mặc định của registry
+(xem [SCENARIOS.md](SCENARIOS.md)). Workload `datasets` cũ vẫn chạy, là alias của `mixed`.
+
+Đối với `mixed`/`rescuenet`, cần **copy raw dataset lên server** theo các đường dẫn phía
 dưới vì GitHub đã ignore dữ liệu. Không cần tải lại nếu đã có bản local. Chế độ
 mixed giữ hyperparameters DQN nhưng thay workload/CPU model; không gọi đó là
 workload gốc của paper. `--dry-run` chỉ in lệnh; `OFFLINE=1` dùng Maven offline
@@ -81,16 +85,17 @@ không tự chạy toàn bộ lưới Table5/6.
 Synthetic, theo workload gốc của paper:
 
 ```powershell
-.\.venv-drl\Scripts\python.exe -m drl.run train --steps 1000000 --seed 0 --layout-seed 42 --powered 8 --connected 8 --output target/drl-paper-dqn
+.\.venv-drl\Scripts\python.exe -m drl.run train --steps 1000000 --seed 0 --layout-seed 42 --scenario p8c8 --output target/drl-paper-dqn
 ```
 
 RescueNet + Alibaba, dùng raw dataset đã tải:
 
 ```powershell
-.\.venv-drl\Scripts\python.exe -m drl.run train --workload datasets --steps 1000000 --seed 0 --layout-seed 42 --powered 8 --connected 8 --output target/drl-mixed-dqn
+.\.venv-drl\Scripts\python.exe -m drl.run train --workload mixed --steps 1000000 --seed 0 --layout-seed 42 --scenario p8c8 --output target/drl-mixed-dqn
 ```
 
-Không cần tải thêm dataset. Đường dẫn mặc định:
+`--workload rescuenet` bỏ tải nền Alibaba. Không cần tải thêm dataset. Đường dẫn
+mặc định (khai báo trong `dataset_defaults` của `scenarios.json`):
 
 - `datasets/raw/rescuenet/validation/val-org-img`
 - `datasets/raw/rescuenet/validation/val-label-img`
@@ -102,10 +107,11 @@ và quy tắc drop giữ nguyên [DATASET_EVALUATION.md](DATASET_EVALUATION.md).
 extension dataset, không phải dữ liệu gốc của paper và không chạy neural inference
 trên pixel. DQN quan sát pin/tuổi dữ liệu, không trực tiếp đọc ảnh.
 
-Có thể thay đường dẫn/tham số bằng `--property KEY=VALUE`, lặp nhiều lần:
+Có thể thay đường dẫn/tham số bằng `--property KEY=VALUE`, lặp nhiều lần. Không
+override được giá trị mà workload pin (ví dụ `paper.backgroundScale` của `rescuenet`):
 
 ```powershell
-.\.venv-drl\Scripts\python.exe -m drl.run train --workload datasets --steps 10000 --property paper.backgroundScale=5
+.\.venv-drl\Scripts\python.exe -m drl.run train --workload mixed --steps 10000 --property paper.backgroundScale=5
 ```
 
 `--steps 10000` chỉ là pilot, khác ngân sách 1 triệu bước của paper. Bỏ `--output`
@@ -162,7 +168,7 @@ Mỗi run có:
 - `evaluation-*/traces/`: đường bay/pin/data age, CSV giống các lần chạy Java.
 
 Training tự reset với task seed trong `[0,1000000)`. Validation dùng từ 1.000.000;
-test sau training dùng từ 2.000.000. Chọn best theo **mean slot validation**, không
+test sau training dùng từ 2.000.000 (`seed_protocol` trong `scenarios.json`). Chọn best theo **mean slot validation**, không
 chọn bằng test. Mặc định kiểm tra validation mỗi 10.000 bước/5 episode; test 30
 episode mỗi policy. Mỗi JVM chỉ chứa một env, tránh registry entity tĩnh bị trộn.
 
@@ -199,7 +205,8 @@ từ source tác giả. Với reward khác mặc định, `slots.csv` vẫn gi�
 để đối chiếu; Monitor/evaluation ghi reward được chọn.
 
 Lưới Table 5: DQN + reward paper, power/comms `{12,10,8,6,4}`. Lưới Table 6:
-DQN/PPO/A2C × 11 reward × scenarios 6/6,8/8,10/8. Xem quy mô trước khi chạy:
+DQN/PPO/A2C × 11 reward × scenarios 6/6,8/8,10/8. Cả hai là suite `table5`/`table6`
+trong `scenarios.json`; `--seeds` mặc định lấy từ suite (3). Xem quy mô trước khi chạy:
 
 ```powershell
 .\.venv-drl\Scripts\python.exe -m drl.experiments --suite table6 --seeds 3 --output target/table6 --plan-only
@@ -211,7 +218,7 @@ layout vừa là learning seed; mỗi layout được train riêng vì ID thiế
 nghĩa riêng. `runs.csv` lưu từng run; `summary.csv` tính mean/SD qua **run means**
 và maximum quan sát, không coi mọi test episode là independent training runs.
 Table 5 báo average, Table 6 báo maximum; không tráo hai metric. Thêm
-`--workload datasets` để chạy lưới extension trên mixed workload.
+`--workload mixed` (hoặc `rescuenet`) để chạy lưới extension trên workload dataset.
 
 ## Kiểm thử và giới hạn còn lại
 
