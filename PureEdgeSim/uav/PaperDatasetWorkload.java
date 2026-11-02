@@ -3,6 +3,7 @@ package uav;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 /** Dataset-driven extension: measured payloads, explicitly assumed compute, slot-local FIFO CPU. */
 public final class PaperDatasetWorkload {
@@ -109,22 +110,31 @@ public final class PaperDatasetWorkload {
         }
         return jobs;
     }
-    private static String required(String key) {
-        String value=System.getProperty(key);
-        if(value==null||value.isBlank())throw new IllegalArgumentException("Missing -D"+key+"; see DATASET_SETUP.md");
+    /** Same pools and image selection, different compute/background assumptions. */
+    public PaperDatasetWorkload withConfig(Config replacement) {
+        return new PaperDatasetWorkload(images,alibaba,replacement,source);
+    }
+    private static String required(UnaryOperator<String> properties,String key) {
+        String value=properties.apply(key);
+        if(value==null||value.isBlank())throw new IllegalArgumentException("Missing dataset property "+key+"; see scenarios.json dataset_defaults");
         return value;
     }
-    public static PaperDatasetWorkload fromProperties() throws IOException {
-        Path images=Path.of(required("rescuenet.images")), source=Path.of(required("alibaba.csv"));
-        String masks=System.getProperty("rescuenet.masks");
-        var pool=RescueNetWorkload.readMetadata(images,masks==null?null:Path.of(masks),Integer.parseInt(System.getProperty("paper.imageLimit","449")));
-        var sample=AlibabaWorkload.readPool(source,Integer.parseInt(System.getProperty("paper.alibabaLimit","1000")),
-                Long.parseLong(System.getProperty("paper.alibabaScanLimit","100000")));
-        var config=new Config(Double.parseDouble(required("paper.uavMips")),Double.parseDouble(required("paper.imageMiPerMegapixel")),
-                Double.parseDouble(required("paper.cpuPowerW")),Double.parseDouble(required("alibaba.assumedMips")),
-                Double.parseDouble(required("alibaba.durationScale")),Double.parseDouble(required("paper.backgroundScale")),
-                Integer.parseInt(required("paper.backgroundTasksPerSlot")));
-        return new PaperDatasetWorkload(pool,sample,config,source);
+    /** Compute/background assumptions; property names are the keys of scenarios.json dataset_defaults. */
+    public static Config config(UnaryOperator<String> properties) {
+        return new Config(Double.parseDouble(required(properties,"paper.uavMips")),Double.parseDouble(required(properties,"paper.imageMiPerMegapixel")),
+                Double.parseDouble(required(properties,"paper.cpuPowerW")),Double.parseDouble(required(properties,"alibaba.assumedMips")),
+                Double.parseDouble(required(properties,"alibaba.durationScale")),Double.parseDouble(required(properties,"paper.backgroundScale")),
+                Integer.parseInt(required(properties,"paper.backgroundTasksPerSlot")));
+    }
+    /** Reads the bounded source pools. Use ScenarioRegistry.dataset(workload) to resolve properties. */
+    public static PaperDatasetWorkload load(UnaryOperator<String> properties) throws IOException {
+        Path images=Path.of(required(properties,"rescuenet.images")), source=Path.of(required(properties,"alibaba.csv"));
+        String masks=properties.apply("rescuenet.masks"); // Blank disables mask pairing checks.
+        var pool=RescueNetWorkload.readMetadata(images,masks==null||masks.isBlank()?null:Path.of(masks),
+                Integer.parseInt(required(properties,"paper.imageLimit")));
+        var sample=AlibabaWorkload.readPool(source,Integer.parseInt(required(properties,"paper.alibabaLimit")),
+                Long.parseLong(required(properties,"paper.alibabaScanLimit")));
+        return new PaperDatasetWorkload(pool,sample,config(properties),source);
     }
     static String quote(Object s) { return "\""+s.toString().replace("\"","\"\"")+"\""; }
     public void save(Path dir) throws IOException {

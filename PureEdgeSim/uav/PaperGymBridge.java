@@ -89,18 +89,24 @@ public final class PaperGymBridge {
     private void run() throws IOException {
         System.setOut(System.err); // Keep framework/library diagnostics out of the protocol.
         SimulationParameters.DISPLAY_REAL_TIME_CHARTS=false;
-        String mode=System.getProperty("paper.workload","synthetic");
-        if(!Set.of("synthetic","datasets").contains(mode)) throw new IllegalArgumentException("Invalid workload");
-        var dataset=mode.equals("datasets")?PaperDatasetWorkload.fromProperties():null;
+        var registry=ScenarioRegistry.load();
+        var defaults=registry.defaults();
+        var workload=registry.workloadFromSystemProperties();
+        var dataset=registry.dataset(workload);
+        // Report the requested name (e.g. legacy "datasets") so manifests stay comparable with older runs.
+        String mode=System.getProperty("paper.workload",workload.id());
         send(Map.of("ready",true,"protocol",1,"workload",mode));
         var c=command();
         while(!"close".equals(c.get("cmd"))) {
             if(!"reset".equals(c.get("cmd"))) {
                 send(Map.of("error","Episode ended or not started: RESET required")); c=command(); continue;
             }
-            long layoutSeed=number(c,"layout_seed",42), taskSeed=number(c,"task_seed",43);
-            int powered=(int)number(c,"powered",8), connected=(int)number(c,"connected",8);
-            int maxSlots=(int)number(c,"max_slots",200);
+            // Python always sends these; registry defaults only serve hand-driven sessions.
+            long layoutSeed=number(c,"layout_seed",defaults.layoutSeed());
+            long taskSeed=number(c,"task_seed",layoutSeed+registry.seedProtocol().taskSeedOffset());
+            int powered=(int)number(c,"powered",defaults.scenario().powered());
+            int connected=(int)number(c,"connected",defaults.scenario().connected());
+            int maxSlots=(int)number(c,"max_slots",defaults.maxSlots());
             // Validate before creating/registering simulation entities.
             var scenarioMode=PaperScenario.Mode.valueOf((String)c.getOrDefault("scenario_mode","legacy"));
             long shiftSeed=number(c,"shift_seed",0);

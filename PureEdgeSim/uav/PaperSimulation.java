@@ -355,24 +355,28 @@ public final class PaperSimulation {
         }
     }
     public static void main(String[] args) throws IOException {
-        long seed = Long.parseLong(System.getProperty("paper.seed", "42"));
-        int powered = Integer.parseInt(System.getProperty("paper.powered", "8"));
-        int connected = Integer.parseInt(System.getProperty("paper.connected", "8"));
-        Baseline baseline = Baseline.valueOf(System.getProperty("paper.policy", "OLDEST_DATA"));
-        int maxSlots = Integer.parseInt(System.getProperty("paper.maxSlots", "200"));
+        var registry = ScenarioRegistry.load();
+        var defaults = registry.defaults();
+        var scenario = registry.scenarioFromSystemProperties(defaults.scenario());
+        long seed = Long.parseLong(System.getProperty("paper.seed", String.valueOf(defaults.seed())));
+        Baseline baseline = Baseline.valueOf(System.getProperty("paper.policy", defaults.policy().name()));
+        int maxSlots = Integer.parseInt(System.getProperty("paper.maxSlots", String.valueOf(defaults.maxSlots())));
         SimulationParameters.DISPLAY_REAL_TIME_CHARTS = false;
-        String mode=System.getProperty("paper.workload","synthetic");
-        if(!mode.equals("synthetic")&&!mode.equals("datasets"))throw new IllegalArgumentException("paper.workload must be synthetic or datasets");
-        var dataset=mode.equals("datasets")?PaperDatasetWorkload.fromProperties():null;
+        var workload = registry.workloadFromSystemProperties();
+        var dataset = registry.dataset(workload);
+        var protocol = registry.seedProtocol();
+        long taskSeed = seed + protocol.taskSeedOffset(), policySeed = seed + protocol.policySeedOffset();
         var engine = new PureEdgeSim();
-        var manager = new Manager(engine, layout(seed, powered, connected), seed + 1, policy(baseline, seed + 2), maxSlots,dataset);
+        var manager = new Manager(engine, layout(seed, scenario.powered(), scenario.connected()), taskSeed,
+                policy(baseline, policySeed), maxSlots, dataset);
         engine.start();
         Files.createDirectories(Path.of("target"));
         Path dir = Files.createTempDirectory(Path.of("target"), "uav-paper-"); manager.save(dir);
+        Files.copy(registry.source(), dir.resolve("scenarios.json"));
         Files.writeString(dir.resolve("run.txt"), "Source: arXiv:2501.15305v1; environment baseline, not trained DQN.\n"
-                +"workload="+mode+"\n"
-                + "seed=" + seed + " taskSeed=" + (seed + 1) + " policySeed=" + (seed + 2)
-                + " powered=" + powered + " connected=" + connected + " policy=" + baseline + " maxSlots=" + maxSlots
+                + "workload=" + workload.id() + " scenario=" + scenario.id() + "\n"
+                + "seed=" + seed + " taskSeed=" + taskSeed + " policySeed=" + policySeed
+                + " powered=" + scenario.powered() + " connected=" + scenario.connected() + " policy=" + baseline + " maxSlots=" + maxSlots
                 + "\nConventions: PAPER_ALIGNMENT.md; decimal bytes; literal beta0 dBm; slant range; parallel dedicated links; "
                 + "slot cap/local rate: diagnostics.txt; no 1kB terrestrial output-link cost; epsilon=1e-6 reward.\n"
                 + (dataset==null ? "Compute: negligible UAV computation; synthetic task volumes.\n"
