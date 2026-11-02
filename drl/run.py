@@ -20,7 +20,8 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.monitor import Monitor
 
-from .environment import DATASET_PROPERTIES, EnvConfig, PaperEnv, REWARDS, ROOT
+from .environment import REGISTRY, SEEDS, EnvConfig, PaperEnv, REWARDS, ROOT
+from .registry import Scenario
 
 ALGORITHMS = {"DQN": DQN, "PPO": PPO, "A2C": A2C}
 
@@ -45,7 +46,7 @@ def episode(env, *, model=None, policy="DQN", task_seed=0, layout_seed=None, tra
     if layout_seed is not None:
         options["layout_seed"] = layout_seed
     obs, _ = env.reset(seed=task_seed, options=options)
-    rng, next_device, total_reward = np.random.default_rng(task_seed + 2), 0, 0.0
+    rng, next_device, total_reward = np.random.default_rng(task_seed + SEEDS.policy_seed_offset), 0, 0.0
     while True:
         if model is not None:
             action, _ = model.predict(obs, deterministic=True)
@@ -96,7 +97,7 @@ def snapshot(output):
     target = destination / engine.relative_to(ROOT)
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(engine, target)
-    for filename in ["pom.xml", "drl/requirements.txt", "PureEdgeSim/uav/PAPER_ALIGNMENT.md"]:
+    for filename in ["pom.xml", "scenarios.json", "drl/requirements.txt", "PureEdgeSim/uav/PAPER_ALIGNMENT.md"]:
         target = destination / filename
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / filename, target)
@@ -112,7 +113,8 @@ class Validation(BaseCallback):
         self.started = time.monotonic()
 
     def evaluate(self):
-        rows = [episode(self.env, model=self.model, task_seed=1_000_000 + i) for i in range(self.count)]
+        rows = [episode(self.env, model=self.model, task_seed=SEEDS.drl_validation_first_task_seed + i)
+                for i in range(self.count)]
         mean = statistics.mean(r["slots"] for r in rows)
         self.rows.append(dict(steps=self.num_timesteps, gradient_updates=self.model._n_updates, mean_slots=mean,
             max_slots=max(r["slots"] for r in rows), mean_reward=statistics.mean(r["reward"] for r in rows),
@@ -138,21 +140,24 @@ class Validation(BaseCallback):
 def train(args):
     if args.algorithm == "DQN" and args.steps <= 100:
         raise ValueError("DQN needs more than 100 steps to pass replay warm-up and train")
+    # Resolve and validate the scenario/workload before creating the run directory.
+    overrides = dict(entry.split("=", 1) for entry in args.property)
+    properties = REGISTRY.workload_properties(args.workload, overrides)
+    scenario = resolve_scenario(args)
+    config = EnvConfig(args.layout_seed, scenario.powered, scenario.connected, args.max_slots, args.reward, properties,
+                       observation_mode=args.observation_mode)
     output = Path(args.output).resolve() if args.output else ROOT / "target" / ("drl-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f"))
     output.mkdir(parents=True, exist_ok=False)
-    properties = dict(DATASET_PROPERTIES) if args.workload == "datasets" else {}
-    for entry in args.property:
-        key, value = entry.split("=", 1)
-        properties[key] = value
-    config = EnvConfig(args.layout_seed, args.powered, args.connected, args.max_slots, args.reward, properties,
-                       observation_mode=args.observation_mode)
     parameters = model_options(args.algorithm)
     manifest = dict(algorithm=args.algorithm, seed=args.seed, requested_steps=args.steps,
+        scenario=scenario.id, workload=REGISTRY.canonical_workload(args.workload),
         environment=asdict(config), hyperparameters=parameters, python=platform.python_version(),
         packages={name: importlib.metadata.version(name) for name in ["torch", "numpy", "gymnasium", "stable-baselines3"]},
-        threads=args.threads, device=args.device, validation_seeds=[1_000_000+i for i in range(args.validation_episodes)],
+        threads=args.threads, device=args.device,
+        validation_seeds=[SEEDS.drl_validation_first_task_seed + i for i in range(args.validation_episodes)],
         observation=config.observation_mode,
-        protocol="Fixed layout; training task seeds in [0,1000000); validation starts at 1000000; test at 2000000.",
+        protocol=f"Fixed layout; training task seeds in [0,{SEEDS.drl_training_task_seed_end}); "
+                 f"validation starts at {SEEDS.drl_validation_first_task_seed}; test at {SEEDS.drl_test_first_task_seed}.",
         status="RUNNING")
     snapshot(output)
     manifest_path = output / "config.json"
@@ -188,10 +193,11 @@ def train(args):
         env.close()
         validation.env.close()
     print(f"Training complete: {output}", flush=True)
-    evaluate(output, args.eval_episodes, 2_000_000, "best_model.zip", False, False, args.device)
+    evaluate(output, args.eval_episodes, SEEDS.drl_test_first_task_seed, "best_model.zip", False, False, args.device)
 
 
-def evaluate(run, count=30, first_seed=2_000_000, checkpoint="best_model.zip", unseen=False, traces=False, device="cpu"):
+def evaluate(run, count=30, first_seed=SEEDS.drl_test_first_task_seed, checkpoint="best_model.zip", unseen=False,
+             traces=False, device="cpu"):
     run = Path(run).resolve()
     manifest = json.loads((run / "config.json").read_text(encoding="utf-8"))
     config = EnvConfig(**manifest["environment"])
@@ -239,6 +245,18 @@ def evaluate(run, count=30, first_seed=2_000_000, checkpoint="best_model.zip", u
     return rows
 
 
+def resolve_scenario(args):
+    """--scenario (default from scenarios.json), then explicit --powered/--connected counts."""
+    # getattr: some callers (e.g. drl.diagnostics) build argparse.Namespace objects by hand.
+    base = REGISTRY.scenario(getattr(args, "scenario", None) or REGISTRY.defaults["scenario"])
+    if args.powered is None and args.connected is None:
+        return base
+    powered = base.powered if args.powered is None else args.powered
+    connected = base.connected if args.connected is None else args.connected
+    return next((s for s in REGISTRY.scenarios.values() if (s.powered, s.connected) == (powered, connected)),
+                Scenario.ad_hoc(powered, connected))
+
+
 def positive(value):
     result = int(value)
     if result <= 0:
@@ -253,11 +271,14 @@ def main():
     p.add_argument("--algorithm", choices=ALGORITHMS, default="DQN")
     p.add_argument("--steps", type=positive, default=1_000_000)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--layout-seed", type=int, default=42)
-    p.add_argument("--powered", type=int, default=8)
-    p.add_argument("--connected", type=int, default=8)
-    p.add_argument("--max-slots", type=positive, default=200)
-    p.add_argument("--workload", choices=["synthetic", "datasets"], default="synthetic")
+    p.add_argument("--layout-seed", type=int, default=REGISTRY.defaults["layout_seed"])
+    p.add_argument("--scenario", choices=list(REGISTRY.scenarios),
+                   help=f"Availability from scenarios.json (default {REGISTRY.defaults['scenario']})")
+    p.add_argument("--powered", type=int, help="Overrides the scenario's powered-device count")
+    p.add_argument("--connected", type=int, help="Overrides the scenario's connected-device count")
+    p.add_argument("--max-slots", type=positive, default=REGISTRY.defaults["max_slots"])
+    p.add_argument("--workload", choices=REGISTRY.workload_choices(), default=REGISTRY.defaults["workload"],
+                   help="Workload from scenarios.json; 'datasets' is a legacy alias of 'mixed'")
     p.add_argument("--reward", choices=REWARDS, default="paper")
     p.add_argument("--observation-mode", choices=["paper24", "extended125"], default="paper24")
     p.add_argument("--property", action="append", default=[], metavar="JAVA_KEY=VALUE")
@@ -271,7 +292,7 @@ def main():
     p = commands.add_parser("evaluate")
     p.add_argument("run", type=Path)
     p.add_argument("--episodes", type=positive, default=30)
-    p.add_argument("--first-seed", type=int, default=2_000_000)
+    p.add_argument("--first-seed", type=int, default=SEEDS.drl_test_first_task_seed)
     p.add_argument("--checkpoint", default="best_model.zip")
     p.add_argument("--unseen-layouts", action="store_true")
     p.add_argument("--traces", action="store_true")
