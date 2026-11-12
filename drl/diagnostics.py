@@ -28,6 +28,14 @@ from .run import write_csv, snapshot, train, evaluate
 BASELINES = ("ROUND_ROBIN", "OLDEST_DATA", "RANDOM")
 
 
+
+def train_arguments(steps, seed, workload, run):
+    """Arguments for run.train(); keep in sync with the `train` sub-parser in drl/run.py."""
+    return argparse.Namespace(algorithm="DQN", steps=steps, seed=seed,
+        layout_seed=42, scenario=None, powered=8, connected=8, max_slots=200, workload=workload,
+        reward="paper", observation_mode="paper24", property=[], output=str(run), eval_freq=5000,
+        validation_episodes=5, eval_episodes=30, threads=1, device="cpu", save_replay=False)
+
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -287,11 +295,7 @@ def run_pilot(runs, out):
     for seed in protocol["learning_seeds"]:
         for workload in ["synthetic", "datasets"]:
             run=out/f"{workload}-s{seed}"
-            args=argparse.Namespace(algorithm="DQN", steps=protocol["steps"], seed=seed,
-                layout_seed=42, powered=8, connected=8, max_slots=200, workload=workload,
-                reward="paper", property=[], output=str(run), eval_freq=5000,
-                validation_episodes=5, eval_episodes=30, threads=1, device="cpu", save_replay=False)
-            train(args)
+            train(train_arguments(protocol["steps"], seed, workload, run))
             evaluate(run,30,2_000_000,"best_model.zip",True,False,"cpu")
             for evaluation in sorted(run.glob("evaluation-*")):
                 mode="unseen" if json.loads((evaluation/"evaluation.json").read_text())["unseen_layouts"] else "same"

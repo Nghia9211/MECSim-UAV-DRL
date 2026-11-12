@@ -8,7 +8,7 @@ minh lợi ích trên objective tổng hợp; chưa có tuyên bố novelty ho�
 
 Tên làm việc `FEASIBLE_AGING`, class `scheduling/FeasibleAgingScheduler.java`.
 Dùng cùng task/CPU/queue, fixed offloading/UAV hovering và nguyên tắc nonpreemptive
-như [benchmark nền tảng](SCHEDULING.md). Không thêm admission, rejection, DVFS,
+như [benchmark nền tảng](../../../PureEdgeSim/uav/SCHEDULING.md). Không thêm admission, rejection, DVFS,
 idling hoặc thông tin tương lai. Mọi task vẫn được tính trong offered denominator.
 
 Với mỗi task đã ready, ước lượng thời gian xử lý p=remaining MI/MIPS. Dự kiến
@@ -40,7 +40,7 @@ chưa hiệu chuẩn trên UAV thực tế.
 
 ## 2. Protocol khóa trước khi xem outcomes
 
-Protocol nguồn: [aging-study-protocol.json](scheduling/aging-study-protocol.json),
+Protocol nguồn: [aging-study-protocol.json](../../../PureEdgeSim/uav/scheduling/aging-study-protocol.json),
 copy/hash trong output. Giữ horizon600s, arrival window300s, ba mức arrival và
 cost model của baseline nền tảng. Có hai budget:1,600,000J và30,000J.
 

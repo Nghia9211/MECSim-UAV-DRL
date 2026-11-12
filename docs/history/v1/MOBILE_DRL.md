@@ -153,20 +153,20 @@ Xem mô hình gốc của extension tại [ADAPTED_PAPER_SERVICE.md](ADAPTED_PAP
 - **100 Java tests đạt** (gồm5 test controller mới), **8 test Gym mới đạt**,
   **17 regression tests Python cũ đạt** với dataset. Gym check, deterministic
   reset, causal state, terminal accounting và corruption tests đều đạt.
-- Diagnostic: [270 episode trên10 task seed](../../target/mobile-signal-20261023/summary.csv),
+- Diagnostic: [270 episode trên10 task seed](../../../target/mobile-signal-20261023/summary.csv),
   9 cấu hình local/routing ×3 selector. Có **27 trace seed đầu** được audit độc
   lập toàn bộ physics/queue/observation/reward; không gọi mọi270 episode đã audit.
-  [Biên bản kiểm tra](../../target/mobile-signal-20261023/verification.json).
-- Train: [mobile-dqn-smoke-20261023](../../target/mobile-dqn-smoke-20261023),
+  [Biên bản kiểm tra](../../../target/mobile-signal-20261023/verification.json).
+- Train: [mobile-dqn-smoke-20261023](../../../target/mobile-dqn-smoke-20261023),
   seed0, **2.000 decision steps / 468 gradient updates**, learning+validation
   khoảng16,16 s trên local CPU (không gồm build, audit và final evaluation).
   Checkpoint best theo validation nằm tại bước1.000; final ở bước2.000.
-  [Kiểm tra trọng số và checkpoint](../../target/mobile-dqn-smoke-20261023/training-verification.json):
+  [Kiểm tra trọng số và checkpoint](../../../target/mobile-dqn-smoke-20261023/training-verification.json):
   13.260 Q-network parameters, trọng số finite và thực sự thay đổi so với
   khởi tạo cùng seed; source snapshot69file khớp lúc kiểm tra.
 - Final evaluation: **10 task seeds mới ×4 policy =40 episode**, layout42,
   offloading ALL_UAV_WHEN_COVERED và CPU EDF cố định.
-  [Bảng đầy đủ](../../target/mobile-dqn-smoke-20261023/evaluation-20261023-093026-193569/summary.csv).
+  [Bảng đầy đủ](../../../target/mobile-dqn-smoke-20261023/evaluation-20261023-093026-193569/summary.csv).
   Cả4 trace của seed test đầu đều audit đạt; **không gọi cả40 episode đã audit**.
 
 | Policy | Mean reward ↑ | Image DVR ↓ | Total energy (kJ) ↓ | Images delivered on time ↑ |

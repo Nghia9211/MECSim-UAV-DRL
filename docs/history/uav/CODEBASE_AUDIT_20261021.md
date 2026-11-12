@@ -4,7 +4,7 @@
 
 > Tài liệu lịch sử: audit này được viết trước khi bổ sung nhánh task scheduling.
 > Để xem trạng thái hiện tại, đọc [PROJECT_OVERVIEW.md](../../../PureEdgeSim/uav/PROJECT_OVERVIEW.md),
-> [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md) và [SCHEDULING_AGING_RESULTS.md](../../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md).
+> [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md) và [SCHEDULING_AGING_RESULTS.md](../v1/SCHEDULING_AGING_RESULTS.md).
 
 Ngày kiểm tra: 21/10/2026. Kiểm tra trực tiếp working tree, source, raw data,
 artifact và PDF; không dùng kết luận hội thoại cũ làm bằng chứng.

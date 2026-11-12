@@ -7,7 +7,7 @@ Không sửa PaperParameters, kernel, protocol mặc định, dataset hay kết 
 ## Những gì đã xác nhận
 
 Đọc trực tiếp Section 4, trang PDF 7–8, Eq.(4), Table 1 của
-[paper gốc](../../../2501.15305v1.pdf), đối chiếu [bản trích xuất](../../../2501.15305v1.md).
+[paper gốc](../../../../2501.15305v1.pdf), đối chiếu [bản trích xuất](../../../../2501.15305v1.md).
 Bảng công bố W=20 MHz, p=0,1 W, noise=-100 dBm, beta0=-50 dBm, theta=4,
 H=10 m, range=65 m.
 
@@ -74,9 +74,9 @@ liên tục 2.474 s trong một episode horizon 600 s.
 
 Với GAIN_DB, rate tại 65 m khoảng 12,835 Mbit/s và JPEG median upload khoảng 3,115 s.
 SNR đổi 1000 lần nhưng rate không đổi đúng 1000 lần do log.
-Bảng đầy đủ: [rates-and-upload.csv](../../docs/radio/20261101/rates-and-upload.csv).
+Bảng đầy đủ: [rates-and-upload.csv](../../radio/20261101/rates-and-upload.csv).
 
-![Tốc độ và delay theo khoảng cách](../../docs/radio/20261101/radio-upload.png)
+![Tốc độ và delay theo khoảng cách](../../radio/20261101/radio-upload.png)
 
 ## Vùng phục vụ có ích theo deadline
 
@@ -133,5 +133,5 @@ mvn -o -Dtest=RadioUploadAuditTest,MobileServiceTest,PaperSimulationTest -Dradio
 ~~~
 
 Dùng tên output mới cho cả kernel probe và audit.
-[Evidence/receipt](../../docs/radio/20261101/README.md),
+[Evidence/receipt](../../radio/20261101/README.md),
 [thiết kế thí nghiệm tiếp theo](SCHEDULING_EXPERIMENT_DESIGN.md).

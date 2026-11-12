@@ -215,7 +215,7 @@ hoàn thành đúng hạn.
 - [verify-uav-offloading.py](../../scripts/verify-uav-offloading.py): kiểm chứng độc lập từ trace.
 
 Từ `uav/MECSim`, dùng Java 17 + Maven + Python 3 stdlib. Không cần GPU/SB3,
-không cần tải thêm dataset nếu raw đã có theo [DATASET_SETUP.md](DATASET_SETUP.md).
+không cần tải thêm dataset nếu raw đã có theo [DATASET_SETUP.md](../../docs/history/v1/DATASET_SETUP.md).
 
 ```powershell
 mvn -o test
@@ -264,7 +264,7 @@ này. Routing runtime có gồm forecast, scheduler runtime chỉ selection. Ch�
 
 ## 8. Việc còn lại sau nền tảng này
 
-Kết quả đã chạy và kiểm chứng: [OFFLOADING_RESULTS.md](OFFLOADING_RESULTS.md).
+Kết quả đã chạy và kiểm chứng: [OFFLOADING_RESULTS.md](../../docs/history/v1/OFFLOADING_RESULTS.md).
 Gồm 84 Java tests, 17 regression Python, 7 test verifier và 4.200 episode được
 replay độc lập; không coi các episode dùng chung seed là mẫu độc lập.
 

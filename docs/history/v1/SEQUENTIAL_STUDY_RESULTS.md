@@ -1,7 +1,7 @@
 # Kết quả Giai đoạn 1 và 2 — 01/11/2026
 
 **Đã chạy tuần tự và kiểm chứng cả hai giai đoạn.**
-[Báo cáo đầy đủ, bảng theo scenario và biểu đồ](../../docs/experiments/sequential-study-20261101/README.md).
+[Báo cáo đầy đủ, bảng theo scenario và biểu đồ](../../experiments/sequential-study-20261101/README.md).
 
 - Giai đoạn1: 1.440 episode, UAV hover/link10m/ALL_UAV; 4 load ×3 deadline ×4 scheduler ×30 development seeds.
 - Đánh giá riêng trước giai đoạn2: input/physical/dispatch verifier PASS, không có ảnh intrinsic-infeasible,
@@ -32,11 +32,11 @@ giả định/proxy, source pools chung, chưa unseen-layout hay validation/eval
 
 ## Source và artifact
 
-- Runner Java: [SequentialStudyBenchmark.java](offloading/SequentialStudyBenchmark.java).
-- Prepare/verify/review/gate: [drl/sequential_study.py](../../drl/sequential_study.py).
-- Report tool: [review-sequential-study.py](../../scripts/review-sequential-study.py).
+- Runner Java: [SequentialStudyBenchmark.java](../../../PureEdgeSim/uav/offloading/SequentialStudyBenchmark.java).
+- Prepare/verify/review/gate: [drl/sequential_study.py](../../../drl/sequential_study.py).
+- Report tool: [review-sequential-study.py](../../../scripts/review-sequential-study.py).
 - Protocol, core metric mỗi episode/từng scenario, queue, paired bootstrap:
-  [docs/experiments/sequential-study-20261101](../../docs/experiments/sequential-study-20261101/README.md).
+  [docs/experiments/sequential-study-20261101](../../experiments/sequential-study-20261101/README.md).
 - Full raw traces: target/sequential-study-20261101/stage1-full và stage2-full.
 - Study không thay PaperParameters, OffloadingSimulation, MobileService hay default protocol.
 

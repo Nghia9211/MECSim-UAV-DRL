@@ -2,7 +2,7 @@
 
 **Cập nhật 29/10/2026:** Đợt đưa các baseline mới và RISK_EDF vào cùng policy
 Round Robin, estimate error0/±40% và bộ metric thống nhất được mô tả tại
-[MOBILE_COMPARISON_PLAN.md](../../docs/history/uav/MOBILE_COMPARISON_PLAN.md). Các cấu hình và kết quả
+[MOBILE_COMPARISON_PLAN.md](../uav/MOBILE_COMPARISON_PLAN.md). Các cấu hình và kết quả
 23/10 phía dưới là lịch sử; không thay cho kết quả của đợt mới.
 
 Ngày **23/10/2026**. Đã bổ sung tầng phục vụ thiết bị di động vào cùng
@@ -93,11 +93,11 @@ Không nối `PaperGymBridge` hoặc checkpoint DQN cũ vào mobile mode. Cùng 
 bị không làm transition/reward/state mới tự tương đương paper. Adapter mới
 `MobileGymBridge`, state/reward và lượt train thử được ghi trong
 [MOBILE_DRL.md](MOBILE_DRL.md); paper reproduction vẫn ở đường chạy riêng trong
-[PAPER_ALIGNMENT.md](PAPER_ALIGNMENT.md).
+[PAPER_ALIGNMENT.md](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md).
 
 ## 4. Cấu hình và công bằng thí nghiệm
 
-Protocol: [mobile-protocol.json](offloading/mobile-protocol.json).
+Protocol: [mobile-protocol.json](../../../PureEdgeSim/uav/offloading/mobile-protocol.json).
 
 | Thành phần | Cấu hình development |
 | --- | --- |
@@ -112,7 +112,7 @@ Protocol: [mobile-protocol.json](offloading/mobile-protocol.json).
 | Seed task | 51000–51029; shared workload/source assignment giữa mọi policy và layout/battery của cùng load/seed |
 
 RescueNet/Alibaba mapping, synthetic MI/deadline/priority và source pool giữ
-như [OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md). Reference upload_ready
+như [OFFLOADING_SCHEDULING.md](../../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md). Reference upload_ready
 trong `workload.csv` chỉ là giá trị của link 10 m để giữ source input độc lập
 geometry; actual ready nằm ở task trace, dynamic duration ở coverage trace.
 
@@ -129,12 +129,12 @@ lai. Kernel luôn tính actual flight energy và cắt work chính xác khi hế
 
 ## 5. Source và lệnh chạy
 
-- [DeviceSelectionPolicy.java](offloading/DeviceSelectionPolicy.java): selector causal.
-- [MobileService.java](offloading/MobileService.java): geometry/service config và telemetry.
-- [OffloadingSimulation.java](offloading/OffloadingSimulation.java): runMobile, movement/coverage gate/freshness trên kernel chung.
-- [MobileServiceBenchmark.java](offloading/MobileServiceBenchmark.java): paired benchmark và snapshot.
-- [MobileServiceTest.java](../../src/test/java/uav/MobileServiceTest.java): hand cases và parity.
-- [verify-uav-mobile.py](../../scripts/verify-uav-mobile.py): independent audit dùng lại queue/energy audit với propulsion động.
+- [DeviceSelectionPolicy.java](../../../PureEdgeSim/uav/offloading/DeviceSelectionPolicy.java): selector causal.
+- [MobileService.java](../../../PureEdgeSim/uav/offloading/MobileService.java): geometry/service config và telemetry.
+- [OffloadingSimulation.java](../../../PureEdgeSim/uav/offloading/OffloadingSimulation.java): runMobile, movement/coverage gate/freshness trên kernel chung.
+- [MobileServiceBenchmark.java](../../../PureEdgeSim/uav/offloading/MobileServiceBenchmark.java): paired benchmark và snapshot.
+- [MobileServiceTest.java](../../../src/test/java/uav/MobileServiceTest.java): hand cases và parity.
+- [verify-uav-mobile.py](../../../scripts/verify-uav-mobile.py): independent audit dùng lại queue/energy audit với propulsion động.
 
 Từ `uav/MECSim`, Java17/Maven/Python3, raw dataset sẵn có, CPU là đủ:
 
@@ -158,7 +158,7 @@ khai này chạy local, **chưa push GitHub hoặc triển khai run mới trên 
 
 ## 6. Đọc artifact và bước tiếp
 
-Run chính: [mobile-verified-20261023](../../target/mobile-verified-20261023).
+Run chính: [mobile-verified-20261023](../../../target/mobile-verified-20261023).
 `episodes.csv` có từng source/case; `summary.csv` do verifier tạo. Flight/hover
 và total energy được tách riêng trong episodes. Dòng energy UAV `idle_j` ở mobile
 mode là **tổng propulsion flight+hover**, không chỉ hover; legacy fixed mode
@@ -187,8 +187,8 @@ time-average age hoặc lifetime.
   sửa trajectory, coverage, state, arrival, update, energy hoặc decision trong
   bản sao và xác nhận auditor phát hiện sai lệch.
 - Run chính: **1.920 episode, 131.232 task outcomes, 240 paired cases**.
-  [Kiểm tra độc lập: PASS](../../target/mobile-verified-20261023/verification.json).
-  [Bảng tổng hợp](../../target/mobile-verified-20261023/summary.csv) chứa đủ 8
+  [Kiểm tra độc lập: PASS](../../../target/mobile-verified-20261023/verification.json).
+  [Bảng tổng hợp](../../../target/mobile-verified-20261023/summary.csv) chứa đủ 8
   cấu hình × 8 policy, tách ALL/RESCUENET/ALIBABA. Đây là benchmark development
   với hai kích thước vùng trên cùng layout chuẩn hóa, không phải 30 layout.
 

@@ -44,9 +44,29 @@ class SeedProtocol:
         return self.drl_validation_first_task_seed
 
 
+def _allow_only(node: dict, where: str, *keys: str) -> None:
+    """Mirror of ScenarioRegistry.allowOnly: a typo in scenarios.json must fail on both sides."""
+    if not isinstance(node, dict):
+        raise ValueError(f"{where} must be an object")
+    unknown = set(node) - set(keys)
+    if unknown:
+        raise ValueError(f"{where}: unknown field(s) {sorted(unknown)}")
+
+
 class Registry:
     def __init__(self, data: dict, source: Path):
         self.source = source
+        _allow_only(data, f"{source}", "schema_version", "description", "defaults", "seed_protocol", "scenarios",
+                    "dataset_defaults", "workloads", "workload_aliases", "suites")
+        for key, value in data["scenarios"].items():
+            _allow_only(value, f"{source}: scenario {key}", "powered", "connected", "description")
+        _allow_only(data["dataset_defaults"], f"{source}: dataset_defaults", "description", "properties")
+        for key, value in data["workloads"].items():
+            _allow_only(value, f"{source}: workload {key}", "dataset", "fixed", "description")
+        _allow_only(data["defaults"], f"{source}: defaults", "scenario", "workload", "seed", "layout_seed", "policy", "max_slots")
+        for key, value in data["suites"].items():
+            _allow_only(value, f"{source}: suite {key}", "runner", "description", "scenarios", "workloads", "policies",
+                        "seeds", "first_seed", "algorithms", "rewards")
         if data.get("schema_version") != 1:
             raise ValueError(f"{source}: unsupported schema_version")
         self.scenarios = {}

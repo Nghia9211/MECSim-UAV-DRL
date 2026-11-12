@@ -3,7 +3,7 @@
 Đã chạy implementation và raw RescueNet + Alibaba trên máy local. Đây là
 **benchmark development với giả định chi phí**, không phải kết quả inference
 thực, SOTA hoặc reproduce paper Azfar. Mô hình và lệnh chạy:
-[OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md).
+[OFFLOADING_SCHEDULING.md](../../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md).
 
 ## 1. Những gì đã thực hiện
 
@@ -16,10 +16,10 @@ thực, SOTA hoặc reproduce paper Azfar. Mô hình và lệnh chạy:
 | Run noise | 5 seed 41000–41004, estimate sai số uniform ±40%, cùng grid = **600 episode** |
 | Independent trace audit | **238.200 + 40.280 = 278.480 task outcomes đạt kiểm chứng** |
 
-Run chính: [offloading-verified-20261022](../../target/offloading-verified-20261022).
-Run noise: [offloading-noise40-20261022](../../target/offloading-noise40-20261022).
-Log: [Java tests](../../target/offloading-tests-20261022.log),
-[Python regression](../../target/offloading-python-regression-20261022.log).
+Run chính: [offloading-verified-20261022](../../../target/offloading-verified-20261022).
+Run noise: [offloading-noise40-20261022](../../../target/offloading-noise40-20261022).
+Log: [Java tests](../../../target/offloading-tests-20261022.log),
+[Python regression](../../../target/offloading-python-regression-20261022.log).
 
 Verifier độc lập kiểm tra work/energy/pin mọi node, upload một phần, CPU không
 overlap/idle giả, dispatch theo scheduler, forecast causal chỉ dùng estimated
@@ -29,7 +29,7 @@ Các negative checks bổ sung trên bản sao artifact đều bị từ chối:
 hash, workload hash hoặc summary on-time. Source snapshot của hai run khớp code
 hiện tại. Với các seed chung của run noise, **2.014 input rows** giữ nguyên mọi
 field actual và device assignment, chỉ estimate thay đổi; số này gồm hai cấu
-hình pin lặp cùng workload. Xem [extra-checks.json](../../target/offloading-verified-20261022/extra-checks.json).
+hình pin lặp cùng workload. Xem [extra-checks.json](../../../target/offloading-verified-20261022/extra-checks.json).
 
 Test Java xác nhận riêng:
 
@@ -81,8 +81,8 @@ ALL_UAV có total energy nhỏ nhất nhưng bỏ lỡ nhiều công việc: **�
 bằng chứng sử dụng năng lượng tốt nhất**. Node hết pin sớm ngừng tiêu thụ và
 không phục vụ được task sau đó. Cần đánh giá năng lượng cùng mức dịch vụ.
 
-Nguồn số liệu: [summary.csv](../../target/offloading-verified-20261022/summary.csv).
-Toàn bộ 20 cặp policy ở [REPORT.md](../../target/offloading-verified-20261022/REPORT.md).
+Nguồn số liệu: [summary.csv](../../../target/offloading-verified-20261022/summary.csv).
+Toàn bộ 20 cặp policy ở [REPORT.md](../../../target/offloading-verified-20261022/REPORT.md).
 Không lấy một cấu hình thuận lợi để kết luận thắng toàn bộ benchmark.
 
 ## 3. Vai trò của scheduler đã thực sự được nối vào offloading

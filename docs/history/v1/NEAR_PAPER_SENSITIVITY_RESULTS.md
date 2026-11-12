@@ -23,7 +23,7 @@ Mỗi lượt chỉ thay một yếu tố, các mức còn lại ở reference (
 Latency chỉ trên các ảnh thực sự delivered, gồm cả muộn. P95 là mean episode P95.
 Không coi drop là completed; J/ảnh là ratio of sums, không phải mean của các ratio.
 
-![Sensitivity](../../docs/experiments/near-paper-sensitivity-20261101/sensitivity.png)
+![Sensitivity](../../experiments/near-paper-sensitivity-20261101/sensitivity.png)
 
 ## Đọc kết quả và quyết định
 
@@ -100,7 +100,7 @@ Không tự thêm cache, dataset mới hoặc nhiều objective chỉ để mở
 ## Tài liệu và cách tái lập
 
 - [Plan đã khóa trước chạy](NEAR_PAPER_SENSITIVITY_PLAN.md).
-- [Kết quả đủ ba policy / bảy setting](../../docs/experiments/near-paper-sensitivity-20261101/RESULTS.md).
+- [Kết quả đủ ba policy / bảy setting](../../experiments/near-paper-sensitivity-20261101/RESULTS.md).
 - [Nguồn baseline nhiều môi trường](NEAR_PAPER_MULTILAYOUT_RESULTS.md).
 - Full traces: target/near-paper-sensitivity-full-20261101.
 - Curated evidence: docs/experiments/near-paper-sensitivity-20261101, có hashes/provenance.

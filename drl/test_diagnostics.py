@@ -3,11 +3,16 @@ import unittest
 
 import numpy as np
 
-from .diagnostics import Policy, permute_observation
+from .diagnostics import Policy, permute_observation, train_arguments
+from .run import build_parser
 from .environment import EnvConfig, PaperEnv
 
 
 class DiagnosticTests(unittest.TestCase):
+    def test_train_arguments_cover_every_train_option(self):
+        expected = vars(build_parser().parse_args(["train"]))
+        expected.pop("command")
+        self.assertLessEqual(set(expected), set(vars(train_arguments(200, 0, "synthetic", "out"))))
     def test_relabel_keeps_battery_age_pair_and_decodes_to_physical_device(self):
         obs = np.r_[np.arange(12) / 12, np.arange(12)].astype(np.float32)
         class OldestModel:

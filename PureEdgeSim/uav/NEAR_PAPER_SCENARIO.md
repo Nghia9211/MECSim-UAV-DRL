@@ -124,4 +124,4 @@ Pin còn sống ở horizon là censored; không suy ra kéo dài lifetime.
 - Dwell/RR/arrival/deadline/UAV compute là lựa chọn của nghiên cứu, không gán là thông số tác giả công bố.
 - Không so trực tiếp DVR/giây của pilot này với reward/network lifetime/slot của paper.
 
-Kết quả pilot đã chạy xem [NEAR_PAPER_RESULTS.md](NEAR_PAPER_RESULTS.md).
+Kết quả pilot đã chạy xem [NEAR_PAPER_RESULTS.md](../../docs/history/v1/NEAR_PAPER_RESULTS.md).

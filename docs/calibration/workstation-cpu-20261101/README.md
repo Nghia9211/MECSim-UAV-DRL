@@ -7,4 +7,4 @@ profile/: original 60 x 3 measurements. calibration.json: provenance and unit ma
 mobile-config-*.json: MobileConfig overrides. mobile-protocol-*.json: standalone Java input protocols.
 feasibility.json: input diagnostics, not algorithm results. verification.json: test receipt.
 
-See [TASK_CALIBRATION.md](../../../PureEdgeSim/uav/TASK_CALIBRATION.md).
+See [TASK_CALIBRATION.md](../../history/v1/TASK_CALIBRATION.md).

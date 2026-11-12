@@ -1,7 +1,7 @@
 # Baseline sau sửa seed: mixed-v2
 
 Ngày30/10/2026. Đã chạy local trên Windows CPU, không train model mới.
-Output: [workload-v2-baselines-development-20261030](../../target/workload-v2-baselines-development-20261030).
+Output: [workload-v2-baselines-development-20261030](../../../target/workload-v2-baselines-development-20261030).
 
 ## Thiết kế
 
@@ -69,12 +69,12 @@ setting này; không gọi600s của nhóm pin lớn là thời điểm hết pi
   của đợt này vẫn giữ bản thực sự đã dùng.
 
 Đọc:
-- [REPORT.md](../../target/workload-v2-baselines-development-20261030/REPORT.md): toàn bảng và từng scenario.
-- [core-metrics-summary.csv](../../target/workload-v2-baselines-development-20261030/core-metrics-summary.csv):
+- [REPORT.md](../../../target/workload-v2-baselines-development-20261030/REPORT.md): toàn bảng và từng scenario.
+- [core-metrics-summary.csv](../../../target/workload-v2-baselines-development-20261030/core-metrics-summary.csv):
   gồm background DVR, total/UAV energy, on-time counts, delivery latency và censoring.
-- [runtime-summary.csv](../../target/workload-v2-baselines-development-20261030/runtime-summary.csv):
+- [runtime-summary.csv](../../../target/workload-v2-baselines-development-20261030/runtime-summary.csv):
   thời gian episode+ghiCSV và thời gian audit; không phải latency quyết định trên UAV.
-- [post-run-review.json](../../target/workload-v2-baselines-development-20261030/post-run-review.json):
+- [post-run-review.json](../../../target/workload-v2-baselines-development-20261030/post-run-review.json):
   receipt cuối.
 
 ## Tái chạy

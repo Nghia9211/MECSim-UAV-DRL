@@ -83,6 +83,6 @@ Placement/trajectory tối ưu, cache, DVFS và multi-UAV **chưa là yêu cầu
 - [Protocol REFERENCE](PAPER_REFERENCE_STATE_PLAN.md)
 - [Giả định và đối chiếu paper](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md)
 - [Mô hình offloading + scheduling](../../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md) — mô tả bản UAV cố định ban đầu.
-- [Tầng mobile được thích nghi từ paper](../../../PureEdgeSim/uav/ADAPTED_PAPER_SERVICE.md)
-- [State/reward của mobile DQN pilot](../../../PureEdgeSim/uav/MOBILE_DRL.md)
+- [Tầng mobile được thích nghi từ paper](../v1/ADAPTED_PAPER_SERVICE.md)
+- [State/reward của mobile DQN pilot](../v1/MOBILE_DRL.md)
 - [Đợt baseline PPO/A2C](REFERENCE_BASELINES_PLAN.md)

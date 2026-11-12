@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 /** Loads scenarios.json, the single definition of scenarios, workloads, seed protocol and suites
- * shared by the Java runners and drl/scenarios.py. See SCENARIOS.md for the file format.
+ * shared by the Java runners and drl/registry.py. See SCENARIOS.md for the file format.
  */
 public final class ScenarioRegistry {
     /** System property naming the registry file; relative paths resolve against the working directory. */
@@ -35,7 +35,7 @@ public final class ScenarioRegistry {
     public record SeedProtocol(long taskSeedOffset, long policySeedOffset) { }
     public record Defaults(Scenario scenario, Workload workload, long seed, long layoutSeed,
                            PaperSimulation.Baseline policy, int maxSlots) { }
-    /** Runner-specific fields (DRL algorithms/rewards) are validated by drl/scenarios.py, not here. */
+    /** Runner-specific fields (DRL algorithms/rewards) are validated by drl/registry.py and drl.experiments, not here. */
     public record Suite(String id, String runner, List<Scenario> scenarios, List<Workload> workloads,
                         List<PaperSimulation.Baseline> policies, int seeds, long firstSeed) { }
 

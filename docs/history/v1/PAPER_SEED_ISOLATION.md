@@ -26,15 +26,15 @@ ba learning seed trên layout này, nhưng model cuối vẫn có thể suy gi�
 SD nhỏ của best không loại trừ bất ổn của quá trình học. Chưa thể nói chênh lệch
 ở thí nghiệm trước chỉ do layout hoặc chỉ do seed.
 
-Biên bản: [verification.json](../../target/paper-seed-isolation-20261024/verification.json),
-[final-artifact-check.json](../../target/paper-seed-isolation-20261024/final-artifact-check.json),
-[COMPARISON_REPORT.md](../../target/paper-seed-isolation-20261024/COMPARISON_REPORT.md).
+Biên bản: [verification.json](../../../target/paper-seed-isolation-20261024/verification.json),
+[final-artifact-check.json](../../../target/paper-seed-isolation-20261024/final-artifact-check.json),
+[COMPARISON_REPORT.md](../../../target/paper-seed-isolation-20261024/COMPARISON_REPORT.md).
 150 case dùng lại/heuristic khớp kết quả lịch sử; runtime versions và model/source
 hashes khớp. Có 3 test mới cho protocol/reuse và 3 test reference cùng 9 verifier
 tests đạt trước khi chạy. Cấu hình và mô hình vật lý không được thay trong đợt này.
 
 Đề xuất tiếp theo và phạm vi đã được phép chạy:
-[NEXT_EXPERIMENT_PROPOSAL.md](NEXT_EXPERIMENT_PROPOSAL.md).
+[NEXT_EXPERIMENT_PROPOSAL.md](../../../PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md).
 
 ## Thiết kế và cách chạy lại
 
@@ -43,10 +43,10 @@ cùng nhau, SD giữa ba run không thể gọi là độ bất ổn do seed hu�
 Đợt này giữ nguyên layout0 và chỉ thay learning seed0/1/2.
 
 Protocol đã khóa:
-[paper_seed_isolation_protocol.json](../../drl/paper_seed_isolation_protocol.json).
+[paper_seed_isolation_protocol.json](../../../drl/paper_seed_isolation_protocol.json).
 
 - Dùng lại model seed0/layout0 đủ1triệu bước đã được kiểm chứng trong
-  [PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md); không train lại,
+  [PAPER_REFERENCE_RESULTS.md](../../../PureEdgeSim/uav/PAPER_REFERENCE_RESULTS.md); không train lại,
   không đổi checkpoint hoặc log cũ.
 - Train mới seed1/layout0 và seed2/layout0, mỗi model1.000.000 steps.
 - Vẫn synthetic2–4MB, DQN24D/12action, power8/comms8, geometry/hardware/task/
@@ -64,7 +64,7 @@ Protocol đã khóa:
   các khởi tạo tác giả không công bố đầy đủ.
 
 Run hiện tại:
-[paper-seed-isolation-20261024](../../target/paper-seed-isolation-20261024).
+[paper-seed-isolation-20261024](../../../target/paper-seed-isolation-20261024).
 
 Sau khi train hoàn tất, runner tự kiểm tra config/checkpoint, replay lựa chọn
 best trên validation, và replay độc lập270physical/action traces. Mọi state

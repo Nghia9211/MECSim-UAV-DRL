@@ -4,18 +4,18 @@
 
 > **Baseline mới 30/10:** đã chạy lại 9 baseline với mixed-v2, 16 scenario và
 > 30 seed development; 4.320 episode đã audit và recount metric PASS.
-> Xem [WORKLOAD_V2_BASELINES_RESULTS.md](../../../PureEdgeSim/uav/WORKLOAD_V2_BASELINES_RESULTS.md).
+> Xem [WORKLOAD_V2_BASELINES_RESULTS.md](../v1/WORKLOAD_V2_BASELINES_RESULTS.md).
 > DQN/PPO chưa train lại; compute/deadline chưa hiệu chuẩn trên thiết bị edge.
 
 > **Cập nhật workload 30/10:** đã sửa cách dẫn xuất seed bằng chế độ mixed-v2,
 > giữ legacy-v1 để replay; khóa ba bộ seed và kiểm chứng 180 workload đầu vào.
 > Chưa thay compute/deadline bằng số đo thực, chưa đánh giá lại thuật toán.
-> Trạng thái và lệnh chạy: [WORKLOAD_REPAIR.md](../../../PureEdgeSim/uav/WORKLOAD_REPAIR.md).
+> Trạng thái và lệnh chạy: [WORKLOAD_REPAIR.md](../v1/WORKLOAD_REPAIR.md).
 
-> **Mới nhất 24/10:** [PAPER_SEED_ISOLATION.md](../../../PureEdgeSim/uav/PAPER_SEED_ISOLATION.md) đã kiểm chứng
+> **Mới nhất 24/10:** [PAPER_SEED_ISOLATION.md](../v1/PAPER_SEED_ISOLATION.md) đã kiểm chứng
 > cùng-layout best 32/32/32 slot nhưng final 30/30,367/10 slot.
 > [NEXT_EXPERIMENT_PROPOSAL.md](../../../PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md) đã được ghi và
-> [6 model reward/freshness đang được chạy](../../../PureEdgeSim/uav/PAPER_CONVENTION_RETRAIN_STATUS.md).
+> [6 model reward/freshness đang được chạy](../v1/PAPER_CONVENTION_RETRAIN_STATUS.md).
 
 > **Kết quả mới nhất 23/10:** đã train3synthetic DQN đủ1triệu bước/model,
 > cấu hình8/8; mean21,000slot với best-validation checkpoint,19,678 với final1m.
@@ -23,18 +23,18 @@
 > kiểm chứng với phần reproduction còn thiếu.
 
 > **Giai đoạn audit paper 23/10:** tham số công bố đã audit, benchmark quy
-> ước2.520 episode đã replay độc lập. Xem [PAPER_REPRODUCTION_AUDIT.md](../../../PureEdgeSim/uav/PAPER_REPRODUCTION_AUDIT.md).
+> ước2.520 episode đã replay độc lập. Xem [PAPER_REPRODUCTION_AUDIT.md](../v1/PAPER_REPRODUCTION_AUDIT.md).
 > Benchmark này kiểm tra heuristic và quy ước; kết quả DQN đủ ngân sách nằm ở mục mới nhất bên trên.
 
 > **Cập nhật 23/10/2026:** đã nối tầng chọn thiết bị/di chuyển/coverage với
-> offloading/scheduling. Đọc [ADAPTED_PAPER_SERVICE.md](../../../PureEdgeSim/uav/ADAPTED_PAPER_SERVICE.md).
+> offloading/scheduling. Đọc [ADAPTED_PAPER_SERVICE.md](../v1/ADAPTED_PAPER_SERVICE.md).
 > Đã có adapter và DQN train thử 2.000 bước trong môi trường mở rộng:
-> [MOBILE_DRL.md](../../../PureEdgeSim/uav/MOBILE_DRL.md). Chưa chứng minh hội tụ hoặc vượt heuristic.
+> [MOBILE_DRL.md](../v1/MOBILE_DRL.md). Chưa chứng minh hội tụ hoặc vượt heuristic.
 
 > **Cập nhật 22/10/2026:** đã mở rộng từ scheduling-only sang quyết định local/UAV
 > kết hợp scheduling. Trạng thái mới và cách chạy ở
 > [OFFLOADING_SCHEDULING.md](../../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md).
-> Kết quả và verification mới: [OFFLOADING_RESULTS.md](../../../PureEdgeSim/uav/OFFLOADING_RESULTS.md).
+> Kết quả và verification mới: [OFFLOADING_RESULTS.md](../v1/OFFLOADING_RESULTS.md).
 > Nội dung bên dưới giữ làm snapshot ngày 21/10, khi offloading còn cố định.
 
 Cập nhật ngày **21/10/2026**, đối chiếu working tree và artifact hiện có trong
@@ -77,7 +77,7 @@ chuẩn workload bằng profiling inference và làm rõ mức dịch vụ cần
 | Đánh giá chính | Lifetime, tính theo slot | Task hoàn thành đúng hạn, tách ảnh và background |
 | UAV | Có di chuyển theo lựa chọn thiết bị | Bay treo cố định để kiểm soát yếu tố không gian |
 | Thuật toán | DQN và heuristic thứ tự phục vụ | FIFO / EDF / Priority / SPT / cơ chế thử nghiệm |
-| Tài liệu | [PAPER_ALIGNMENT.md](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md), [DRL.md](../../../PureEdgeSim/uav/DRL.md) | [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md), [SCHEDULING_AGING_RESULTS.md](../../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md) |
+| Tài liệu | [PAPER_ALIGNMENT.md](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md), [DRL.md](../../../PureEdgeSim/uav/DRL.md) | [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md), [SCHEDULING_AGING_RESULTS.md](../v1/SCHEDULING_AGING_RESULTS.md) |
 
 Checkpoint DQN cũ chọn thiết bị, không phải bộ lập lịch cho task queue mới.
 Kết quả lifetime của nhánh cũ không chứng minh scheduler mới giảm deadline miss.
@@ -293,7 +293,7 @@ Selection scheduler O(Q) theo số task ready; kernel cả episode còn O(N²)
 worst-case. P95 selection full khoảng 1,7–2,9 microsecond trong run này, chỉ đo
 lời gọi chọn task, không phải end-to-end hay runtime trên phần cứng UAV.
 Chưa có benchmark scalability. Chi tiết và trace giải thích:
-[SCHEDULING_AGING_RESULTS.md](../../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md).
+[SCHEDULING_AGING_RESULTS.md](../v1/SCHEDULING_AGING_RESULTS.md).
 
 ## 8. Công việc tiếp theo, theo thứ tự
 
@@ -357,7 +357,7 @@ artifact local/ignored; clone repo không đồng nghĩa đã có chúng.
 
 1. Đọc tài liệu này để nắm phạm vi, bằng chứng và giới hạn.
 2. Đọc [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md) để nắm mô hình, task và giả định dataset.
-3. Đọc [SCHEDULING_AGING_RESULTS.md](../../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md) để xem cơ chế,
+3. Đọc [SCHEDULING_AGING_RESULTS.md](../v1/SCHEDULING_AGING_RESULTS.md) để xem cơ chế,
    ablation, interval và failure case.
 4. Khi cần liên hệ paper, đọc [PAPER_ALIGNMENT.md](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md); P0/P1 và
    [kế hoạch lifetime cũ](NEXT_STEPS.md) là tài liệu lịch sử của nhánh trước.

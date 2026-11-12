@@ -264,7 +264,7 @@ def positive(value):
     return result
 
 
-def main():
+def build_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     p = commands.add_parser("train")
@@ -297,7 +297,11 @@ def main():
     p.add_argument("--unseen-layouts", action="store_true")
     p.add_argument("--traces", action="store_true")
     p.add_argument("--device", default="cpu")
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = build_parser().parse_args()
     torch.set_num_threads(1)
     if args.command == "train":
         train(args)

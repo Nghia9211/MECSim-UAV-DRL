@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Single source of truth for experiment scenarios, workloads, seed protocol and suites. Read by uav.ScenarioRegistry (Java) and drl/scenarios.py (Python). See PureEdgeSim/uav/SCENARIOS.md.",
+  "description": "Single source of truth for experiment scenarios, workloads, seed protocol and suites. Read by uav.ScenarioRegistry (Java) and drl/registry.py (Python). See PureEdgeSim/uav/SCENARIOS.md.",
 
   "defaults": {
     "scenario": "p8c8",

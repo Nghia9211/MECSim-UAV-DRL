@@ -4,12 +4,12 @@ Cập nhật lúc **10:05 ngày 24/10/2026**, trên máy local. **Đang chạy, 
 kết quả cuối của đợt này.**
 
 Đề xuất đã ghi trước launch:
-[NEXT_EXPERIMENT_PROPOSAL.md](NEXT_EXPERIMENT_PROPOSAL.md).
+[NEXT_EXPERIMENT_PROPOSAL.md](../../../PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md).
 Protocol máy đọc được:
-[paper_convention_retrain_protocol.json](../../drl/paper_convention_retrain_protocol.json).
+[paper_convention_retrain_protocol.json](../../../drl/paper_convention_retrain_protocol.json).
 
 Run:
-[paper-convention-retrain-20261024](../../target/paper-convention-retrain-20261024).
+[paper-convention-retrain-20261024](../../../target/paper-convention-retrain-20261024).
 
 | Nhóm | Trạng thái tại thời điểm kiểm tra | Ngân sách |
 | --- | --- | --- |

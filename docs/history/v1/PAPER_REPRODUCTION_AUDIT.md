@@ -1,7 +1,7 @@
 # Kiểm toán mô hình paper và độ nhạy quy ước — 23/10/2026
 
 > **Cập nhật sau audit:**3synthetic DQN đủ1m/model đã chạy xong tại cấu hình8/8;
-> kết quả mới ở [PAPER_REFERENCE_RESULTS.md](PAPER_REFERENCE_RESULTS.md).
+> kết quả mới ở [PAPER_REFERENCE_RESULTS.md](../../../PureEdgeSim/uav/PAPER_REFERENCE_RESULTS.md).
 > Nội dung bên dưới giữ lại kết quả và kế hoạch tại giai đoạn convention audit.
 
 **Kết luận:** code mặc định khớp các tham số công bố được kiểm tra trong Tables
@@ -9,8 +9,8 @@
 benchmark heuristic kiểm tra environment, **chưa phải tái hiện số liệu DQN của
 paper**. Không lấy kết quả mobile129D, RescueNet hoặc Alibaba để thay thế bước đó.
 
-Nguồn kiểm tra: [paper trích xuất theo trang](../../../2501.15305v1.md),
-[PDF gốc](../../../2501.15305v1.pdf), §3.1–4 và Tables1–4,5,6.
+Nguồn kiểm tra: [paper trích xuất theo trang](../../../../2501.15305v1.md),
+[PDF gốc](../../../../2501.15305v1.pdf), §3.1–4 và Tables1–4,5,6.
 Snapshot paper/source nằm trong run, không chỉnh sửa PDF gốc.
 
 ## Những gì đã có trong paper và code
@@ -50,7 +50,7 @@ Radio của môi trường mobile vẫn dùng default riêng không bị global 
 
 ## Benchmark đã chạy
 
-Run: [paper-convention-v2-20261023](../../target/paper-convention-v2-20261023).
+Run: [paper-convention-v2-20261023](../../../target/paper-convention-v2-20261023).
 
 - 7 profile: reference +6 can thiệp, mỗi profile đổi đúng một lựa chọn.
 - 4 cấu hình còn nguồn/còn kết nối:12/12,8/8,6/6,10/8.
@@ -63,7 +63,7 @@ Run: [paper-convention-v2-20261023](../../target/paper-convention-v2-20261023).
   policy, slot duration, slant rate, flight/hover, standby/active energy,
   depletion, UAV position, age/expiry/reward và summary.
 
-[verification.json](../../target/paper-convention-v2-20261023/verification.json):
+[verification.json](../../../target/paper-convention-v2-20261023/verification.json):
 **PASS** cho toàn bộ2.520 episode.
 
 ## Kết quả độ nhạy
@@ -96,7 +96,7 @@ trọng hoặc DQN retrain sẽ có cùng độ nhạy. Không dùng Oldest21slo
 thể đó là DQN paper18,3slot: thuật toán và khởi tạo khác nhau.
 
 187/360 reference episodes có final partial slot; cách đếm có thể lệch một slot
-trên từng episode. [slot-counting.csv](../../target/paper-convention-v2-20261023/slot-counting.csv)
+trên từng episode. [slot-counting.csv](../../../target/paper-convention-v2-20261023/slot-counting.csv)
 lưu attempted/fully elapsed riêng. Đây là metric phụ để kiểm tra indexing;
 không thay main metric hoặc tự kết luận cách đếm của tác giả.
 
@@ -113,7 +113,7 @@ không thay main metric hoặc tự kết luận cách đếm của tác giả.
 - 38 source hashes của run khớp working tree lúc kiểm tra.
 
 Biên bản bổ sung:
-[additional-verification.json](../../target/paper-convention-v2-20261023/additional-verification.json).
+[additional-verification.json](../../../target/paper-convention-v2-20261023/additional-verification.json).
 Đợt chạy đầu và v2 là lần chạy lại để xác minh tương thích; **không gộp chúng
 thành thêm mẫu độc lập**. V2 là artifact được báo cáo.
 
@@ -136,7 +136,7 @@ files đang được JVM mới nạp. Build xong rồi mới chạy Python integ
 
 ## Bước tái hiện tiếp theo đã chuẩn bị
 
-Protocol: [paper_reference_protocol.json](../../drl/paper_reference_protocol.json).
+Protocol: [paper_reference_protocol.json](../../../drl/paper_reference_protocol.json).
 Đây là **kế hoạch, chưa chạy full-budget synthetic trong stage audit này**:
 
 - DQN synthetic, p8/c8, REFERENCE;1.000.000 steps/model.

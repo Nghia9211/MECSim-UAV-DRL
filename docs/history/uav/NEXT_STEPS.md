@@ -10,7 +10,7 @@ dưới là lịch sử, không tự chạy tiếp lifetime P2 hoặc train DQN 
 persistent queue, physical-time workload, FIFO/EDF/Priority và benchmark270
 episode đã triển khai/verify: [SCHEDULING.md](../../../PureEdgeSim/uav/SCHEDULING.md).
 Đã thử thêm cơ chế deadline/pin/aging, SPT và ablation bằng validation riêng:
-[SCHEDULING_AGING_RESULTS.md](../../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md). Full vượt bốn baseline
+[SCHEDULING_AGING_RESULTS.md](../v1/SCHEDULING_AGING_RESULTS.md). Full vượt bốn baseline
 theo primary pilot, nhưng NO_AGING có primary tốt hơn full; chưa chốt thuật toán cuối.
 Kế hoạch lifetime P0/P1/P2 bên dưới là nhánh nghiên cứu trước; không tự động
 chạy tiếp P2 hoặc retrain checkpoint24D cho queue mới.

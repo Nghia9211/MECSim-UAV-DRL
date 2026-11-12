@@ -2,18 +2,18 @@
 
 # MECSim
 
-**24/10:** [đối chứng learning seed đã hoàn tất](../../PureEdgeSim/uav/PAPER_SEED_ISOLATION.md).
+**24/10:** [đối chứng learning seed đã hoàn tất](../history/v1/PAPER_SEED_ISOLATION.md).
 Đã viết [đề xuất `.md`](../../PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md) và
-[khởi chạy đối chứng reward/freshness](../../PureEdgeSim/uav/PAPER_CONVENTION_RETRAIN_STATUS.md).
+[khởi chạy đối chứng reward/freshness](../history/v1/PAPER_CONVENTION_RETRAIN_STATUS.md).
 
 **Tái hiện paper:** đã train3synthetic DQN đủ1triệu bước/model tại8/8, audit
 360primary +90final-checkpoint traces đạt. Kết quả và giới hạn tại
 [PAPER_REFERENCE_RESULTS.md](../../PureEdgeSim/uav/PAPER_REFERENCE_RESULTS.md).
 
 **Cập nhật 23/10:** đã nối chọn thiết bị, di chuyển và coverage vào offloading +
-scheduler: [ADAPTED_PAPER_SERVICE.md](../../PureEdgeSim/uav/ADAPTED_PAPER_SERVICE.md).
+scheduler: [ADAPTED_PAPER_SERVICE.md](../history/v1/ADAPTED_PAPER_SERVICE.md).
 Đã có adapter và DQN train thử 2.000 bước trong môi trường mở rộng:
-[MOBILE_DRL.md](../../PureEdgeSim/uav/MOBILE_DRL.md). Đây chưa phải tái hiện paper hoặc kết quả hội tụ.
+[MOBILE_DRL.md](../history/v1/MOBILE_DRL.md). Đây chưa phải tái hiện paper hoặc kết quả hội tụ.
 
 **Đọc lại dự án từ đầu:** [Tổng quan, kết quả đã kiểm chứng và việc làm tiếp](../../PureEdgeSim/uav/PROJECT_OVERVIEW.md).
 
@@ -22,7 +22,7 @@ scheduler: [ADAPTED_PAPER_SERVICE.md](../../PureEdgeSim/uav/ADAPTED_PAPER_SERVIC
 Đã bổ sung quyết định local/UAV, CPU/queue/pin thiết bị mặt đất và dự báo queue
 theo scheduler UAV. Mô hình, giới hạn và lệnh chạy:
 [OFFLOADING_SCHEDULING.md](../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md).
-Kết quả và verification: [OFFLOADING_RESULTS.md](../../PureEdgeSim/uav/OFFLOADING_RESULTS.md).
+Kết quả và verification: [OFFLOADING_RESULTS.md](../history/v1/OFFLOADING_RESULTS.md).
 
 ```powershell
 .\scripts\run-uav-offloading.ps1 -Seeds 30 -Output target/offloading-new -Offline
@@ -35,7 +35,7 @@ Scheduling tác vụ phân tích ảnh thiên tai dưới tải nền: queue b�
 FIFO/EDF/Priority, dùng RescueNet + Alibaba. Mô hình, cách chạy và kết quả:
 [SCHEDULING.md](../../PureEdgeSim/uav/SCHEDULING.md).
 Kết quả cơ chế deadline/pin/aging và ablation:
-[SCHEDULING_AGING_RESULTS.md](../../PureEdgeSim/uav/SCHEDULING_AGING_RESULTS.md).
+[SCHEDULING_AGING_RESULTS.md](../history/v1/SCHEDULING_AGING_RESULTS.md).
 
 ```powershell
 .\scripts\run-uav-scheduling.ps1 -Seeds 30 -Output target/scheduling-new -Offline

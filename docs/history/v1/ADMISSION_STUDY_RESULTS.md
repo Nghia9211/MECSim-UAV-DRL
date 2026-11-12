@@ -1,7 +1,7 @@
 # Chẩn đoán và kiểm tra admission background
 
-Ngày01/11/2026. [Báo cáo đầy đủ](../../docs/experiments/admission-final-20261101/README.md),
-[development review](../../docs/experiments/admission-development-20261101/README.md).
+Ngày01/11/2026. [Báo cáo đầy đủ](../../experiments/admission-final-20261101/README.md),
+[development review](../../experiments/admission-development-20261101/README.md).
 
 ## Trình tự đã thực hiện
 

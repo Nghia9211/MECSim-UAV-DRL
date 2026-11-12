@@ -154,6 +154,9 @@ class RegistryTests(unittest.TestCase):
         bad = json.loads(json.dumps(data)); bad["suites"]["table6"]["scenarios"].append("p9c9")
         with self.assertRaisesRegex(ValueError, "p9c9"):
             Registry(bad, REGISTRY.source)
+        bad = json.loads(json.dumps(data)); bad["suites"]["table6"]["seed"] = 3  # typo of "seeds"
+        with self.assertRaisesRegex(ValueError, "unknown field"):
+            Registry(bad, REGISTRY.source)
         bad = json.loads(json.dumps(data)); bad["workloads"]["rescuenet"]["fixed"] = {"alibaba.csv": "x"}
         with self.assertRaisesRegex(ValueError, "pins unsupported"):
             Registry(bad, REGISTRY.source)

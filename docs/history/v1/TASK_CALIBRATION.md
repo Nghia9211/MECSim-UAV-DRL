@@ -77,7 +77,7 @@ Không tạo dị thể task giả hoặc đổi arrival rate để làm một t
 
 ## Artifact và cách dùng
 
-Bằng chứng gọn: [docs/calibration/workstation-cpu-20261101](../../docs/calibration/workstation-cpu-20261101/README.md).
+Bằng chứng gọn: [docs/calibration/workstation-cpu-20261101](../../calibration/workstation-cpu-20261101/README.md).
 Có profile/CSV gốc, calibration receipt và ba config/protocol; không có raw ảnh/checkpoint.
 
 ~~~powershell

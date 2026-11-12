@@ -52,7 +52,7 @@ ALL_UAV giảm delivered DVR ở **10/10 environment** đã lấy mẫu, mức g
 Chênh lệch metric tuyệt đối so với layout 42 không có nghĩa simulator bị đổi:
 hardware/task/connectivity của môi trường đã khác. Không so lẫn absolute DVR giữa hai setting.
 
-![Delivered DVR theo environment](../../docs/experiments/near-paper-layouts-20261101/layout-dvr.png)
+![Delivered DVR theo environment](../../experiments/near-paper-layouts-20261101/layout-dvr.png)
 
 ## Offloading có gây hại không?
 
@@ -108,10 +108,10 @@ RescueNet/Alibaba thật, mô hình radio thực tế hay kết quả DQN/lifeti
 
 ## Tài liệu và lệnh chạy
 
-- [Mô hình gần paper và ranh giới phần mở rộng](NEAR_PAPER_SCENARIO.md).
-- [Bảng chi tiết từng environment và bootstrap contrasts](../../docs/experiments/near-paper-layouts-20261101/RESULTS.md).
-- [Phân tích task bị hại và energy components](../../docs/experiments/near-paper-layouts-20261101/analysis.md).
-- [Phân tích reference từ trace cũ](../../docs/experiments/near-paper-layouts-20261101/reference-diagnosis.md).
+- [Mô hình gần paper và ranh giới phần mở rộng](../../../PureEdgeSim/uav/NEAR_PAPER_SCENARIO.md).
+- [Bảng chi tiết từng environment và bootstrap contrasts](../../experiments/near-paper-layouts-20261101/RESULTS.md).
+- [Phân tích task bị hại và energy components](../../experiments/near-paper-layouts-20261101/analysis.md).
+- [Phân tích reference từ trace cũ](../../experiments/near-paper-layouts-20261101/reference-diagnosis.md).
 - Full trace: target/near-paper-layout-full-20261101.
 - Curated artifacts: docs/experiments/near-paper-layouts-20261101, có provenance + SHA-256.
 

@@ -26,29 +26,29 @@ và [PAPER_ALIGNMENT.md](PAPER_ALIGNMENT.md).
 
 ## Bằng chứng mới nhất
 
-**Sensitivity đã hoàn tất tuần tự:** [NEAR_PAPER_SENSITIVITY_RESULTS.md](NEAR_PAPER_SENSITIVITY_RESULTS.md):
+**Sensitivity đã hoàn tất tuần tự:** [NEAR_PAPER_SENSITIVITY_RESULTS.md](../../docs/history/v1/NEAR_PAPER_SENSITIVITY_RESULTS.md):
 5.400 episode mới audit PASS, 900 reference cases reused. CPU UAV ít ảnh hưởng trong dải đã thử;
 deadline ảnh hưởng DVR, dwell ảnh hưởng energy. Giữ reference, chưa chọn cấu hình/thuật toán mới hay train DQN.
 
 
-**Đã kiểm tra nhiều môi trường:** [NEAR_PAPER_MULTILAYOUT_RESULTS.md](NEAR_PAPER_MULTILAYOUT_RESULTS.md):
+**Đã kiểm tra nhiều môi trường:** [NEAR_PAPER_MULTILAYOUT_RESULTS.md](../../docs/history/v1/NEAR_PAPER_MULTILAYOUT_RESULTS.md):
 1.500 episode, 10 môi trường × 30 workload seed × 5 routing policy, 36.600 task outcomes audit PASS.
 ALL_UAV giảm delivered DVR trên 10/10 môi trường; DEADLINE_ENERGY/DELIVERY_AWARE là baseline mạnh hơn
 trong tổng hợp này. Chưa có thuật toán mới hoặc xác nhận lifetime.
 
 
-**Scenario gần paper theo hướng mới:** [NEAR_PAPER_RESULTS.md](NEAR_PAPER_RESULTS.md) và
+**Scenario gần paper theo hướng mới:** [NEAR_PAPER_RESULTS.md](../../docs/history/v1/NEAR_PAPER_RESULTS.md) và
 [NEAR_PAPER_SCENARIO.md](NEAR_PAPER_SCENARIO.md): 720 episode / 30 workload seed audit PASS.
 Offloading có tác dụng trong pilot; scheduler ít cơ hội tác động. Task synthetic 2–4 MB,
 throughput local theo bảng paper; không trộn kết luận với benchmark RescueNet/DeepLab trước.
 
 
-**Cập nhật tiếp01/11:** [Admission study](ADMISSION_STUDY_RESULTS.md) đã chạy6480episode mới,
+**Cập nhật tiếp01/11:** [Admission study](../../docs/history/v1/ADMISSION_STUDY_RESULTS.md) đã chạy6480episode mới,
 bao gồm30seed validation và30seed evaluation trên geometry mới theo source/protocol lock.
 Cap bảo vệ ảnh nhưng làm background DVR xấu hơn RISK_EDF; chưa chọn làm thuật toán cuối.
 Các partition này đã được dùng đánh giá, không còn chỉ là input diagnostics.
 
-**Cập nhật01/11:** [Hai giai đoạn scheduling/mobile](SEQUENTIAL_STUDY_RESULTS.md) đã chạy tuần tự,
+**Cập nhật01/11:** [Hai giai đoạn scheduling/mobile](../../docs/history/v1/SEQUENTIAL_STUDY_RESULTS.md) đã chạy tuần tự,
 2.640full episode audit PASS; scheduler cải thiện hover control, hiệu ứng nhỏ hơn khi mobile.
 Compute vẫn provisional; radio/default kernel giữ nguyên; chưa train RL hoặc chứng minh lifetime tăng.
 Các số mixed-v2 bên dưới thuộc benchmark trước hiệu chuẩn và không so trực tiếp như cải tiến thuật toán.
@@ -62,14 +62,14 @@ Các số mixed-v2 bên dưới thuộc benchmark trước hiệu chuẩn và kh
 - Trace cho thấy Greedy chỉ bay một chặng rồi hover trong480/480episode.
   Cần static-hover control và ablation trước khi kết luận về scheduling/joint optimization.
 
-Chi tiết: [WORKLOAD_V2_BASELINES_RESULTS.md](WORKLOAD_V2_BASELINES_RESULTS.md),
-[WORKLOAD_REPAIR.md](WORKLOAD_REPAIR.md).
+Chi tiết: [WORKLOAD_V2_BASELINES_RESULTS.md](../../docs/history/v1/WORKLOAD_V2_BASELINES_RESULTS.md),
+[WORKLOAD_REPAIR.md](../../docs/history/v1/WORKLOAD_REPAIR.md).
 Review thiết kế được giữ cùng [artifact review](../../target/workload-v2-design-review-20261030/REPORT.md);
 link artifact chỉ có trên máy đã lưu kết quả.
 
 ## Việc tiếp theo theo thứ tự
 
-1. Hoàn thiện [compute/deadline calibration](TASK_CALIBRATION.md): đã đo runtime kiến trúc workstation,
+1. Hoàn thiện [compute/deadline calibration](../../docs/history/v1/TASK_CALIBRATION.md): đã đo runtime kiến trúc workstation,
    có config opt-in; còn thiếu checkpoint/power/SLA. Kiểm tra radio/delivery trước campaign mới.
 2. Cải thiện sampling Alibaba và báo task bất khả thi; giữ benchmark cũ để đối chiếu.
 3. Bổ sung scenario ứng dụng, nhiều layout/connectivity và đối chứng static-hover.
@@ -98,8 +98,8 @@ mvn -o test
 ```
 
 Chạy từ gốc MECSim. Output mới không được tồn tại.
-[Metric bắt buộc](EVALUATION_METRICS.md), [dataset setup](DATASET_SETUP.md),
-[dashboard](VISUALIZATION.md).
+[Metric bắt buộc](EVALUATION_METRICS.md), [dataset setup](../../docs/history/v1/DATASET_SETUP.md),
+[dashboard](../../docs/history/v1/VISUALIZATION.md).
 
 ## Phần lịch sử
 

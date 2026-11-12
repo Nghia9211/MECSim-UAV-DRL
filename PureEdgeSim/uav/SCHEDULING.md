@@ -2,13 +2,13 @@
 
 > Benchmark nền tảng giữ offloading cố định. Extension local/UAV ngày 22/10/2026:
 > [OFFLOADING_SCHEDULING.md](OFFLOADING_SCHEDULING.md),
-> [OFFLOADING_RESULTS.md](OFFLOADING_RESULTS.md).
+> [OFFLOADING_RESULTS.md](../../docs/history/v1/OFFLOADING_RESULTS.md).
 
 Ngày21/10/2026. Đã hoàn tất nền tảng task/queue/deadline, ba baseline và benchmark
 development dùng raw RescueNet + Alibaba. Chưa có cơ chế scheduling cải tiến
 trong benchmark nền tảng; các chi phí inference vẫn là giả định.
 Cập nhật tiếp: đã thử FEASIBLE_AGING, SPT và ablation trên task streams mới,
-gồm pin thấp: [SCHEDULING_AGING_RESULTS.md](SCHEDULING_AGING_RESULTS.md).
+gồm pin thấp: [SCHEDULING_AGING_RESULTS.md](../../docs/history/v1/SCHEDULING_AGING_RESULTS.md).
 Chưa có bằng chứng giảm đồng thời tổng energy và mọi chỉ số dịch vụ.
 
 ## 1. Phạm vi đã chốt

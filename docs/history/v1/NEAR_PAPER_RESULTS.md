@@ -57,9 +57,9 @@ Nếu nghiên cứu scheduler về sau, phải khai báo thí nghiệm tải/CPU
 
 ## Cấu hình, lệnh và bằng chứng
 
-- [Mô hình và lệnh chạy](NEAR_PAPER_SCENARIO.md).
-- [Cấu hình mặc định, không cần dataset](offloading/near-paper-protocol.json).
-- [Kết quả đủ 3 scenario và 8 baseline](../../docs/experiments/near-paper-20261101/RESULTS.md).
+- [Mô hình và lệnh chạy](../../../PureEdgeSim/uav/NEAR_PAPER_SCENARIO.md).
+- [Cấu hình mặc định, không cần dataset](../../../PureEdgeSim/uav/offloading/near-paper-protocol.json).
+- [Kết quả đủ 3 scenario và 8 baseline](../../experiments/near-paper-20261101/RESULTS.md).
 - Run đầy đủ: target/near-paper-final-20261101/; smoke: target/near-paper-check-20261101/.
 - Bộ đối chiếu paper gốc và kết quả cũ vẫn giữ nguyên để kiểm tra riêng.
 

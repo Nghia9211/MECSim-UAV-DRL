@@ -116,6 +116,6 @@ Các hệ thống UAV-assisted edge computing trong thiên tai cần duy trì kh
 - **[S1]** [Bản trích xuất paper Azfar](../../../../2501.15305v1.md), §3.1 (mô hình theo slot/lifetime), §4 (implementation), §5–6 (thực nghiệm/kết luận). Paper là nguồn cho mô tả bài toán gốc; không suy từ giả định simulator của chúng ta thành phát biểu của tác giả.
 - **[S2]** [OFFLOADING_SCHEDULING.md](../../../PureEdgeSim/uav/OFFLOADING_SCHEDULING.md): mô hình, dataset và các giả định development của nhánh mới.
 - **[S3]** [REFERENCE_VS_RESEARCH_SETTING.md](REFERENCE_VS_RESEARCH_SETTING.md) và [PAPER_ALIGNMENT.md](../../../PureEdgeSim/uav/PAPER_ALIGNMENT.md): phân biệt setting và quy ước implementation.
-- **[S4]** [MOBILE_DRL.md](../../../PureEdgeSim/uav/MOBILE_DRL.md): policy chọn thiết bị đang giữ offloading/scheduler cố định; chưa phải joint-learning agent.
+- **[S4]** [MOBILE_DRL.md](../v1/MOBILE_DRL.md): policy chọn thiết bị đang giữ offloading/scheduler cố định; chưa phải joint-learning agent.
 
 Tài liệu này dựa trên paper và code/tài liệu nội bộ đã đọc, chưa phải systematic literature review để xác nhận khoảng trống toàn lĩnh vực.

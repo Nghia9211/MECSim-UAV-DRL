@@ -1,0 +1,86 @@
+{
+  "D1": {
+    "episodes": 480,
+    "episodes_single_site": 480,
+    "visits": 6249,
+    "reselections_of_same_site": 5769,
+    "departures_after_dwell": 5769,
+    "departures_held_by_upload": 126,
+    "hold_seconds": {
+      "n": 126,
+      "p10": 0.24988975588374274,
+      "median": 1.0185988394747483,
+      "p90": 2.3283071127399353,
+      "max": 3.0587379195235087,
+      "mean": 1.2086903265686593
+    }
+  },
+  "D2": {
+    "offloaded_ontime_images": 4847,
+    "slant_m": {
+      "n": 4847,
+      "p10": 10.0,
+      "median": 10.0,
+      "p90": 11.425267552137473,
+      "max": 25.018022536114167,
+      "mean": 10.667594803247821
+    },
+    "share_below_15m": 0.9372807922426243,
+    "share_below_20m": 0.9892717144625541
+  },
+  "D3": {
+    "groups": 480,
+    "energy_cv_between_policies": {
+      "n": 480,
+      "p10": 0.0011597253572627033,
+      "median": 0.010144860432627217,
+      "p90": 0.09716333276101889,
+      "max": 0.09877588765775154,
+      "mean": 0.041187775319454945
+    },
+    "max_over_min_minus_one": {
+      "n": 480,
+      "p10": 0.0034486500346862705,
+      "median": 0.033199845468663974,
+      "p90": 0.42946063834401466,
+      "max": 0.43906881014346644,
+      "mean": 0.17140830923976472
+    },
+    "propulsion_share_of_total": {
+      "n": 4320,
+      "p10": 0.7608925804590138,
+      "median": 0.859315642399134,
+      "p90": 0.9337420602151719,
+      "max": 0.9455788324894636,
+      "mean": 0.8548047412071479
+    }
+  },
+  "D4_D5_RR_DELIVERY_RISK_EDF": {
+    "dispatches": 7361,
+    "queue_length": {
+      "n": 7361,
+      "p10": 1,
+      "median": 1,
+      "p90": 1,
+      "max": 10,
+      "mean": 1.106914821355794
+    },
+    "share_queue_at_least_2": 0.05760086944708599,
+    "share_fifo_edf_spt_differ_given_queue_2": 0.5518867924528302,
+    "share_differ_of_all_dispatches": 0.03178915908164651
+  },
+  "D4_D5_RR_ALL_UAV_FIFO": {
+    "dispatches": 8116,
+    "queue_length": {
+      "n": 8116,
+      "p10": 1,
+      "median": 1,
+      "p90": 1,
+      "max": 11,
+      "mean": 1.2037949728930508
+    },
+    "share_queue_at_least_2": 0.09068506653523903,
+    "share_fifo_edf_spt_differ_given_queue_2": 0.7038043478260869,
+    "share_differ_of_all_dispatches": 0.06382454411039921
+  }
+}

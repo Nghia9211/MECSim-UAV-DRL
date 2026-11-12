@@ -7,7 +7,7 @@ cấu hình; chưa tái hiện đầy đủ Tables5/6 hoặc xác nhận tương
 
 **Giai đoạn audit 23/10/2026:** đã kiểm toán Tables1–4 và chạy2.520 episode synthetic
 để đo độ nhạy quy ước, có replay độc lập và parity baseline cũ. Xem
-[PAPER_REPRODUCTION_AUDIT.md](PAPER_REPRODUCTION_AUDIT.md). Kế hoạch train đủ ngân
+[PAPER_REPRODUCTION_AUDIT.md](../../docs/history/v1/PAPER_REPRODUCTION_AUDIT.md). Kế hoạch train đủ ngân
 sách từ giai đoạn đó đã được thực hiện trong kết quả mới nhất ở trên.
 
 **Sau đợt dọn source:** demo Milestone 1–7 và entry point dataset cũ đã được gỡ.

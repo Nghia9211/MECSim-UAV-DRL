@@ -5,11 +5,11 @@
 > **Cập nhật 24/10:** đối chứng seed đã hoàn tất; đề xuất được chốt trong
 > [NEXT_EXPERIMENT_PROPOSAL.md](../../../PureEdgeSim/uav/NEXT_EXPERIMENT_PROPOSAL.md) và 6 model mới đã
 > được đưa vào hàng đợi chạy. Trạng thái và cách theo dõi ở
-> [PAPER_CONVENTION_RETRAIN_STATUS.md](../../../PureEdgeSim/uav/PAPER_CONVENTION_RETRAIN_STATUS.md).
+> [PAPER_CONVENTION_RETRAIN_STATUS.md](../v1/PAPER_CONVENTION_RETRAIN_STATUS.md).
 > Phần dưới là bản kế hoạch trước khi khởi chạy.
 
 Ngày24/10/2026. **Đây là kế hoạch; chưa khởi chạy các model trong bảng dưới.**
-Thí nghiệm đang chạy ở [PAPER_SEED_ISOLATION.md](../../../PureEdgeSim/uav/PAPER_SEED_ISOLATION.md) phải
+Thí nghiệm đang chạy ở [PAPER_SEED_ISOLATION.md](../v1/PAPER_SEED_ISOLATION.md) phải
 được kiểm chứng trước khi dùng các model đó làm baseline cho bước tiếp theo.
 
 Mục đích là kiểm tra mức độ phụ thuộc của kết quả DQN vào chi tiết còn mơ hồ
