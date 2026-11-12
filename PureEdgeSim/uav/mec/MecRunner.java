@@ -19,7 +19,7 @@ import java.util.concurrent.*;
  * Config fields: name, hypothesis, threshold (required text); model_file and/or model (patch);
  * axes {axis: [{name, model}]} (cartesian product of model patches); policies ["OFFLOAD+SCHED+ADMISSION" or
  * "ORACLE:OFFLOAD+SCHED+ADMISSION"]; partition development|evaluation or seeds {layouts, tasks};
- * trace_tasks (first k task seeds get full traces); engine pureedgesim|loop; threads (loop engine only);
+ * trace_tasks / trace_layouts (full traces for the first k task seeds of the first j layouts); engine pureedgesim|loop; threads (loop engine only);
  * oracle_limit {layouts, tasks}.
  */
 public final class MecRunner {
@@ -37,7 +37,7 @@ public final class MecRunner {
         int o = Arrays.asList(args).indexOf("--output");
         JsonNode c = JSON.readTree(config.toFile());
         Json.allow(c, "config", "name", "hypothesis", "threshold", "model_file", "model", "axes", "policies", "partition",
-                "seeds", "trace_tasks", "engine", "threads", "oracle_limit");
+                "seeds", "trace_tasks", "trace_layouts", "engine", "threads", "oracle_limit");
         for (String k : List.of("name", "hypothesis", "threshold")) Json.text(c, k, "config");
         String name = Json.text(c, "name", "config");
         Path out = o >= 0 ? Path.of(args[o + 1]) : Path.of(smoke ? "target/smoke" : "target/mec", name);
@@ -97,6 +97,7 @@ public final class MecRunner {
         }
         if (smoke) { layouts = layouts.subList(0, 1); tasks = tasks.subList(0, Math.min(2, tasks.size())); }
         int traceTasks = c.has("trace_tasks") ? c.get("trace_tasks").asInt() : 1;
+        int traceLayouts = c.has("trace_layouts") ? c.get("trace_layouts").asInt() : Integer.MAX_VALUE;
         boolean engine = !c.has("engine") || Json.text(c, "engine", "config").equals("pureedgesim");
         int threads = engine ? 1 : (c.has("threads") ? c.get("threads").asInt() : Runtime.getRuntime().availableProcessors());
         int oracleLayouts = c.has("oracle_limit") ? c.get("oracle_limit").get("layouts").asInt() : Integer.MAX_VALUE;
@@ -110,7 +111,7 @@ public final class MecRunner {
         for (var v : variants) for (int li = 0; li < layouts.size(); li++) for (int ti = 0; ti < tasks.size(); ti++)
             for (String p : policies) {
                 if (p.startsWith("ORACLE:") && (li >= oracleLayouts || ti >= oracleTasks)) continue;
-                jobs.add(new Job(jobs.size(), v, layouts.get(li), tasks.get(ti), p, ti < traceTasks));
+                jobs.add(new Job(jobs.size(), v, layouts.get(li), tasks.get(ti), p, ti < traceTasks && li < traceLayouts));
             }
         var manifest = new LinkedHashMap<String, Object>();
         manifest.put("name", c.get("name").asText());

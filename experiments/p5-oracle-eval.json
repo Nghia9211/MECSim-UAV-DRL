@@ -1,0 +1,18 @@
+{
+  "name": "p5-oracle-eval",
+  "hypothesis": "G6 on evaluation seeds: same comparison as g6-oracle-dev, circle trajectory, exact estimates.",
+  "threshold": "G6 thresholds of docs/v2/CALIBRATION.md (reported, not used to tune anything)",
+  "model_file": "experiments/base-model.json",
+  "axes": {
+    "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
+             {"name": "overload", "model": {"rho_uav": 1.3}}, {"name": "stress", "model": {"rho_uav": 1.8}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true}}]
+  },
+  "policies": ["DEADLINE_ENERGY+EDF+NONE", "ORACLE:DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "evaluation",
+  "oracle_limit": {"layouts": 5, "tasks": 2},
+  "trace_tasks": 1,
+  "trace_layouts": 1,
+  "engine": "loop",
+  "threads": 16
+}

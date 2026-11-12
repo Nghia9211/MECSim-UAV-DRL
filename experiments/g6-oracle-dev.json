@@ -1,0 +1,18 @@
+{
+  "name": "g6-oracle-dev",
+  "hypothesis": "A clairvoyant rollout of the best heuristic leaves headroom (on development seeds); stress load is exploratory, not pre-registered.",
+  "threshold": "G6: oracle beats DEADLINE_ENERGY+EDF+NONE by >= 5 DVR points or >= 10% marginal J per on-time task at >= 1 pre-registered load",
+  "model_file": "experiments/base-model.json",
+  "axes": {
+    "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
+             {"name": "overload", "model": {"rho_uav": 1.3}}, {"name": "stress", "model": {"rho_uav": 1.8}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true}}]
+  },
+  "policies": ["DEADLINE_ENERGY+EDF+NONE", "ORACLE:DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "development",
+  "oracle_limit": {"layouts": 5, "tasks": 2},
+  "trace_tasks": 1,
+  "trace_layouts": 1,
+  "engine": "loop",
+  "threads": 16
+}

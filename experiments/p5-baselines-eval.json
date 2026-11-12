@@ -1,0 +1,23 @@
+{
+  "name": "p5-baselines-eval",
+  "hypothesis": "On the never-opened evaluation seeds, DEADLINE_ENERGY+EDF stays the best online heuristic for DVR and marginal energy; preemption and scheduler choice change DVR at medium/overload. Stress load and STATIC trajectory are exploratory.",
+  "threshold": "Descriptive comparison; paired bootstrap 95% CI vs DEADLINE_ENERGY+EDF+NONE per variant (docs/v2/MODEL.md section 7)",
+  "model_file": "experiments/base-model.json",
+  "axes": {
+    "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
+             {"name": "overload", "model": {"rho_uav": 1.3}}, {"name": "stress", "model": {"rho_uav": 1.8}}],
+    "err": [{"name": "e0"}, {"name": "e40", "model": {"estimate_error": 0.4}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true}}],
+    "traj": [{"name": "circle"}, {"name": "static", "model": {"trajectory": {"type": "STATIC"}}}]
+  },
+  "policies": [
+    "ALL_LOCAL+EDF+NONE", "ALL_UAV+EDF+NONE", "RANDOM+EDF+NONE", "SHORTEST_FINISH+EDF+NONE",
+    "DEADLINE_ENERGY+EDF+NONE", "THRESHOLD_5+EDF+NONE",
+    "DEADLINE_ENERGY+FIFO+NONE", "DEADLINE_ENERGY+SRPT+NONE", "DEADLINE_ENERGY+LLF+NONE", "DEADLINE_ENERGY+PRIORITY_EDF+NONE",
+    "DEADLINE_ENERGY+FIFO+DROP_INFEASIBLE", "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE", "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE",
+    "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE", "DEADLINE_ENERGY+PRIORITY_EDF+DROP_INFEASIBLE"
+  ],
+  "partition": "evaluation",
+  "trace_tasks": 1,
+  "trace_layouts": 1
+}
