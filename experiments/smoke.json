@@ -1,0 +1,16 @@
+{
+  "name": "smoke",
+  "hypothesis": "Pipeline check only: runner, traces and verifier work end to end.",
+  "threshold": "verify_mec.py PASS on every traced episode",
+  "model_file": "experiments/base-model.json",
+  "model": {"arrival_window_s": 120},
+  "axes": {
+    "traj": [{"name": "circle"}, {"name": "static", "model": {"trajectory": {"type": "STATIC"}}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true, "estimate_error": 0.4}}]
+  },
+  "policies": ["ALL_LOCAL+FIFO+NONE", "ALL_UAV+EDF+NONE", "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE",
+               "RANDOM+SRPT+NONE", "SHORTEST_FINISH+PRIORITY_EDF+NONE", "THRESHOLD_5+EDF+NONE",
+               "ORACLE:DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "development",
+  "trace_tasks": 2
+}

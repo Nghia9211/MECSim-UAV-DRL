@@ -1,0 +1,39 @@
+{
+  "area_m": 600,
+  "devices": 10,
+  "device_types": [
+    {"name": "PI3B", "weight": 1, "speed_gcps": 0.25, "busy_w": 1.9, "idle_w": 1.69, "tx_w": 1.0, "rx_w": 0.5, "battery_j": [50000, 80000]},
+    {"name": "PI4B", "weight": 1, "speed_gcps": 0.5, "busy_w": 3.234, "idle_w": 2.65, "tx_w": 1.0, "rx_w": 0.5, "battery_j": [50000, 80000]},
+    {"name": "JETSON_NANO", "weight": 1, "speed_gcps": 0.6, "busy_w": 2.421, "idle_w": 2.82, "tx_w": 1.0, "rx_w": 0.5, "battery_j": [50000, 80000]}
+  ],
+  "uav": {
+    "altitude_m": 100, "speed_gcps": 4.0, "busy_w": 30, "tx_w": 2.0, "rx_w": 0.5, "battery_j": 1600000,
+    "propulsion": {"model": "ZENG2019", "weight_n": 100, "rho": 1.225, "solidity": 0.05, "disc_area_m2": 0.79,
+                   "omega_rad_s": 400, "radius_m": 0.5, "tip_speed_mps": 200, "v0_mps": 7.2, "d0": 0.3,
+                   "delta": 0.012, "k": 0.1}
+  },
+  "trajectory": {"type": "CIRCLE", "radius_m": 200, "speed_mps": 10},
+  "radio": {"mode": "SHANNON", "uplink_hz": 20000000, "downlink_hz": 10000000, "device_radiated_w": 0.1,
+            "uav_radiated_w": 1.0, "beta0_db": -50, "path_loss_exponent": 2, "noise_dbm_per_hz": -160, "block_s": 1},
+  "preemptive": false,
+  "arrival_window_s": 600,
+  "rho_uav": 0.9,
+  "estimate_error": 0,
+  "classes": [
+    {"name": "DETECT", "weight": 0.40, "priority": 3,
+     "input_bytes": {"dist": "lognormal", "mean": 300000, "cv": 0.3},
+     "cycles_g": {"dist": "lognormal", "mean": 0.3, "cv": 0.2},
+     "result_bytes": 2000,
+     "deadline_s": {"dist": "uniform", "min": 1, "max": 3}},
+    {"name": "SEGMENT", "weight": 0.45, "priority": 2,
+     "input_bytes": {"dist": "empirical", "file": "docs/v2/data/rescuenet_val_bytes.csv", "column": "bytes"},
+     "cycles_g": {"dist": "lognormal", "mean": 2.1, "cv": 0.2},
+     "result_bytes": 50000,
+     "deadline_s": {"dist": "uniform", "min": 8, "max": 20}},
+    {"name": "MAP", "weight": 0.15, "priority": 1,
+     "input_bytes": {"dist": "lognormal", "mean": 4000000, "cv": 0.3},
+     "cycles_g": {"dist": "lognormal", "mean": 10, "cv": 0.3},
+     "result_bytes": 200000,
+     "deadline_s": {"dist": "uniform", "min": 30, "max": 90}}
+  ]
+}

@@ -108,6 +108,20 @@ public final class MecSimulator {
         return sim.result();
     }
 
+    /** Observable running totals for learning agents: resolved counts and marginal energy so far. */
+    public record Progress(double now, int arrived, int onTime, int violated, double marginalJ) { }
+
+    public Progress progress() {
+        int on = 0, bad = 0;
+        for (int i = 0; i < arrivalIndex; i++) {
+            var s = tasks.get(i).status;
+            if (s == Status.DONE) on++; else if (s.terminal()) bad++;
+        }
+        double marginal = uavCpuJ + uavTxJ + uavRxJ;
+        for (int d = 0; d < devCpuJ.length; d++) marginal += devCpuJ[d] + devTxJ[d] + devRxJ[d];
+        return new Progress(now, arrivalIndex, on, bad, marginal);
+    }
+
     public boolean done() { return done; }
     public double now() { return now; }
     public double nextEventTime() { return next; }
