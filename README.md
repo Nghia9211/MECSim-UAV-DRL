@@ -15,6 +15,15 @@ Từ 12/11/2026 phần offloading/scheduling được làm lại trong package `
 (nhánh `feat/mec-v2`). Lý do: [chẩn đoán v1](docs/v1-diagnosis/README.md) cho thấy CPU và hàng đợi
 gần như không phải nút thắt trong kernel cũ. Đặc tả, hiệu chuẩn và kết quả v2 nằm ở [docs/v2/](docs/v2/).
 
+Trạng thái 12/11/2026: P0–P5 xong. Cổng G1–G5 qua không cần chỉnh tham số; `DEADLINE_ENERGY` + EDF có preemption là
+baseline mạnh nhất; **G6 không qua** (oracle chỉ hơn ≤ 1,6 điểm DVR), nên cần chọn hướng trước khi làm RL.
+Đọc [RESULTS_BASELINES.md](docs/v2/RESULTS_BASELINES.md), [CALIBRATION.md](docs/v2/CALIBRATION.md), [MODEL.md](docs/v2/MODEL.md).
+
+```powershell
+mvn -o -q compile exec:java "-Dexec.mainClass=uav.mec.MecRunner" "-Dexec.args=experiments/smoke.json --smoke"
+.\.venv-drl\Scripts\python.exe scripts/verify_mec.py target/smoke/smoke
+```
+
 v1 (kernel `uav.offloading`/`uav.scheduling`, luồng paper Azfar, các campaign DRL) đóng băng tại tag `v1-final`:
 không thêm thí nghiệm, không xóa. Tài liệu kết quả v1 chuyển sang [docs/history/v1/](docs/history/v1/).
 

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "episodes_in_csv": 12600,
+  "traced_episodes_verified": 420,
+  "task_outcomes_verified": 345660,
+  "segments_verified": 1277313,
+  "paired_workload_groups": 900,
+  "errors": [],
+  "error_count": 0,
+  "meaning": "Bookkeeping matches MODEL.md; not evidence that the model is realistic."
+}

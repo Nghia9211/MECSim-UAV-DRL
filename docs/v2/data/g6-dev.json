@@ -1,0 +1,86 @@
+{
+  "gate": "G6",
+  "cells": {
+    "light-np": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.005091778090546584,
+      "dvr_oracle": 0.0009070294784580546,
+      "dvr_gap_points": 0.41847486120885297,
+      "j_per_on_time_base": 16.35471371913098,
+      "j_per_on_time_oracle": 16.280103693371707,
+      "energy_gap_relative": 0.004561989102383268
+    },
+    "light-pre": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.0006802721088435493,
+      "dvr_oracle": 0.0,
+      "dvr_gap_points": 0.06802721088435493,
+      "j_per_on_time_base": 16.290641718045933,
+      "j_per_on_time_oracle": 16.043479818526468,
+      "energy_gap_relative": 0.015172017394850206
+    },
+    "medium-np": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.01299000881575082,
+      "dvr_oracle": 0.00328386717602116,
+      "dvr_gap_points": 0.970614163972966,
+      "j_per_on_time_base": 16.220206069011553,
+      "j_per_on_time_oracle": 15.946307434024593,
+      "energy_gap_relative": 0.016886261112936098
+    },
+    "medium-pre": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.0007302380252718233,
+      "dvr_oracle": 0.0,
+      "dvr_gap_points": 0.07302380252718232,
+      "j_per_on_time_base": 16.046259492992206,
+      "j_per_on_time_oracle": 15.691901997566351,
+      "energy_gap_relative": 0.022083495258232104
+    },
+    "overload-np": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.02298016344457645,
+      "dvr_oracle": 0.007378550599416789,
+      "dvr_gap_points": 1.5601612845159663,
+      "j_per_on_time_base": 16.606266343472512,
+      "j_per_on_time_oracle": 16.11987251575858,
+      "energy_gap_relative": 0.02928977638041565
+    },
+    "overload-pre": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.002119091334557355,
+      "dvr_oracle": 0.00033840947546530663,
+      "dvr_gap_points": 0.1780681859092048,
+      "j_per_on_time_base": 16.302594249073785,
+      "j_per_on_time_oracle": 15.856663539907547,
+      "energy_gap_relative": 0.027353358757093067
+    },
+    "stress-np": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.05200932739326689,
+      "dvr_oracle": 0.021424205378973084,
+      "dvr_gap_points": 3.058512201429381,
+      "j_per_on_time_base": 17.42716050017366,
+      "j_per_on_time_oracle": 16.577463868181,
+      "energy_gap_relative": 0.048757032563290705
+    },
+    "stress-pre": {
+      "episodes": 10,
+      "base": "DEADLINE_ENERGY+EDF+NONE",
+      "dvr_base": 0.002844061500846351,
+      "dvr_oracle": 0.0007232109272145903,
+      "dvr_gap_points": 0.21208505736317607,
+      "j_per_on_time_base": 16.66453641726164,
+      "j_per_on_time_oracle": 16.190853534323892,
+      "energy_gap_relative": 0.028424606066274526
+    }
+  },
+  "passed": false
+}
