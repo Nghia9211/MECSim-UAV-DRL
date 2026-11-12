@@ -195,6 +195,13 @@ class MecSimulatorTest {
         assertEquals(Scenario.generate(m0, 1, 2).devices(), Scenario.generate(m0, 1, 9).devices());
     }
 
+    @Test void nullInPatchDeletesKey() throws Exception {
+        var m = model("{\"rho_uav\":null,\"arrival_rate_per_s\":2}");
+        assertTrue(Double.isNaN(m.rhoUav()));
+        assertEquals(2.0, m.totalArrivalRate(), 0);
+        assertThrows(IllegalArgumentException.class, () -> model("{\"arrival_rate_per_s\":2}")); // both set
+    }
+
     @Test void zengPropulsionMatchesHandCalculation() throws Exception {
         var p = model("{}").uav().propulsion();
         assertEquals(580.65, p.p0(), 0.01);                     // 0.012/8 * 1.225 * 0.05 * 0.79 * 400^3 * 0.5^3

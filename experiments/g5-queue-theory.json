@@ -1,0 +1,25 @@
+{
+  "name": "g5-queue-theory",
+  "hypothesis": "With ideal radio and one FIFO CPU, mean queueing delay equals M/M/1 and M/D/1 formulas.",
+  "threshold": "G5: relative error of mean wait <= 3% in all four cells (docs/v2/CALIBRATION.md)",
+  "model_file": "experiments/base-model.json",
+  "model": {
+    "devices": 1,
+    "device_types": [{"name": "D", "weight": 1, "speed_gcps": 1, "busy_w": 1, "idle_w": 0, "tx_w": 0, "rx_w": 0, "battery_j": [1e15, 1e15]}],
+    "uav": {"battery_j": 1e15, "propulsion": {"model": "NONE"}},
+    "trajectory": {"type": "STATIC"},
+    "radio": {"mode": "IDEAL"},
+    "rho_uav": null,
+    "classes": [{"name": "JOB", "weight": 1, "priority": 1, "input_bytes": 0, "result_bytes": 0,
+                 "cycles_g": {"dist": "exp", "mean": 4}, "deadline_s": {"dist": "inf"}}]
+  },
+  "axes": {
+    "service": [{"name": "mm1"}, {"name": "md1", "model": {"classes": [{"name": "JOB", "weight": 1, "priority": 1,
+                 "input_bytes": 0, "result_bytes": 0, "cycles_g": 4, "deadline_s": {"dist": "inf"}}]}}],
+    "rho": [{"name": "r05", "model": {"arrival_rate_per_s": 0.5, "arrival_window_s": 420000, "horizon_s": 421000}},
+            {"name": "r08", "model": {"arrival_rate_per_s": 0.8, "arrival_window_s": 260000, "horizon_s": 261000}}]
+  },
+  "policies": ["ALL_UAV+FIFO+NONE"],
+  "seeds": {"layouts": [0], "tasks": [0]},
+  "trace_tasks": 1
+}

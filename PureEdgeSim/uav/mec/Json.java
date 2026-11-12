@@ -51,13 +51,14 @@ final class Json {
         return node.get(key).asBoolean();
     }
 
-    /** Deep merge: objects merge recursively, any other value in `patch` replaces the base value. */
+    /** Deep merge: objects merge recursively, null deletes the key, any other value in `patch` replaces the base value. */
     static ObjectNode merge(ObjectNode base, JsonNode patch) {
         ObjectNode out = base.deepCopy();
         Iterator<Map.Entry<String, JsonNode>> it = patch.fields();
         while (it.hasNext()) {
             var e = it.next();
             JsonNode old = out.get(e.getKey());
+            if (e.getValue().isNull()) { out.remove(e.getKey()); continue; } // null in a patch deletes the key
             if (old != null && old.isObject() && e.getValue().isObject())
                 out.set(e.getKey(), merge((ObjectNode) old, e.getValue()));
             else

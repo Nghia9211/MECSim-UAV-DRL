@@ -17,6 +17,7 @@ import argparse
 import csv
 import json
 import math
+from bisect import bisect_left, bisect_right
 from collections import defaultdict
 from pathlib import Path
 
@@ -78,6 +79,13 @@ class Model:
         share = hz / k
         snr = watts * 10 ** (r["beta0_db"] / 10) * d ** (-r["path_loss_exponent"]) / (10 ** ((r["noise_dbm_per_hz"] - 30) / 10) * share)
         return share * math.log2(1 + snr)
+
+
+def active_counter(intervals):
+    """count(t) = number of (start, end) with start < t < end, in O(log n) per query."""
+    starts = sorted(a for a, _ in intervals)
+    ends = sorted(b for _, b in intervals)
+    return lambda t: bisect_left(starts, t) - bisect_right(ends, t)
 
 
 def p95(values):
@@ -160,15 +168,15 @@ def verify_episode(ep, model, row, errors):
             waits[node].append((start, end, int(t["id"])))
     for node, intervals in waits.items():
         segs = by_node.get(node, [])
+        waiting = active_counter([(a, b) for a, b, _ in intervals])
+        running = active_counter([(a, b) for a, b, _ in segs])
         points = sorted({x for a, b, _ in intervals for x in (a, b)} | {x for a, b, _ in segs for x in (a, b)})
         for lo, hi in zip(points, points[1:]):
             if hi - lo <= 1e-7:
                 continue
             mid = (lo + hi) / 2
-            waiting = [i for a, b, i in intervals if a < mid < b]
-            running = [i for a, b, i in segs if a < mid < b]
-            if waiting and not running:
-                fail(f"node {node} idle at {mid:.6f} while tasks {waiting[:3]} wait")
+            if waiting(mid) and not running(mid):
+                fail(f"node {node} idle at {mid:.6f} while {waiting(mid)} task(s) wait")
                 break
 
     # ---- radio
@@ -176,10 +184,11 @@ def verify_episode(ep, model, row, errors):
     bits = defaultdict(float)
     for d in ("UP", "DOWN"):
         segs = [l for l in links if l["direction"] == d]
+        concurrent = active_counter([(num(o["start"]), num(o["end"])) for o in segs])
         for l in segs:
             st, en = num(l["start"]), num(l["end"])
             mid = (st + en) / 2
-            k = sum(1 for o in segs if num(o["start"]) < mid < num(o["end"]))
+            k = concurrent(mid)
             if k != int(l["sharing"]):
                 fail(f"{d} task {l['task']} sharing {l['sharing']} but {k} concurrent")
             b0 = num(l["block_start"])
