@@ -105,6 +105,7 @@ r = (B/K) · log₂(1 + p·g(d) / (N₀·B/K)).
 - Tốc độ mỗi liên kết được tính lại khi K đổi hoặc sang khối mới.
 - Task offload đi qua: uplink → hàng đợi UAV → CPU UAV → downlink kết quả. Chỉ hoàn thành khi kết quả về tới thiết bị.
 - Năng lượng: thiết bị TX trong uplink, RX trong downlink; UAV RX trong uplink, TX trong downlink.
+  Công suất thu/phát của UAV tính cho **mỗi** liên kết đang hoạt động (K liên kết → K lần công suất).
 - Chế độ `IDEAL` (chỉ dùng cho cổng G5): truyền tức thời, không tốn năng lượng.
 
 ## 5. Tính toán và hàng đợi
@@ -116,6 +117,8 @@ r = (B/K) · log₂(1 + p·g(d) / (N₀·B/K)).
 - Cùng một scheduler áp dụng cho CPU UAV và mọi CPU thiết bị.
 - **Deadline cứng:** tới deadline, task chưa xong bị hủy ở bất kỳ giai đoạn nào (chờ, upload, chạy, downlink).
   Phần năng lượng đã tiêu vẫn được tính.
+- Cùng một thời điểm: hoàn thành được xử lý trước deadline, deadline trước hết pin, hết pin trước task mới đến.
+  Task xong đúng lúc deadline được tính là đúng hạn.
 
 ## 6. Quyết định
 
@@ -133,7 +136,8 @@ Quyết định offloading không đảo ngược. UAV hết pin: offloading bu�
 Ước lượng thời điểm xong nếu task chạy local hoặc UAV, giả định không có task mới và kênh giữ như hiện tại:
 
 - local: t + (khối lượng chờ local + khối lượng task) / f_dev
-- UAV: max(t + T_up, t + khối lượng chờ UAV / f_UAV) + khối lượng task / f_UAV + T_dl,
+- UAV: max(t + T_up, t + khối lượng chờ UAV / f_UAV) + khối lượng task / f_UAV + T_dl, trong đó khối lượng chờ UAV
+  gồm cả các task đã quyết định offload nhưng còn đang upload,
   với T_up, T_dl tính với K+1 liên kết ở khoảng cách hiện tại.
 
 Năng lượng biên dự báo: local = c·P_busy/f_dev; UAV = c·P_busy,UAV/f_UAV + T_up·(TX_dev + RX_UAV) + T_dl·(TX_UAV + RX_dev).
