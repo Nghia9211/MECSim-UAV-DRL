@@ -1,0 +1,289 @@
+{
+  "base": "DEADLINE_ENERGY+EDF+NONE",
+  "breakdown": {
+    "light-np": {
+      "all": {
+        "offered": 14085,
+        "queueing": 60
+      },
+      "DETECT": {
+        "offered": 5630,
+        "queueing": 60
+      },
+      "MAP": {
+        "offered": 2025
+      },
+      "SEGMENT": {
+        "offered": 6430
+      }
+    },
+    "light-pre": {
+      "all": {
+        "offered": 14085,
+        "queueing": 7
+      },
+      "DETECT": {
+        "offered": 5630,
+        "queueing": 7
+      },
+      "MAP": {
+        "offered": 2025
+      },
+      "SEGMENT": {
+        "offered": 6430
+      }
+    },
+    "medium-np": {
+      "all": {
+        "offered": 25685,
+        "queueing": 345
+      },
+      "DETECT": {
+        "offered": 10350,
+        "queueing": 345
+      },
+      "MAP": {
+        "offered": 3765
+      },
+      "SEGMENT": {
+        "offered": 11570
+      }
+    },
+    "medium-pre": {
+      "all": {
+        "offered": 25685,
+        "queueing": 20,
+        "forecast": 2
+      },
+      "DETECT": {
+        "offered": 10350,
+        "queueing": 20
+      },
+      "MAP": {
+        "offered": 3765
+      },
+      "SEGMENT": {
+        "offered": 11570,
+        "forecast": 2
+      }
+    },
+    "overload-np": {
+      "all": {
+        "offered": 36740,
+        "queueing": 891,
+        "forecast": 2
+      },
+      "DETECT": {
+        "offered": 14770,
+        "queueing": 891,
+        "forecast": 2
+      },
+      "MAP": {
+        "offered": 5335
+      },
+      "SEGMENT": {
+        "offered": 16635
+      }
+    },
+    "overload-pre": {
+      "all": {
+        "offered": 36740,
+        "queueing": 50,
+        "forecast": 12
+      },
+      "DETECT": {
+        "offered": 14770,
+        "queueing": 50,
+        "forecast": 5
+      },
+      "MAP": {
+        "offered": 5335
+      },
+      "SEGMENT": {
+        "offered": 16635,
+        "forecast": 7
+      }
+    },
+    "stress-np": {
+      "all": {
+        "offered": 50465,
+        "queueing": 3040,
+        "forecast": 21
+      },
+      "DETECT": {
+        "offered": 20325,
+        "queueing": 2951,
+        "forecast": 5
+      },
+      "MAP": {
+        "offered": 7295
+      },
+      "SEGMENT": {
+        "offered": 22845,
+        "queueing": 89,
+        "forecast": 16
+      }
+    },
+    "stress-pre": {
+      "all": {
+        "offered": 50465,
+        "queueing": 163,
+        "forecast": 58
+      },
+      "DETECT": {
+        "offered": 20325,
+        "queueing": 128,
+        "forecast": 5
+      },
+      "MAP": {
+        "offered": 7295,
+        "forecast": 7
+      },
+      "SEGMENT": {
+        "offered": 22845,
+        "forecast": 46,
+        "queueing": 35
+      }
+    }
+  },
+  "oracle_ladder": {
+    "light-np": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.5091778090546584,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.35471371913098,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.09070294784580546,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.280103693371707,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.09070294784580546,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.271329642689196,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.09070294784580546,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 16.224593631775804,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+NONE": 7,
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 3
+      }
+    },
+    "light-pre": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.06802721088435493,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.290641718045933,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.043479818526468,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.983601756364932,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.0,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 15.982833102258011,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+PRIORITY_EDF+NONE": 4,
+        "DEADLINE_ENERGY+EDF+NONE": 4,
+        "DEADLINE_ENERGY+LLF+NONE": 2
+      }
+    },
+    "medium-np": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 1.299000881575082,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.220206069011553,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.328386717602116,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.946307434024593,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.194534234498972,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.944502728316595,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.15809579782544936,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 15.860373268328834,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 4,
+        "DEADLINE_ENERGY+EDF+NONE": 4,
+        "DEADLINE_ENERGY+LLF+NONE": 1,
+        "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE": 1
+      }
+    },
+    "medium-pre": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.07302380252718232,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.046259492992206,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.691901997566351,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.585491457149539,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.0,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 15.585491457149539,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+NONE": 10
+      }
+    },
+    "overload-np": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 2.298016344457645,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.606266343472512,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.7378550599416789,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.11987251575858,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.47493249810994786,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.105988083208835,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.38171868812326815,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 16.014816155729083,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 3,
+        "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE": 2,
+        "DEADLINE_ENERGY+PRIORITY_EDF+NONE": 2,
+        "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE": 1,
+        "DEADLINE_ENERGY+SRPT+NONE": 2
+      }
+    },
+    "overload-pre": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.21190913345573548,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.302594249073785,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.033840947546530664,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.856663539907547,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 15.725459235461647,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.0,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 15.725398401867427,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+NONE": 8,
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 2
+      }
+    },
+    "stress-np": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 5.2009327393266895,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 17.42716050017366,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 2.142420537897308,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.577463868181,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 1.2645465017867208,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.51502225426815,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 1.04727466146323,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 16.226489866037728,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+NONE": 2,
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 3,
+        "DEADLINE_ENERGY+LLF+NONE": 2,
+        "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE": 2,
+        "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE": 1
+      }
+    },
+    "stress-pre": {
+      "episodes": 10,
+      "DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.2844061500846351,
+      "DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.66453641726164,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.07232109272145903,
+      "ORACLE:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.190853534323892,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE dvr_pct": 0.0,
+      "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE j_per_on_time": 16.093012920232017,
+      "ORACLE_BEST:DEADLINE_ENERGY dvr_pct": 0.0,
+      "ORACLE_BEST:DEADLINE_ENERGY j_per_on_time": 16.092989920216816,
+      "floor_dvr_pct": 0.0,
+      "best_scheduler_choices": {
+        "DEADLINE_ENERGY+EDF+NONE": 9,
+        "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": 1
+      }
+    }
+  },
+  "ladder_order_violations": [],
+  "ladder_order_ok": true
+}
