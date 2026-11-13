@@ -1,0 +1,222 @@
+{
+  "R1-L1": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 0.20934137791797794,
+    "j": 16.94692683477507,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.24029472825239004,
+    "g6_energy": 0.038895586414042047,
+    "g7_dvr_pts": 0.04040662387226751,
+    "g7_energy": 0.016943678542133078,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 0.20934137791797794,
+      "static-centre": 0.24974800179024545,
+      "static-quarter": 0.21420872419303208
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L2a": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 1.0651461551282766,
+    "j": 18.373244602443943,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.46699307580612137,
+    "g6_energy": 0.07892642426360212,
+    "g7_dvr_pts": 0.4297666013593607,
+    "g7_energy": 0.017100264730543824,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 1.0651461551282766,
+      "static-centre": 0.6353795537689161,
+      "static-quarter": 0.9072962406474091
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L2b": {
+    "best": "SHORTEST_FINISH+EDF+NONE [pre]",
+    "dvr_pct": 5.557657716401283,
+    "j": 20.956062893552556,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 4.116571263995392,
+    "g6_energy": 0.1810588885578752,
+    "g7_dvr_pts": 0.5213269204494164,
+    "g7_energy": 0.0052018303265020105,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 5.557657716401283,
+      "static-centre": 5.036330795951867,
+      "static-quarter": 5.3155482292650245
+    },
+    "G6": true,
+    "G7": false,
+    "G8": true,
+    "G9": null
+  },
+  "R1-L3a": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 0.1700678752354523,
+    "j": 17.396219913474475,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.24012672354825995,
+    "g6_energy": 0.050407897725072495,
+    "g7_dvr_pts": 0.03412721637925469,
+    "g7_energy": 0.01715349285419321,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 0.1700678752354523,
+      "static-centre": 0.1359406588561976,
+      "static-quarter": 0.15804444928343284
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L3b": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 1.700046056842727,
+    "j": 18.640264048048227,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 1.018000504014116,
+    "g6_energy": 0.08422046707771493,
+    "g7_dvr_pts": 1.4110901854945759,
+    "g7_energy": 0.04285579339106471,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 1.700046056842727,
+      "static-centre": 0.28895587134815115,
+      "static-quarter": 1.2049175955735432
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L4": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 0.32831653863086535,
+    "j": 17.894829369648193,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.1272395627077557,
+    "g6_energy": 0.013523045939582765,
+    "g7_dvr_pts": 0.06360582603170892,
+    "g7_energy": 0.0069251089752875306,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 0.32831653863086535,
+      "static-centre": 0.3919223646625743,
+      "static-quarter": 0.3367511922483481
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L5": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 5.163738703661308,
+    "j": 17.717609016175064,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.7308796658835824,
+    "g6_energy": 0.04746688652248238,
+    "g7_dvr_pts": 0.0843241671715636,
+    "g7_energy": 0.010523026688374015,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 5.163738703661308,
+      "static-centre": 5.212601951597097,
+      "static-quarter": 5.128277784425534
+    },
+    "G6": false,
+    "G7": false,
+    "G8": true,
+    "G9": null
+  },
+  "R1-L6a": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 0.37903083997077963,
+    "j": 17.28936879921785,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.203455528077634,
+    "g6_energy": 0.03414886864757299,
+    "g7_dvr_pts": 0.04748057808650298,
+    "g7_energy": 0.006787404265372832,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 0.37903083997077963,
+      "static-centre": 0.4265114180572826,
+      "static-quarter": 0.4156775354185489
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  },
+  "R1-L6b": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 4.440653494729108,
+    "j": 17.997437134992897,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 1.582118742425041,
+    "g6_energy": 0.03281101717441814,
+    "g7_dvr_pts": 0.3290887452662858,
+    "g7_energy": 0.00628734328206515,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 4.440653494729108,
+      "static-centre": 4.769742239995393,
+      "static-quarter": 4.557911055657635
+    },
+    "G6": false,
+    "G7": false,
+    "G8": true,
+    "G9": null
+  },
+  "R1-L7": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 1.6158889821665172,
+    "j": 16.80410243112606,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 1.4289280099842798,
+    "g6_energy": 0.019663959092243492,
+    "g7_dvr_pts": 0.026310617888676904,
+    "g7_energy": 0.004658159099759862,
+    "local_death_share": 1.0,
+    "traj_dvr_pct": {
+      "circle": 1.6158889821665172,
+      "static-centre": 1.5972683034043544,
+      "static-quarter": 1.6235789212930314
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": false
+  },
+  "R1-base": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 0.16346195806761377,
+    "j": 16.819806938823536,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 0.21200993627821427,
+    "g6_energy": 0.03466283407830371,
+    "g7_dvr_pts": 0.014149642990354622,
+    "g7_energy": 0.00470172498625554,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 0.16346195806761377,
+      "static-centre": 0.1776116010579684,
+      "static-quarter": 0.17541058541637863
+    },
+    "G6": false,
+    "G7": false,
+    "G8": false,
+    "G9": null
+  }
+}

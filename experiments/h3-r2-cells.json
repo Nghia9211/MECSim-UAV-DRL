@@ -1,0 +1,6 @@
+{
+  "R2-L2a+L6a": {"radio": {"uplink_hz": 5e6, "downlink_hz": 2.5e6}, "rho_uav": null, "rho_system": 0.8},
+  "R2-L2a+L7": {"radio": {"uplink_hz": 5e6, "downlink_hz": 2.5e6}, "initial_charge": 0.05},
+  "R2-L6a+L7": {"rho_uav": null, "rho_system": 0.8, "initial_charge": 0.05},
+  "R2-L2a+L6a+L7": {"radio": {"uplink_hz": 5e6, "downlink_hz": 2.5e6}, "rho_uav": null, "rho_system": 0.8, "initial_charge": 0.05}
+}
