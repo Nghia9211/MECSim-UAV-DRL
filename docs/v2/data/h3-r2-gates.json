@@ -1,0 +1,82 @@
+{
+  "R2-L2a+L6a": {
+    "best": "SHORTEST_FINISH+EDF+NONE [pre]",
+    "dvr_pct": 5.62671046111961,
+    "j": 19.44315491210389,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 4.102459030660236,
+    "g6_energy": 0.11285003266064746,
+    "g7_dvr_pts": 0.08903339879721417,
+    "g7_energy": 0.007995299358338093,
+    "local_death_share": 0.0,
+    "traj_dvr_pct": {
+      "circle": 5.62671046111961,
+      "static-centre": 5.537677062322396,
+      "static-quarter": 5.59710432934712
+    },
+    "G6": true,
+    "G7": false,
+    "G8": true,
+    "G9": null
+  },
+  "R2-L2a+L6a+L7": {
+    "best": "SHORTEST_FINISH+EDF+NONE [pre]",
+    "dvr_pct": 6.2596806561921525,
+    "j": 19.45205082793158,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 4.4879012374470415,
+    "g6_energy": 0.09181536410289788,
+    "g7_dvr_pts": 0.13926905912134344,
+    "g7_energy": 0.007987077804925802,
+    "local_death_share": 1.0,
+    "traj_dvr_pct": {
+      "circle": 6.2596806561921525,
+      "static-centre": 6.1204115970708095,
+      "static-quarter": 6.228604404193449
+    },
+    "G6": false,
+    "G7": false,
+    "G8": true,
+    "G9": false
+  },
+  "R2-L2a+L7": {
+    "best": "SHORTEST_FINISH+EDF+NONE [pre]",
+    "dvr_pct": 2.6395339332286842,
+    "j": 19.741802766848295,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 2.10784701971655,
+    "g6_energy": 0.14759211285647877,
+    "g7_dvr_pts": 0.07920719952744341,
+    "g7_energy": 0.005584832288415331,
+    "local_death_share": 1.0,
+    "traj_dvr_pct": {
+      "circle": 2.6395339332286842,
+      "static-centre": 2.5603267337012405,
+      "static-quarter": 2.621017903353795
+    },
+    "G6": true,
+    "G7": false,
+    "G8": true,
+    "G9": false
+  },
+  "R2-L6a+L7": {
+    "best": "DEADLINE_ENERGY+EDF+NONE [pre]",
+    "dvr_pct": 3.4474516979606755,
+    "j": 17.2844593119737,
+    "oracle_episodes": 6,
+    "g6_dvr_pts": 2.4895837535560292,
+    "g6_energy": 0.015036594090190022,
+    "g7_dvr_pts": 0.0588002349965408,
+    "g7_energy": 0.0069314993763283095,
+    "local_death_share": 1.0,
+    "traj_dvr_pct": {
+      "circle": 3.4474516979606755,
+      "static-centre": 3.3886514629641344,
+      "static-quarter": 3.4415330080951385
+    },
+    "G6": false,
+    "G7": false,
+    "G8": true,
+    "G9": false
+  }
+}
