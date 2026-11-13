@@ -26,7 +26,7 @@ public final class MecSimulator {
         Route route = Route.NONE; Status status = Status.FUTURE; Status dropStage = Status.FUTURE; boolean forcedLocal;
         double decision = Double.NaN, upStart = Double.NaN, upEnd = Double.NaN, uavReady = Double.NaN, cpuStart = Double.NaN,
                cpuEnd = Double.NaN, dlStart = Double.NaN, dlEnd = Double.NaN, resolved = Double.NaN, ready = Double.NaN;
-        double remaining, executed;
+        double remaining, executed, fcLocal = Double.NaN, fcUav = Double.NaN;
         Cpu cpu; Link link;
         TaskState(Task t) { this.t = t; remaining = t.cycles(); }
         double estRemaining() { return Math.max(1e-9, t.estCycles() - executed); }
@@ -53,7 +53,8 @@ public final class MecSimulator {
                               double distanceM, double blockStart) { }
     public record Outcome(Task task, Route route, Status status, Status dropStage, boolean forcedLocal, double decision,
                           double upStart, double upEnd, double uavReady, double cpuStart, double cpuEnd, double dlStart,
-                          double dlEnd, double resolved, double executedGc) { }
+                          double dlEnd, double resolved, double executedGc, double forecastLocalFinish,
+                          double forecastUavFinish) { }
     /** node = device id, or -1 for the UAV. deathTime NaN = alive at the horizon. */
     public record Energy(int node, double cpuJ, double txJ, double rxJ, double idleJ, double propulsionJ, double batteryJ,
                          double deathTime) {
@@ -250,6 +251,7 @@ public final class MecSimulator {
         active.add(s);
         if (!deviceAlive[t.device()]) { s.status = Status.FUTURE; drop(s, Status.DROP_DEVICE_BATTERY); return; }
         var view = view(s);
+        s.fcLocal = view.forecast().localFinish(); s.fcUav = view.forecast().uavFinish(); // diagnostics only
         long begin = System.nanoTime();
         Decision d = policy.offload().choose(view);
         decisionNanos += System.nanoTime() - begin; decisions++;
@@ -305,7 +307,7 @@ public final class MecSimulator {
         for (var s : tasks) {
             if (s.status == Status.FUTURE) { s.status = Status.UNFINISHED; s.resolved = now; } // arrival after horizon cannot happen
             outcomes.add(new Outcome(s.t, s.route, s.status, s.dropStage, s.forcedLocal, s.decision, s.upStart, s.upEnd,
-                    s.uavReady, s.cpuStart, s.cpuEnd, s.dlStart, s.dlEnd, s.resolved, s.executed));
+                    s.uavReady, s.cpuStart, s.cpuEnd, s.dlStart, s.dlEnd, s.resolved, s.executed, s.fcLocal, s.fcUav));
         }
         var energy = new ArrayList<Energy>();
         energy.add(new Energy(UAV, uavCpuJ, uavTxJ, uavRxJ, 0, uavPropJ, m.uav().batteryJ(), uavDeath));

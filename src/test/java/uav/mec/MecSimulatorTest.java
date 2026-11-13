@@ -195,6 +195,24 @@ class MecSimulatorTest {
         assertEquals(Scenario.generate(m0, 1, 2).devices(), Scenario.generate(m0, 1, 9).devices());
     }
 
+    @Test void strongerOraclesNeverLoseToWeakerOnes() throws Exception {
+        var m = model("{\"arrival_window_s\":40,\"rho_uav\":1.8}");
+        for (long seed = 0; seed < 3; seed++) {
+            var sc = Scenario.generate(m, seed, seed);
+            String base = "DEADLINE_ENERGY+EDF+NONE";
+            double[] on = new double[4], e = new double[4];
+            String[] names = {base, "ORACLE:" + base, "ORACLE_ITER:" + base, "ORACLE_BEST:DEADLINE_ENERGY"};
+            for (int i = 0; i < 4; i++) {
+                var r = RolloutOracle.isOracle(names[i]) ? RolloutOracle.run(sc, names[i], 1, false)
+                        : MecSimulator.run(sc, Policies.parse(names[i], 1), false);
+                var x = MecMetrics.of(r);
+                on[i] = ((Number) x.get("on_time")).doubleValue(); e[i] = (Double) x.get("marginal_j");
+            }
+            for (int i = 2; i < 4; i++) // ITER >= ORACLE, BEST >= ITER (EDF+NONE is among BEST's candidates)
+                assertTrue(on[i] > on[i - 1] || (on[i] == on[i - 1] && e[i] <= e[i - 1] + 1e-9), names[i] + " seed " + seed);
+        }
+    }
+
     @Test void nullInPatchDeletesKey() throws Exception {
         var m = model("{\"rho_uav\":null,\"arrival_rate_per_s\":2}");
         assertTrue(Double.isNaN(m.rhoUav()));

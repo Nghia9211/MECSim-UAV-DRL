@@ -1,0 +1,18 @@
+{
+  "name": "h0-headroom",
+  "hypothesis": "H0 (v2.0, development): most deadline violations of DEADLINE_ENERGY+EDF are either infeasible in isolation or forecast misses; stronger oracles (iterated, best scheduler) bound the remaining headroom.",
+  "threshold": "Descriptive. Sanity: ORACLE_BEST >= ORACLE_ITER >= ORACLE on every episode (on-time, then energy).",
+  "model_file": "experiments/base-model.json",
+  "axes": {
+    "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
+             {"name": "overload", "model": {"rho_uav": 1.3}}, {"name": "stress", "model": {"rho_uav": 1.8}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true}}]
+  },
+  "policies": ["DEADLINE_ENERGY+EDF+NONE", "ORACLE:DEADLINE_ENERGY+EDF+NONE", "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE",
+               "ORACLE_BEST:DEADLINE_ENERGY"],
+  "partition": "development",
+  "oracle_limit": {"layouts": 5, "tasks": 2},
+  "trace_tasks": 6,
+  "engine": "loop",
+  "threads": 16
+}

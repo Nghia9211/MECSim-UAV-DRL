@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  *
  * Config fields: name, hypothesis, threshold (required text); model_file and/or model (patch);
  * axes {axis: [{name, model}]} (cartesian product of model patches); policies ["OFFLOAD+SCHED+ADMISSION" or
- * "ORACLE:OFFLOAD+SCHED+ADMISSION"]; partition development|evaluation or seeds {layouts, tasks};
+ * an oracle name, see RolloutOracle]; partition development|evaluation or seeds {layouts, tasks};
  * trace_tasks / trace_layouts (full traces for the first k task seeds of the first j layouts); engine pureedgesim|loop; threads (loop engine only);
  * oracle_limit {layouts, tasks}.
  */
@@ -74,7 +74,7 @@ public final class MecRunner {
     static long policySeed(long layout, long seed) { return Seeds.derive(layout * 1_000_003L + seed, "policy"); }
 
     static MecSimulator.Result simulate(Scenario sc, String policy, long policySeed, boolean trace, boolean engine) {
-        if (policy.startsWith("ORACLE:")) return RolloutOracle.run(sc, policy.substring(7), policySeed, trace);
+        if (RolloutOracle.isOracle(policy)) return RolloutOracle.run(sc, policy, policySeed, trace);
         var p = Policies.parse(policy, policySeed);
         return engine ? EngineDriver.run(sc, p, trace) : MecSimulator.run(sc, p, trace);
     }
@@ -84,7 +84,8 @@ public final class MecRunner {
         var variants = variants(c, root);
         List<String> policies = new ArrayList<>();
         for (JsonNode p : Json.required(c, "policies", "config")) policies.add(p.asText());
-        for (String p : policies) Policies.parse(p.startsWith("ORACLE:") ? p.substring(7) : p, 0); // fail fast on typos
+        for (String p : policies) // fail fast on typos
+            for (String b : RolloutOracle.isOracle(p) ? RolloutOracle.basePolicies(p) : List.of(p)) Policies.parse(b, 0);
         List<Long> layouts, tasks;
         if (c.has("seeds")) {
             layouts = new ArrayList<>(); tasks = new ArrayList<>();
@@ -110,7 +111,7 @@ public final class MecRunner {
         var jobs = new ArrayList<Job>();
         for (var v : variants) for (int li = 0; li < layouts.size(); li++) for (int ti = 0; ti < tasks.size(); ti++)
             for (String p : policies) {
-                if (p.startsWith("ORACLE:") && (li >= oracleLayouts || ti >= oracleTasks)) continue;
+                if (RolloutOracle.isOracle(p) && (li >= oracleLayouts || ti >= oracleTasks)) continue;
                 jobs.add(new Job(jobs.size(), v, layouts.get(li), tasks.get(ti), p, ti < traceTasks && li < traceLayouts));
             }
         var manifest = new LinkedHashMap<String, Object>();
@@ -140,8 +141,8 @@ public final class MecRunner {
             if (j.trace()) MecTrace.write(out.resolve("traces").resolve(j.variant().name()).resolve("L" + j.layout())
                     .resolve("S" + j.seed()).resolve(j.policy().replace("+", "__").replace(":", "_")), r);
             var m = MecMetrics.of(r);
-            var cols = new ArrayList<>(List.of("variant", "layout", "seed", "policy", "workload_sha256", "wall_s"));
-            var vals = new ArrayList<>(List.of(j.variant().name(), "" + j.layout(), "" + j.seed(), j.policy(), sc.hash(), "" + wall));
+            var cols = new ArrayList<>(List.of("variant", "layout", "seed", "policy", "resolved_policy", "workload_sha256", "wall_s"));
+            var vals = new ArrayList<>(List.of(j.variant().name(), "" + j.layout(), "" + j.seed(), j.policy(), r.policy(), sc.hash(), "" + wall));
             for (var e : m.entrySet()) { cols.add(e.getKey()); vals.add(MecMetrics.format(e.getValue())); }
             synchronized (header) { if (header[0] == null) header[0] = String.join(",", cols); }
             return String.join(",", vals);

@@ -22,14 +22,14 @@ public final class MecTrace {
         write(dir.resolve("devices.csv"), devices);
         var tasks = new ArrayList<String>(List.of("id,class,device,priority,arrival,deadline,input_bytes,cycles_g,est_cycles_g,"
                 + "result_bytes,route,status,drop_stage,forced_local,decision,up_start,up_end,uav_ready,cpu_start,cpu_end,"
-                + "dl_start,dl_end,resolved,executed_g"));
+                + "dl_start,dl_end,resolved,executed_g,fc_local_finish,fc_uav_finish"));
         for (var o : r.outcomes()) {
             var t = o.task();
             tasks.add(String.join(",", s(t.id()), t.cls(), s(t.device()), s(t.priority()), s(t.arrival()), s(t.deadline()),
                     s(t.inputBytes()), s(t.cycles()), s(t.estCycles()), s(t.resultBytes()), o.route().name(), o.status().name(),
                     o.dropStage().name(), o.forcedLocal() ? "1" : "0", s(o.decision()), s(o.upStart()), s(o.upEnd()),
                     s(o.uavReady()), s(o.cpuStart()), s(o.cpuEnd()), s(o.dlStart()), s(o.dlEnd()), s(o.resolved()),
-                    s(o.executedGc())));
+                    s(o.executedGc()), s(o.forecastLocalFinish()), s(o.forecastUavFinish())));
         }
         write(dir.resolve("tasks.csv"), tasks);
         var cpu = new ArrayList<String>(List.of("node,task,start,end,speed_gcps"));
