@@ -266,6 +266,7 @@ def verify_episode(ep, model, row, errors):
         "total_j_per_on_time": total / len(done) if done else math.nan,
         "uav_lifetime_s": horizon if math.isnan(uav_death) else uav_death,
         "uav_death_observed": 0 if math.isnan(uav_death) else 1,
+        "device_deaths": sum(1 for n, e in energy.items() if n != -1 and not math.isnan(num(e["death_time"]))),
     }
     for cls in sorted({t["class"] for t in tasks}):
         group = [t for t in tasks if t["class"] == cls]

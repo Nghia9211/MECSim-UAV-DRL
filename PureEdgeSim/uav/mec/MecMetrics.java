@@ -58,6 +58,7 @@ public final class MecMetrics {
         out.put("marginal_j_per_on_time", onTime == 0 ? Double.NaN : marginal / onTime);
         out.put("total_j_per_on_time", onTime == 0 ? Double.NaN : total / onTime);
         out.put("uav_death_observed", Double.isNaN(uavDeath) ? 0 : 1);
+        out.put("device_deaths", (int) r.energy().stream().filter(e -> e.node() != MecSimulator.UAV && !Double.isNaN(e.deathTime())).count());
         out.put("uav_lifetime_s", Double.isNaN(uavDeath) ? r.horizon() : uavDeath);
         out.put("horizon_s", r.horizon());
         out.put("uav_queue_mean", r.uavQueueTimeAverage());
