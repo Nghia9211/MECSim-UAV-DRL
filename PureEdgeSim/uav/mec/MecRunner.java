@@ -122,6 +122,9 @@ public final class MecRunner {
         manifest.put("smoke", smoke);
         manifest.put("engine", engine ? "pureedgesim" : "loop");
         manifest.put("variants", variants.stream().map(Variant::name).toList());
+        var versions = new LinkedHashMap<String, String>();
+        for (var v : variants) versions.put(v.name(), v.model().version());
+        manifest.put("model_versions", versions);
         manifest.put("layouts", layouts); manifest.put("tasks", tasks); manifest.put("policies", policies);
         manifest.put("episodes_planned", jobs.size());
         System.out.println("Running " + jobs.size() + " episodes into " + out);

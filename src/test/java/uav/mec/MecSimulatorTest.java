@@ -216,7 +216,7 @@ class MecSimulatorTest {
     @Test void nullInPatchDeletesKey() throws Exception {
         var m = model("{\"rho_uav\":null,\"arrival_rate_per_s\":2}");
         assertTrue(Double.isNaN(m.rhoUav()));
-        assertEquals(2.0, m.totalArrivalRate(), 0);
+        assertEquals(2.0, m.totalArrivalRate(List.of()), 0);
         assertThrows(IllegalArgumentException.class, () -> model("{\"arrival_rate_per_s\":2}")); // both set
     }
 

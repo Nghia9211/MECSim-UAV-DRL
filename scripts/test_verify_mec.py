@@ -1,4 +1,4 @@
-"""verify_mec.py must reject tampered traces. Needs a traced run: python scripts/test_verify_mec.py RUN_DIR"""
+"""verify_mec.py must reject tampered traces. Usage: python scripts/test_verify_mec.py RUN_DIR [VARIANT_GLOB]"""
 import csv
 import shutil
 import subprocess
@@ -30,6 +30,7 @@ def scale(r, key, factor):
 
 TAMPERS = {
     "link rate": ("links.csv", lambda rs: scale(first(rs, lambda r: r["direction"] == "UP"), "rate_bps", 1.01)),
+    "link distance": ("links.csv", lambda rs: scale(first(rs, lambda r: True), "distance_m", 1.001)),
     "link sharing": ("links.csv", lambda rs: first(rs, lambda r: True).__setitem__("sharing", "7")),
     "cpu segment length": ("cpu.csv", lambda rs: scale(first(rs, lambda r: True), "end", 1.001)),
     "uav cpu energy": ("energy.csv", lambda rs: scale(first(rs, lambda r: r["node"] == "-1"), "cpu_j", 1.01)),
@@ -50,7 +51,8 @@ def main():
     if verify(source) != 0:
         raise SystemExit("baseline run must PASS first")
     # one episode that offloads and drops something, so every tamper has a target
-    episodes = sorted((source / "traces").glob("*/L*/S*/DEADLINE_ENERGY__LLF__DROP_INFEASIBLE"))
+    variant = sys.argv[2] if len(sys.argv) > 2 else "*"
+    episodes = sorted((source / "traces").glob(f"{variant}/L*/S*/DEADLINE_ENERGY__LLF__DROP_INFEASIBLE"))
     failures = []
     for name, (file, fn) in TAMPERS.items():
         with tempfile.TemporaryDirectory() as tmp:

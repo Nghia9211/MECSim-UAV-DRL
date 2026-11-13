@@ -49,6 +49,7 @@ class Model:
         self.area = j["area_m"]
         t = j["trajectory"]
         self.traj, self.radius, self.v = t["type"], t.get("radius_m", 0), t.get("speed_mps", 0)
+        self.static_xy = (t["x_m"], t["y_m"]) if "x_m" in t else None
         if self.traj == "STATIC":
             self.v = 0
         r = j["radio"]
@@ -68,7 +69,8 @@ class Model:
     def position(self, t):
         c = self.area / 2
         if self.traj == "STATIC":
-            return c, c, self.h
+            x, y = self.static_xy or (c, c)
+            return x, y, self.h
         w = self.v / self.radius
         return c + self.radius * math.cos(w * t), c + self.radius * math.sin(w * t), self.h
 
@@ -77,7 +79,14 @@ class Model:
         hz = r["uplink_hz"] if up else r["downlink_hz"]
         watts = r["device_radiated_w"] if up else r["uav_radiated_w"]
         share = hz / k
-        snr = watts * 10 ** (r["beta0_db"] / 10) * d ** (-r["path_loss_exponent"]) / (10 ** ((r["noise_dbm_per_hz"] - 30) / 10) * share)
+        if r["mode"] == "PLOS":  # Mozaffari et al. Eq. (1)-(4), MODEL_V21.md L1
+            theta = math.degrees(math.asin(min(1.0, self.h / d)))
+            p_los = 1 / (1 + r["plos_a"] * math.exp(-r["plos_b"] * (theta - r["plos_a"])))
+            loss = 20 * math.log10(4 * math.pi * r["carrier_hz"] * d / 299_792_458.0) + p_los * r["xi_los_db"] + (1 - p_los) * r["xi_nlos_db"]
+            gain = 10 ** (-loss / 10)
+        else:
+            gain = 10 ** (r["beta0_db"] / 10) * d ** (-r["path_loss_exponent"])
+        snr = watts * gain / (10 ** ((r["noise_dbm_per_hz"] - 30) / 10) * share)
         return share * math.log2(1 + snr)
 
 
@@ -278,6 +287,9 @@ def main():
     p.add_argument("--max-episodes", type=int)
     a = p.parse_args()
     errors = []
+    manifest = json.loads((a.run / "manifest.json").read_text(encoding="utf-8"))
+    if "model_versions" not in manifest:  # runs before H2 (commit f13b88c) predate the field
+        errors.append("manifest.json lacks model_versions (run made before H2; re-run it with the current runner)")
     episodes = rows(a.run / "episodes.csv")
     hashes = defaultdict(set)
     for r in episodes:

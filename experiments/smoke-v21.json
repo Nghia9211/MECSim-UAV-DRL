@@ -1,0 +1,23 @@
+{
+  "name": "smoke-v21",
+  "hypothesis": "Pipeline check for every v2.1 lever: runner, traces and verifier work end to end.",
+  "threshold": "verify_mec.py PASS on every traced episode; tamper tests rejected",
+  "model_file": "experiments/base-model.json",
+  "model": {"arrival_window_s": 120},
+  "axes": {
+    "lever": [
+      {"name": "v20"},
+      {"name": "plos", "model": {"area_m": 2000, "trajectory": {"radius_m": 667}, "radio": {"mode": "PLOS", "carrier_hz": 2e9,
+        "xi_los_db": 1, "xi_nlos_db": 20, "plos_a": 9.6, "plos_b": 0.28, "uplink_hz": 5e6, "downlink_hz": 2.5e6}}},
+      {"name": "hot", "model": {"hotspots": {"device_share": 0.3, "task_share": 0.7}, "trajectory": {"type": "STATIC", "x_m": 150, "y_m": 150}}},
+      {"name": "burst", "model": {"rho_uav": null, "rho_system": 1.0,
+        "bursts": {"high_rate": 3, "low_rate": 0.5, "high_mean_s": 20, "low_mean_s": 80}}},
+      {"name": "battery", "model": {"initial_charge": 0.05}}
+    ],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true, "estimate_error": 0.4}}]
+  },
+  "policies": ["ALL_LOCAL+EDF+NONE", "ALL_UAV+EDF+NONE", "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE", "SHORTEST_FINISH+SRPT+NONE",
+               "ORACLE_ITER:DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "development",
+  "trace_tasks": 2
+}
