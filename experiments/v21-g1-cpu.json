@@ -1,0 +1,13 @@
+{
+  "name": "v21-g1-cpu",
+  "hypothesis": "With a fixed arrival rate, a faster UAV CPU lowers DVR of ALL_UAV, i.e. CPU is a bottleneck (v1: it was not).",
+  "threshold": "G1: DVR decreases monotonically over 2/4/8 Gc/s and DVR(2) - DVR(8) >= 10 points",
+  "model_file": "experiments/v21-main-model.json",
+  "model": {"rho_uav": null, "arrival_rate_per_s": 1.4035087719298245},
+  "axes": {"cpu": [{"name": "cpu2", "model": {"uav": {"speed_gcps": 2}}},
+                   {"name": "cpu4", "model": {"uav": {"speed_gcps": 4}}},
+                   {"name": "cpu8", "model": {"uav": {"speed_gcps": 8}}}]},
+  "policies": ["ALL_UAV+EDF+NONE", "DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "development",
+  "trace_tasks": 1
+}

@@ -1,0 +1,19 @@
+{
+  "name": "v21-gates-dev",
+  "hypothesis": "In the v2 model the scheduler changes DVR, offloading has a real local/UAV trade-off and energy depends on the policy.",
+  "threshold": "G2, G3, G4 as pre-registered in docs/v2/CALIBRATION.md",
+  "model_file": "experiments/v21-main-model.json",
+  "axes": {
+    "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
+             {"name": "overload", "model": {"rho_uav": 1.3}}],
+    "cpu": [{"name": "np"}, {"name": "pre", "model": {"preemptive": true}}]
+  },
+  "policies": [
+    "ALL_LOCAL+EDF+NONE", "ALL_UAV+EDF+NONE", "RANDOM+EDF+NONE", "SHORTEST_FINISH+EDF+NONE",
+    "DEADLINE_ENERGY+EDF+NONE", "THRESHOLD_5+EDF+NONE",
+    "ALL_UAV+FIFO+NONE", "ALL_UAV+SRPT+NONE", "ALL_UAV+LLF+NONE", "ALL_UAV+PRIORITY_EDF+NONE",
+    "DEADLINE_ENERGY+FIFO+NONE", "DEADLINE_ENERGY+SRPT+NONE", "DEADLINE_ENERGY+LLF+NONE", "DEADLINE_ENERGY+PRIORITY_EDF+NONE"
+  ],
+  "partition": "development",
+  "trace_tasks": 1
+}

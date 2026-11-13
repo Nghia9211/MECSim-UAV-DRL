@@ -106,3 +106,17 @@ Dừng ở đây để người dùng quyết định; không tự chọn kịch
 
 Nếu bỏ điều kiện G7, ứng viên theo thứ tự quy tắc 2 (ít đòn bẩy → ít đòn bẩy loại G → G6 lớn hơn):
 **R1-L2b** (1 đòn bẩy: băng thông 2 MHz), rồi R2-L2a+L6a (2 đòn bẩy). R2-L2a+L7 bị loại vì G9.
+
+## 3. Quyết định của người dùng (14/11/2026)
+
+Người dùng chọn phương án 1: bỏ điều kiện G7, lấy **R1-L2b** làm `v2.1-main`, làm H4 và H5, **bỏ H6 (RL quỹ đạo)**.
+Kết quả "vị trí UAV không ảnh hưởng đáng kể" được giữ như một phát hiện âm. Không có vòng 3.
+
+`v2.1-main` = v2.0 + băng thông uplink 2 MHz (downlink 1 MHz), tải ρ_UAV = 1,3, quỹ đạo CIRCLE R = 200 m:
+[experiments/v21-main-model.json](../../experiments/v21-main-model.json).
+Không có ô phụ cho kiểm tra độ bền vì không còn ứng viên nào khác thỏa quy tắc 2 khi đã bỏ G7 (R2-L2a+L6a có 2 đòn bẩy,
+được dùng làm ô phụ ở H4 theo đúng thứ tự quy tắc 2).
+
+Chạy lại G1–G5 trên `v2.1-main` với ngưỡng cũ (quy tắc 4): G1 ở tải đến cố định của ρ_UAV = 0,9 như cũ;
+G2–G4 với ba mức tải light/medium/overload như cũ, cộng băng thông 2 MHz; G5 không phụ thuộc kênh truyền,
+chạy lại để kiểm tra lõi sau H2.
