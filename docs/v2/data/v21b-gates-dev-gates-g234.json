@@ -1,0 +1,243 @@
+{
+  "G2": {
+    "cells": {
+      "light-np": {
+        "dvr": {
+          "FIFO": 0.09575883718361045,
+          "EDF": 0.05026739452696107,
+          "SRPT": 0.05224926295970158,
+          "LLF": 0.05039467608749922,
+          "PRIORITY_EDF": 0.0503797973465996
+        },
+        "spread_points": 4.549144265664937
+      },
+      "light-pre": {
+        "dvr": {
+          "FIFO": 0.09575883718361045,
+          "EDF": 0.003950890113211186,
+          "SRPT": 0.004506950412636668,
+          "LLF": 0.003950890113211186,
+          "PRIORITY_EDF": 0.0039651047542915
+        },
+        "spread_points": 9.180794707039926
+      },
+      "medium-np": {
+        "dvr": {
+          "FIFO": 0.3647253415376963,
+          "EDF": 0.20806505538629574,
+          "SRPT": 0.21558340279019328,
+          "LLF": 0.2096626740950623,
+          "PRIORITY_EDF": 0.20839583410514514
+        },
+        "spread_points": 15.666028615140057
+      },
+      "medium-pre": {
+        "dvr": {
+          "FIFO": 0.3647253415376963,
+          "EDF": 0.0899654777943664,
+          "SRPT": 0.09650631627066261,
+          "LLF": 0.0902076934585453,
+          "PRIORITY_EDF": 0.0904638598752792
+        },
+        "spread_points": 27.475986374332994
+      },
+      "overload-np": {
+        "dvr": {
+          "FIFO": 0.6723286085611532,
+          "EDF": 0.5256392839377607,
+          "SRPT": 0.5265510795030117,
+          "LLF": 0.5283471460260023,
+          "PRIORITY_EDF": 0.5262322011660822
+        },
+        "spread_points": 14.668932462339246
+      },
+      "overload-pre": {
+        "dvr": {
+          "FIFO": 0.6723286085611532,
+          "EDF": 0.3429914349724979,
+          "SRPT": 0.35192997205612975,
+          "LLF": 0.34788084002477115,
+          "PRIORITY_EDF": 0.3430953345385017
+        },
+        "spread_points": 32.93371735886553
+      },
+      "sys08-np": {
+        "dvr": {
+          "FIFO": 0.8088132264412314,
+          "EDF": 0.7035941561098378,
+          "SRPT": 0.6963460002450148,
+          "LLF": 0.7105173776247905,
+          "PRIORITY_EDF": 0.7027029448465598
+        },
+        "spread_points": 11.246722619621663
+      },
+      "sys08-pre": {
+        "dvr": {
+          "FIFO": 0.8088132264412314,
+          "EDF": 0.5234750213571991,
+          "SRPT": 0.5204310166265351,
+          "LLF": 0.5501984026317017,
+          "PRIORITY_EDF": 0.5218839709554292
+        },
+        "spread_points": 28.838220981469632
+      }
+    },
+    "divergence": {
+      "traced_episodes": 20,
+      "dispatches": 11716,
+      "share_queue_at_least_2": 0.6424547627176511,
+      "share_fifo_edf_spt_differ": 0.5997780812564015,
+      "reconstruction_check_edf_matches_dispatch": "11716/11716"
+    },
+    "passed": true
+  },
+  "G3": {
+    "cells": {
+      "light-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.2798444814912623,
+          "ALL_UAV": 0.05026739452696107,
+          "RANDOM": 0.09450656434443531,
+          "SHORTEST_FINISH": 0.013703855537005734,
+          "DEADLINE_ENERGY": 0.003784614630720382,
+          "THRESHOLD_5": 0.07168330907400366
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 19.25250672763592,
+          "ALL_UAV": 24.223339321442023,
+          "RANDOM": 20.355905605105463,
+          "SHORTEST_FINISH": 21.115646096671313,
+          "DEADLINE_ENERGY": 16.725476497609066,
+          "THRESHOLD_5": 18.006205957970415
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": true
+      },
+      "medium-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.4291216920323048,
+          "ALL_UAV": 0.20806505538629574,
+          "RANDOM": 0.1477913635075727,
+          "SHORTEST_FINISH": 0.04125740904183823,
+          "DEADLINE_ENERGY": 0.013165405335614081,
+          "THRESHOLD_5": 0.09282462769034386
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 21.32785823296463,
+          "ALL_UAV": 31.65707831321555,
+          "RANDOM": 21.37505250751464,
+          "SHORTEST_FINISH": 20.86257581984866,
+          "DEADLINE_ENERGY": 17.305938218203313,
+          "THRESHOLD_5": 19.01716526408932
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": true
+      },
+      "overload-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.5369048761442407,
+          "ALL_UAV": 0.5256392839377607,
+          "RANDOM": 0.2087465347191992,
+          "SHORTEST_FINISH": 0.1051424961896578,
+          "DEADLINE_ENERGY": 0.046062367057934435,
+          "THRESHOLD_5": 0.11791741253418171
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 22.934044434470678,
+          "ALL_UAV": 54.22511013696482,
+          "RANDOM": 23.058280413451467,
+          "SHORTEST_FINISH": 21.310266550098778,
+          "DEADLINE_ENERGY": 18.94980569943188,
+          "THRESHOLD_5": 20.643170429654653
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": true
+      },
+      "sys08-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.6136427486709027,
+          "ALL_UAV": 0.7035941561098378,
+          "RANDOM": 0.28676912329993415,
+          "SHORTEST_FINISH": 0.2076617885362504,
+          "DEADLINE_ENERGY": 0.15573439152232674,
+          "THRESHOLD_5": 0.18257347144043037
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 23.904319985379665,
+          "ALL_UAV": 86.55254144212246,
+          "RANDOM": 25.86648465092173,
+          "SHORTEST_FINISH": 22.756585291828042,
+          "DEADLINE_ENERGY": 22.938852027867515,
+          "THRESHOLD_5": 23.75086510395705
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": false
+      }
+    },
+    "passed": true
+  },
+  "G4": {
+    "cells": {
+      "light-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 978816.6945397379,
+          "ALL_UAV": 1624344.4648779377,
+          "RANDOM": 1301414.1130512075,
+          "SHORTEST_FINISH": 1470556.9411104803,
+          "DEADLINE_ENERGY": 1176587.095177305,
+          "THRESHOLD_5": 1180342.8129568766
+        },
+        "max_over_min": 1.6594981204746837
+      },
+      "medium-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 1555739.2909453718,
+          "ALL_UAV": 3201385.358580549,
+          "RANDOM": 2327785.968173359,
+          "SHORTEST_FINISH": 2555978.476568759,
+          "DEADLINE_ENERGY": 2182555.704326929,
+          "THRESHOLD_5": 2204812.1063879877
+        },
+        "max_over_min": 2.0577903876395456
+      },
+      "overload-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 1957214.2860821623,
+          "ALL_UAV": 4732062.686322509,
+          "RANDOM": 3363142.4314235505,
+          "SHORTEST_FINISH": 3515149.7777053434,
+          "DEADLINE_ENERGY": 3332323.332245096,
+          "THRESHOLD_5": 3357136.8774634474
+        },
+        "max_over_min": 2.417754008834095
+      },
+      "sys08-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 2196185.4943367713,
+          "ALL_UAV": 6076421.1719442075,
+          "RANDOM": 4381730.766896839,
+          "SHORTEST_FINISH": 4282220.437289742,
+          "DEADLINE_ENERGY": 4598207.583246183,
+          "THRESHOLD_5": 4610660.439170767
+        },
+        "max_over_min": 2.7668068966001584
+      }
+    },
+    "passed": true
+  },
+  "passed": true,
+  "loads": [
+    "light",
+    "medium",
+    "overload",
+    "sys08"
+  ]
+}

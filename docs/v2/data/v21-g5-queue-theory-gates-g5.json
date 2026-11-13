@@ -1,0 +1,38 @@
+{
+  "gate": "G5",
+  "cells": {
+    "md1-r05": {
+      "tasks": 210539,
+      "rho": 0.5,
+      "theory_wq_s": 0.5,
+      "observed_wq_s": 0.49788655688414035,
+      "relative_error": 0.004226886231719296,
+      "pass_": true
+    },
+    "md1-r08": {
+      "tasks": 208539,
+      "rho": 0.8,
+      "theory_wq_s": 2.0000000000000004,
+      "observed_wq_s": 1.9689412989783464,
+      "relative_error": 0.015529350510827041,
+      "pass_": true
+    },
+    "mm1-r05": {
+      "tasks": 210539,
+      "rho": 0.5,
+      "theory_wq_s": 1.0,
+      "observed_wq_s": 1.0042972787624986,
+      "relative_error": 0.004297278762498635,
+      "pass_": true
+    },
+    "mm1-r08": {
+      "tasks": 208539,
+      "rho": 0.8,
+      "theory_wq_s": 4.000000000000001,
+      "observed_wq_s": 3.9881004610238837,
+      "relative_error": 0.0029748847440292927,
+      "pass_": true
+    }
+  },
+  "passed": true
+}

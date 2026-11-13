@@ -1,0 +1,189 @@
+{
+  "G2": {
+    "cells": {
+      "light-np": {
+        "dvr": {
+          "FIFO": 0.42046347945812185,
+          "EDF": 0.4026266163846392,
+          "SRPT": 0.403095603606603,
+          "LLF": 0.402865203169239,
+          "PRIORITY_EDF": 0.4026968649179083
+        },
+        "spread_points": 1.7836863073482645
+      },
+      "light-pre": {
+        "dvr": {
+          "FIFO": 0.42046347945812185,
+          "EDF": 0.3338592363815376,
+          "SRPT": 0.33482062569947074,
+          "LLF": 0.3339988484984767,
+          "PRIORITY_EDF": 0.3340550501291711
+        },
+        "spread_points": 8.660424307658426
+      },
+      "medium-np": {
+        "dvr": {
+          "FIFO": 0.7301890236268175,
+          "EDF": 0.7150143376375327,
+          "SRPT": 0.7150202332688629,
+          "LLF": 0.7151877755139231,
+          "PRIORITY_EDF": 0.7150217864271043
+        },
+        "spread_points": 1.517468598928473
+      },
+      "medium-pre": {
+        "dvr": {
+          "FIFO": 0.7301890236268175,
+          "EDF": 0.6399595770886829,
+          "SRPT": 0.6422767952847207,
+          "LLF": 0.6403913947824122,
+          "PRIORITY_EDF": 0.6399450924012676
+        },
+        "spread_points": 9.024393122554986
+      },
+      "overload-np": {
+        "dvr": {
+          "FIFO": 0.8433776351134181,
+          "EDF": 0.8362899248831516,
+          "SRPT": 0.8373341405123917,
+          "LLF": 0.8365124494605201,
+          "PRIORITY_EDF": 0.8362841378461144
+        },
+        "spread_points": 0.7093497267303683
+      },
+      "overload-pre": {
+        "dvr": {
+          "FIFO": 0.8433776351134181,
+          "EDF": 0.7983275908948309,
+          "SRPT": 0.8018680780105859,
+          "LLF": 0.799087218223512,
+          "PRIORITY_EDF": 0.7982781611763182
+        },
+        "spread_points": 4.509947393709989
+      }
+    },
+    "divergence": {
+      "traced_episodes": 15,
+      "dispatches": 3968,
+      "share_queue_at_least_2": 0.18699596774193547,
+      "share_fifo_edf_spt_differ": 0.1585181451612903,
+      "reconstruction_check_edf_matches_dispatch": "3968/3968"
+    },
+    "passed": false
+  },
+  "G3": {
+    "cells": {
+      "light-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.2798444814912623,
+          "ALL_UAV": 0.4026266163846392,
+          "RANDOM": 0.13285236614606133,
+          "SHORTEST_FINISH": 0.026806390197347096,
+          "DEADLINE_ENERGY": 0.00818259737749834,
+          "THRESHOLD_5": 0.0761928243868491
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 19.25250672763592,
+          "ALL_UAV": 44.71647058689268,
+          "RANDOM": 23.18906146043574,
+          "SHORTEST_FINISH": 21.221028490488308,
+          "DEADLINE_ENERGY": 17.24324579899755,
+          "THRESHOLD_5": 18.681198833837623
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": false
+      },
+      "medium-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.4291216920323048,
+          "ALL_UAV": 0.7150143376375327,
+          "RANDOM": 0.2994471497169161,
+          "SHORTEST_FINISH": 0.07799707422751756,
+          "DEADLINE_ENERGY": 0.06667697531846056,
+          "THRESHOLD_5": 0.1433339312483823
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 21.32785823296463,
+          "ALL_UAV": 96.52017142256979,
+          "RANDOM": 28.68510405510778,
+          "SHORTEST_FINISH": 21.754400231450344,
+          "DEADLINE_ENERGY": 19.222137755353888,
+          "THRESHOLD_5": 21.539107195446977
+        },
+        "best_mixed": "DEADLINE_ENERGY",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": false
+      },
+      "overload-np": {
+        "dvr": {
+          "ALL_LOCAL": 0.5369048761442407,
+          "ALL_UAV": 0.8362899248831516,
+          "RANDOM": 0.4517268248368154,
+          "SHORTEST_FINISH": 0.16255646050107017,
+          "DEADLINE_ENERGY": 0.23757401396759895,
+          "THRESHOLD_5": 0.2917277920072371
+        },
+        "j_per_on_time": {
+          "ALL_LOCAL": 22.934044434470678,
+          "ALL_UAV": 171.55214528455846,
+          "RANDOM": 36.01106522369454,
+          "SHORTEST_FINISH": 23.27326431507525,
+          "DEADLINE_ENERGY": 23.937925639784964,
+          "THRESHOLD_5": 27.56681624674937
+        },
+        "best_mixed": "SHORTEST_FINISH",
+        "mixed_beats_both": true,
+        "local_wins": true,
+        "uav_wins": false
+      }
+    },
+    "passed": false
+  },
+  "G4": {
+    "cells": {
+      "light-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 978816.6945397379,
+          "ALL_UAV": 1882160.9634729,
+          "RANDOM": 1419425.6410547323,
+          "SHORTEST_FINISH": 1458139.3096384327,
+          "DEADLINE_ENERGY": 1207647.9627785922,
+          "THRESHOLD_5": 1218593.281130062
+        },
+        "max_over_min": 1.9228942190835183
+      },
+      "medium-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 1555739.2909453718,
+          "ALL_UAV": 3508604.7513818345,
+          "RANDOM": 2566714.425746989,
+          "SHORTEST_FINISH": 2562885.891267165,
+          "DEADLINE_ENERGY": 2292297.593739217,
+          "THRESHOLD_5": 2357627.5953992354
+        },
+        "max_over_min": 2.2552652438634304
+      },
+      "overload-np": {
+        "marginal_j": {
+          "ALL_LOCAL": 1957214.2860821623,
+          "ALL_UAV": 5166635.959535047,
+          "RANDOM": 3636937.53226703,
+          "SHORTEST_FINISH": 3592321.440089125,
+          "DEADLINE_ENERGY": 3362177.4078103574,
+          "THRESHOLD_5": 3596945.7506921045
+        },
+        "max_over_min": 2.639790643403344
+      }
+    },
+    "passed": true
+  },
+  "passed": false,
+  "loads": [
+    "light",
+    "medium",
+    "overload"
+  ]
+}

@@ -120,3 +120,24 @@ Không có ô phụ cho kiểm tra độ bền vì không còn ứng viên nào 
 Chạy lại G1–G5 trên `v2.1-main` với ngưỡng cũ (quy tắc 4): G1 ở tải đến cố định của ρ_UAV = 0,9 như cũ;
 G2–G4 với ba mức tải light/medium/overload như cũ, cộng băng thông 2 MHz; G5 không phụ thuộc kênh truyền,
 chạy lại để kiểm tra lõi sau H2.
+
+## 4. Chạy lại G1–G5 trên `v2.1-main` (2 MHz): G2 và G3 không qua
+
+Verifier PASS trên cả bốn run (`v21-g5-queue-theory`, `v21-g1-cpu`, `v21-gates-dev`, `v21b-gates-dev`).
+Số liệu: `data/v21-*-gates-*.json`, `data/v21b-gates-dev-gates-g234.json`.
+
+| Cổng | 2 MHz (`v2.1-main`) | 5 MHz (chẩn đoán, cùng cấu trúc cổng) |
+|---|---|---|
+| G1 | qua: DVR `ALL_UAV` 82,4 / 71,5 / 65,7% ở CPU 2 / 4 / 8 Gc/s | chưa chạy |
+| G2a | qua (medium có preemption: chênh 9,0 điểm) | qua (tới 32,9 điểm) |
+| G2b | **không qua:** FIFO/EDF/SRPT chọn khác nhau ở 15,9% lần dispatch (ngưỡng 30%) | qua: 60,0%; hàng đợi ≥ 2 ở 64,2% |
+| G3 | **không qua:** `ALL_UAV` (DVR 40–84%) không thắng `ALL_LOCAL` ở chỉ số nào | qua: `ALL_UAV` thắng ở light/medium/overload |
+| G4 | qua (1,92–2,64×) | qua (1,66–2,77×) |
+| G5 | qua (0,30–1,55%), lõi không đổi sau H2 | (không phụ thuộc kênh) |
+
+**Đọc:** ở 2 MHz đường truyền lên UAV thành nút thắt, task kẹt ở upload, CPU UAV ít khi có hàng đợi. Đây chính là bệnh của v1
+(chẩn đoán D2–D5). Khoảng trống G6 của ô này chủ yếu đến từ dự báo kém khi kênh nghẽn, không phải từ bài toán offloading + scheduling.
+Ở 5 MHz, CPU và hàng đợi vẫn là nút thắt, scheduler có tác dụng, offloading có đánh đổi.
+
+Theo thứ tự quy tắc 2 (khi đã bỏ G7), ứng viên kế tiếp sau R1-L2b là **R2-L2a+L6a** (5 MHz + ρ_sys = 0,8):
+G6 qua (4,10 điểm DVR / 11,3% năng lượng), G8 qua (DVR 5,63%). Chờ người dùng quyết định có đổi `v2.1-main` hay không.
