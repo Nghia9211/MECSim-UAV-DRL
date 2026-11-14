@@ -1,0 +1,58 @@
+{
+  "chosen": {
+    "control": "offload",
+    "energy_weight": 4.0,
+    "runs": [
+      "target/rl/h5a/w4-s0",
+      "target/rl/h5a/w4-s1",
+      "target/rl/h5a/w4-s2",
+      "target/rl/h5a/w4-s3",
+      "target/rl/h5a/w4-s4"
+    ],
+    "seeds": 5,
+    "mean_dvr": 0.02613012493267236,
+    "mean_j": 18.780756582539446
+  },
+  "groups": [
+    {
+      "control": "offload",
+      "energy_weight": 4.0,
+      "runs": [
+        "target/rl/h5a/w4-s0",
+        "target/rl/h5a/w4-s1",
+        "target/rl/h5a/w4-s2",
+        "target/rl/h5a/w4-s3",
+        "target/rl/h5a/w4-s4"
+      ],
+      "seeds": 5,
+      "mean_dvr": 0.02613012493267236,
+      "mean_j": 18.780756582539446
+    },
+    {
+      "control": "offload",
+      "energy_weight": 1.0,
+      "runs": [
+        "target/rl/h5a/w1-s0",
+        "target/rl/h5a/w1-s1",
+        "target/rl/h5a/w1-s2",
+        "target/rl/h5a/w1-s3",
+        "target/rl/h5a/w1-s4"
+      ],
+      "seeds": 5,
+      "mean_dvr": 0.035781831606891336,
+      "mean_j": 18.835731455720424
+    }
+  ],
+  "skipped": [
+    "target/rl/h5a/w1-s0.log",
+    "target/rl/h5a/w1-s1.log",
+    "target/rl/h5a/w1-s2.log",
+    "target/rl/h5a/w1-s3.log",
+    "target/rl/h5a/w1-s4.log",
+    "target/rl/h5a/w4-s0.log",
+    "target/rl/h5a/w4-s1.log",
+    "target/rl/h5a/w4-s2.log",
+    "target/rl/h5a/w4-s3.log",
+    "target/rl/h5a/w4-s4.log"
+  ]
+}

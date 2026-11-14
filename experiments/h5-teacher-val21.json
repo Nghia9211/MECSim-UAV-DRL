@@ -1,0 +1,10 @@
+{
+  "name": "h5-teacher-val21",
+  "hypothesis": "Reference for RL selection: the teacher heuristics on the full v2.1 validation partition (same seeds as select).",
+  "threshold": "Descriptive",
+  "model_file": "experiments/v21-main-model.json",
+  "model": {"preemptive": true},
+  "policies": ["SHORTEST_FINISH+EDF+NONE", "DEADLINE_ENERGY+EDF+NONE"],
+  "partition": "validation-v21",
+  "trace_tasks": 1, "trace_layouts": 1, "engine": "loop", "threads": 4
+}

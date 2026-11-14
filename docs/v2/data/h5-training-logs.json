@@ -1,0 +1,1395 @@
+{
+ "target/rl/h5a/w1-s0": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w1-s0",
+   "seed": 0,
+   "energy_weight": 1.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish"
+  },
+  "started": "2026-11-15 02:36:09",
+  "finished": "2026-11-15 02:50:23",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 48467,
+   "accuracy": 0.9934800863265991,
+   "uav_share": 0.22128458321094513
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.049230388984316906,
+    "j_per_on_time": 18.975928349846228
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.04929847478647064,
+    "j_per_on_time": 18.990404710100147
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04562684290487612,
+    "j_per_on_time": 18.945795110096405
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.045700040542140725,
+    "j_per_on_time": 18.946343975146725
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.046174089859577175,
+    "j_per_on_time": 18.953011974373247
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.04696244940095655,
+    "j_per_on_time": 18.9344929823027
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.043521812799847334,
+    "j_per_on_time": 18.89878881058738
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.04131412660396934,
+    "j_per_on_time": 18.86726387418707
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.0413310936776429,
+    "j_per_on_time": 18.886616596272592
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.03927157818830242,
+    "j_per_on_time": 18.847887151870694
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.037288246802286776,
+    "j_per_on_time": 18.809244606885084
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.036329722552838485,
+   "j_per_on_time": 18.885251127347175,
+   "on_time": 231574,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w1-s1": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w1-s1",
+   "seed": 1,
+   "energy_weight": 1.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish"
+  },
+  "started": "2026-11-15 02:36:09",
+  "finished": "2026-11-15 02:50:23",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 48690,
+   "accuracy": 0.9902854561805725,
+   "uav_share": 0.21957281231880188
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04933794437796217,
+    "j_per_on_time": 18.923775849251026
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.04761904514778416,
+    "j_per_on_time": 18.911456816959454
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04415446882952813,
+    "j_per_on_time": 18.838122996959743
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04193680730332006,
+    "j_per_on_time": 18.80540056504785
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.040041758273728564,
+    "j_per_on_time": 18.794742428044344
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.04022457772615016,
+    "j_per_on_time": 18.697320210421886
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.03892387343708866,
+    "j_per_on_time": 18.71110832495399
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.03622263767000466,
+    "j_per_on_time": 18.689119344553834
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.03354580174611247,
+    "j_per_on_time": 18.669855254612326
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.0318641675492354,
+    "j_per_on_time": 18.676808583750997
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.030014365508300722,
+    "j_per_on_time": 18.633250562201933
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.02980735377216111,
+   "j_per_on_time": 18.73604994913275,
+   "on_time": 233161,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w1-s2": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w1-s2",
+   "seed": 2,
+   "energy_weight": 1.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 02:50:41",
+  "finished": "2026-11-15 03:03:27",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47045,
+   "accuracy": 0.9903284311294556,
+   "uav_share": 0.23012009263038635
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.049142285375245225,
+    "j_per_on_time": 18.94437525671211
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.047676535434534956,
+    "j_per_on_time": 18.922026475743742
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04574717931830706,
+    "j_per_on_time": 18.90231116647903
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04442426211627766,
+    "j_per_on_time": 18.858160480287076
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04281204362086689,
+    "j_per_on_time": 18.80351587850375
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.044517654991230074,
+    "j_per_on_time": 18.798871293957262
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.043697717163836844,
+    "j_per_on_time": 18.78314259801255
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.04145610585540384,
+    "j_per_on_time": 18.740455040274867
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.041515015432857606,
+    "j_per_on_time": 18.75944352087159
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.03999916853274747,
+    "j_per_on_time": 18.74044752474171
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.03712297973961871,
+    "j_per_on_time": 18.680343797236446
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.03674576256820227,
+   "j_per_on_time": 18.749239565436646,
+   "on_time": 231474,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w1-s3": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w1-s3",
+   "seed": 3,
+   "energy_weight": 1.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 02:50:41",
+  "finished": "2026-11-15 03:03:26",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47775,
+   "accuracy": 0.9868969321250916,
+   "uav_share": 0.22938776016235352
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04969883913826661,
+    "j_per_on_time": 18.976970015767453
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.047769981574673305,
+    "j_per_on_time": 18.94386383779963
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.046821449773858534,
+    "j_per_on_time": 18.92820322854812
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.045646069566245166,
+    "j_per_on_time": 18.94410189816435
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.0435537231328265,
+    "j_per_on_time": 18.953111635429853
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.04471271879532748,
+    "j_per_on_time": 18.943527760795
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.042544140949753374,
+    "j_per_on_time": 18.882820966173405
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.04457446743546458,
+    "j_per_on_time": 18.899699666743764
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.04324857816433409,
+    "j_per_on_time": 18.89235227402419
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.043144092445746796,
+    "j_per_on_time": 18.881535914282917
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.038013941795274224,
+    "j_per_on_time": 18.78474788974378
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.037427456923953245,
+   "j_per_on_time": 18.85900564254013,
+   "on_time": 231343,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w1-s4": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w1-s4",
+   "seed": 4,
+   "energy_weight": 1.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:03:32",
+  "finished": "2026-11-15 03:13:51",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47731,
+   "accuracy": 0.9932957887649536,
+   "uav_share": 0.22515764832496643
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04913931108485693,
+    "j_per_on_time": 18.956881171453524
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.047597575759521685,
+    "j_per_on_time": 18.914361932011833
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04715669644694169,
+    "j_per_on_time": 18.89418315257205
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04710651649985647,
+    "j_per_on_time": 18.882741119569776
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04641254162100001,
+    "j_per_on_time": 18.84406973078887
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.04363285496607135,
+    "j_per_on_time": 18.820238828219118
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.042385814506220365,
+    "j_per_on_time": 18.814054829735316
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.04005250322944816,
+    "j_per_on_time": 18.831174199513523
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.040306440012816365,
+    "j_per_on_time": 18.806322296808016
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.039774807726099634,
+    "j_per_on_time": 18.877331877043446
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.04036235598874286,
+    "j_per_on_time": 18.859767959840728
+   }
+  ],
+  "best_checkpoint": "ckpt-01800000.zip",
+  "validation_full": {
+   "dvr": 0.03859886221730155,
+   "j_per_on_time": 18.94911099414542,
+   "on_time": 231077,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w4-s0": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w4-s0",
+   "seed": 0,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:13:56",
+  "finished": "2026-11-15 03:26:35",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 48467,
+   "accuracy": 0.9934800863265991,
+   "uav_share": 0.22128458321094513
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.049230388984316906,
+    "j_per_on_time": 18.975928349846228
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.04857914848532931,
+    "j_per_on_time": 18.94572920720316
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.046711351886391445,
+    "j_per_on_time": 18.914953177900514
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04374343948167214,
+    "j_per_on_time": 18.88832275116133
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04118525864493825,
+    "j_per_on_time": 18.87383444474298
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.03879377919564551,
+    "j_per_on_time": 18.846418711861475
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.03662394533888172,
+    "j_per_on_time": 18.844352420206857
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.034127806750088426,
+    "j_per_on_time": 18.831767546298803
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.03250042601699339,
+    "j_per_on_time": 18.786716177897063
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.0302081506162317,
+    "j_per_on_time": 18.776237997759797
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.02876940278899377,
+    "j_per_on_time": 18.713637683347752
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.028501272429922307,
+   "j_per_on_time": 18.786669344870134,
+   "on_time": 233468,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w4-s1": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w4-s1",
+   "seed": 1,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:13:56",
+  "finished": "2026-11-15 03:26:38",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 48690,
+   "accuracy": 0.9902854561805725,
+   "uav_share": 0.21957281231880188
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04933794437796217,
+    "j_per_on_time": 18.923775849251026
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.047512330896902,
+    "j_per_on_time": 18.909743234871446
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04710031744447819,
+    "j_per_on_time": 18.872208834398165
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04573298868937061,
+    "j_per_on_time": 18.85271703267239
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.042294136202874796,
+    "j_per_on_time": 18.783607823975935
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.039060922626085404,
+    "j_per_on_time": 18.744936663389993
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.035916656125113786,
+    "j_per_on_time": 18.770381884175247
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.03272158558812786,
+    "j_per_on_time": 18.718751282461742
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.029704763875159627,
+    "j_per_on_time": 18.668767165532827
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.026209471981349836,
+    "j_per_on_time": 18.652067218559687
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.022601275630566835,
+    "j_per_on_time": 18.64345066484052
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.02308692713390207,
+   "j_per_on_time": 18.73226133598998,
+   "on_time": 234710,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w4-s2": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w4-s2",
+   "seed": 2,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:26:43",
+  "finished": "2026-11-15 03:41:37",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47045,
+   "accuracy": 0.9903284311294556,
+   "uav_share": 0.23012009263038635
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.049142285375245225,
+    "j_per_on_time": 18.94437525671211
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.04928247846047064,
+    "j_per_on_time": 18.90134070836954
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048154473722365795,
+    "j_per_on_time": 18.890878173333252
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.04492991148453583,
+    "j_per_on_time": 18.836582522210197
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04066714533072081,
+    "j_per_on_time": 18.772830138598447
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.038405481932074964,
+    "j_per_on_time": 18.773586874574857
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.03471909593456281,
+    "j_per_on_time": 18.722956337141994
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.031043047138086043,
+    "j_per_on_time": 18.76195146130433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.027695152377492836,
+    "j_per_on_time": 18.785073201461287
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.026639391132519126,
+    "j_per_on_time": 18.819832383787237
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.024800785607049385,
+    "j_per_on_time": 18.743500259283778
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.02546147841109975,
+   "j_per_on_time": 18.832367050862302,
+   "on_time": 234157,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w4-s3": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w4-s3",
+   "seed": 3,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:26:43",
+  "finished": "2026-11-15 03:41:36",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47775,
+   "accuracy": 0.9868969321250916,
+   "uav_share": 0.22938776016235352
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04969883913826661,
+    "j_per_on_time": 18.976970015767453
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.05121082755006747,
+    "j_per_on_time": 18.969087927670113
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.05041181391541845,
+    "j_per_on_time": 18.978742448526578
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.049111368570153933,
+    "j_per_on_time": 18.969521750757448
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04655120205123832,
+    "j_per_on_time": 18.892768039440913
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.04404939898933137,
+    "j_per_on_time": 18.857436716119864
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.03951106928286301,
+    "j_per_on_time": 18.7763415381713
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.037645914391071275,
+    "j_per_on_time": 18.710936780306938
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.035303465958816824,
+    "j_per_on_time": 18.675886426430328
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.030386811405512103,
+    "j_per_on_time": 18.63211119464436
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.02673640644646479,
+    "j_per_on_time": 18.63583089520924
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.02749200534913949,
+   "j_per_on_time": 18.738404673877636,
+   "on_time": 233707,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5a/w4-s4": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5a/w4-s4",
+   "seed": 4,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "shortest_finish",
+   "control": "offload"
+  },
+  "started": "2026-11-15 03:41:44",
+  "finished": "2026-11-15 03:53:56",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 47731,
+   "accuracy": 0.9932957887649536,
+   "uav_share": 0.22515764832496643
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.04913931108485693,
+    "j_per_on_time": 18.956881171453524
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.04866972340452767,
+    "j_per_on_time": 18.926922216382245
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.04616547573506185,
+    "j_per_on_time": 18.919112072901285
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.044841099768429295,
+    "j_per_on_time": 18.864251348168548
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.04343295818401982,
+    "j_per_on_time": 18.835299494693256
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.041413591800632026,
+    "j_per_on_time": 18.823720633543328
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.03721111507221212,
+    "j_per_on_time": 18.768899362305337
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.034936224582398465,
+    "j_per_on_time": 18.72976616187864
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.031120910939355196,
+    "j_per_on_time": 18.71465002333841
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.029493853284242373,
+    "j_per_on_time": 18.682025154582092
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.026040675263465585,
+    "j_per_on_time": 18.71158409973823
+   }
+  ],
+  "best_checkpoint": "ckpt-02000000.zip",
+  "validation_full": {
+   "dvr": 0.026108941339298197,
+   "j_per_on_time": 18.814080507097184,
+   "on_time": 234025,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5b/w4.0-s0": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5b/w4.0-s0",
+   "seed": 0,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "edf",
+   "control": "schedule"
+  },
+  "started": "2026-11-15 04:12:24",
+  "finished": "2026-11-15 04:27:35",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 19429,
+   "accuracy": 1.0,
+   "uav_share": 0.0
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   }
+  ],
+  "best_checkpoint": "ckpt-00000000.zip",
+  "validation_full": {
+   "dvr": 0.04727282349200578,
+   "j_per_on_time": 19.014922576474934,
+   "on_time": 229035,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5b/w4.0-s1": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5b/w4.0-s1",
+   "seed": 1,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "edf",
+   "control": "schedule"
+  },
+  "started": "2026-11-15 04:12:24",
+  "finished": "2026-11-15 04:27:34",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 19339,
+   "accuracy": 1.0,
+   "uav_share": 0.0
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   }
+  ],
+  "best_checkpoint": "ckpt-00000000.zip",
+  "validation_full": {
+   "dvr": 0.04727282349200578,
+   "j_per_on_time": 19.014922576474934,
+   "on_time": 229035,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5b/w4.0-s2": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5b/w4.0-s2",
+   "seed": 2,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "edf",
+   "control": "schedule"
+  },
+  "started": "2026-11-15 04:27:39",
+  "finished": "2026-11-15 04:42:46",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 19516,
+   "accuracy": 1.0,
+   "uav_share": 0.0
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   }
+  ],
+  "best_checkpoint": "ckpt-00000000.zip",
+  "validation_full": {
+   "dvr": 0.04727282349200578,
+   "j_per_on_time": 19.014922576474934,
+   "on_time": 229035,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5b/w4.0-s3": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5b/w4.0-s3",
+   "seed": 3,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "edf",
+   "control": "schedule"
+  },
+  "started": "2026-11-15 04:27:39",
+  "finished": "2026-11-15 04:42:45",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 19622,
+   "accuracy": 1.0,
+   "uav_share": 0.0
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   }
+  ],
+  "best_checkpoint": "ckpt-00000000.zip",
+  "validation_full": {
+   "dvr": 0.04727282349200578,
+   "j_per_on_time": 19.014922576474934,
+   "on_time": 229035,
+   "episodes": 150
+  }
+ },
+ "target/rl/h5b/w4.0-s4": {
+  "args": {
+   "cmd": "train",
+   "out": "target/rl/h5b/w4.0-s4",
+   "seed": 4,
+   "energy_weight": 4.0,
+   "steps": 2000000,
+   "eval_every": 200000,
+   "envs": 8,
+   "n_steps": 512,
+   "lr": 0.0001,
+   "bc_episodes": 30,
+   "teacher": "edf",
+   "control": "schedule"
+  },
+  "started": "2026-11-15 04:42:50",
+  "finished": "2026-11-15 04:55:40",
+  "teacher_validation_subset": {
+   "dvr": 0.048903281554197056,
+   "j_per_on_time": 18.94922753655433,
+   "on_time": 30617,
+   "episodes": 20
+  },
+  "behaviour_cloning": {
+   "samples": 19603,
+   "accuracy": 1.0,
+   "uav_share": 0.0
+  },
+  "validation_curve": [
+   {
+    "steps": 0,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1200000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1400000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1600000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 1800000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   },
+   {
+    "steps": 2000000,
+    "dvr": 0.048903281554197056,
+    "j_per_on_time": 18.94922753655433
+   }
+  ],
+  "best_checkpoint": "ckpt-00000000.zip",
+  "validation_full": {
+   "dvr": 0.04727282349200578,
+   "j_per_on_time": 19.014922576474934,
+   "on_time": 229035,
+   "episodes": 150
+  }
+ }
+}

@@ -1,0 +1,39 @@
+{
+  "chosen": {
+    "control": "schedule",
+    "energy_weight": 4.0,
+    "runs": [
+      "target/rl/h5b/w4.0-s0",
+      "target/rl/h5b/w4.0-s1",
+      "target/rl/h5b/w4.0-s2",
+      "target/rl/h5b/w4.0-s3",
+      "target/rl/h5b/w4.0-s4"
+    ],
+    "seeds": 5,
+    "mean_dvr": 0.04727282349200578,
+    "mean_j": 19.014922576474934
+  },
+  "groups": [
+    {
+      "control": "schedule",
+      "energy_weight": 4.0,
+      "runs": [
+        "target/rl/h5b/w4.0-s0",
+        "target/rl/h5b/w4.0-s1",
+        "target/rl/h5b/w4.0-s2",
+        "target/rl/h5b/w4.0-s3",
+        "target/rl/h5b/w4.0-s4"
+      ],
+      "seeds": 5,
+      "mean_dvr": 0.04727282349200578,
+      "mean_j": 19.014922576474934
+    }
+  ],
+  "skipped": [
+    "target/rl/h5b/w4.0-s0.log",
+    "target/rl/h5b/w4.0-s1.log",
+    "target/rl/h5b/w4.0-s2.log",
+    "target/rl/h5b/w4.0-s3.log",
+    "target/rl/h5b/w4.0-s4.log"
+  ]
+}
