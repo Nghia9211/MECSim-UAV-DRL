@@ -12,7 +12,7 @@ for w in "$@"; do
       if [ -f "$d/train.json" ] && grep -q '"finished"' "$d/train.json"; then continue; fi
       rm -rf "$d"
       .venv-drl/Scripts/python.exe -m drl.mec_rl train --out "$d" --seed "$s" --energy-weight "$w" --steps "$steps" \
-        --control "$control" --teacher "$teacher" --eval-every 200000 > "$root/w${w}-s${s}.log" 2>&1 &
+        --control "$control" --teacher "$teacher" --eval-every 200000 ${EXTRA:-} > "$root/w${w}-s${s}.log" 2>&1 &
     done
     wait
   done

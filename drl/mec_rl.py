@@ -107,7 +107,7 @@ def evaluate_on(model_or_choose, pairs, control="offload", energy_weight=0.0):
         env.close()
 
 
-def behaviour_clone(model, teacher, episodes, seed, control="offload", epochs=40):
+def behaviour_clone(model, teacher, episodes, seed, control="offload", epochs=40, smoothing=0.0):
     env = train_env_class(control)(**env_kwargs(control))
     env.reset(seed=seed + 77)
     X, Y, M = [], [], []
@@ -137,6 +137,11 @@ def behaviour_clone(model, teacher, episodes, seed, control="offload", epochs=40
             idx = perm[i:i + 512]
             dist = dist_of(X[idx], idx.numpy())
             loss = -dist.log_prob(Y[idx]).mean()
+            if smoothing > 0:  # label smoothing over the valid actions keeps exploration alive for PPO
+                logp = torch.log(dist.distribution.probs.clamp_min(1e-12))
+                valid = torch.as_tensor(M[idx.numpy()], dtype=torch.float32)
+                spread = -(logp * valid).sum(1) / valid.sum(1)
+                loss = (1 - smoothing) * loss + smoothing * spread.mean()
             opt.zero_grad(); loss.backward(); opt.step()
     with torch.no_grad():
         probs = dist_of(X, np.arange(len(X))).distribution.probs
@@ -153,10 +158,10 @@ def train(a):
     log = dict(args=vars(a), started=time.strftime("%Y-%m-%d %H:%M:%S"), validation=[])
     vec = SubprocVecEnv([make_env(r, a.seed, a.energy_weight, a.control) for r in range(a.envs)])
     model = CONTROL[a.control][1]("MlpPolicy", vec, seed=a.seed, learning_rate=a.lr, n_steps=a.n_steps, batch_size=1024, n_epochs=5,
-                gamma=0.99, gae_lambda=0.95, clip_range=0.1, ent_coef=0.001, policy_kwargs=dict(net_arch=[128, 128]),
+                gamma=0.99, gae_lambda=0.95, clip_range=0.1, ent_coef=a.ent_coef, policy_kwargs=dict(net_arch=[128, 128]),
                 device="cpu", verbose=0)
     log["teacher_validation"] = evaluate_on(lambda o, i, e: teacher(i), VAL_SUBSET, a.control)
-    log["behaviour_cloning"] = behaviour_clone(model, teacher, a.bc_episodes, a.seed, a.control)
+    log["behaviour_cloning"] = behaviour_clone(model, teacher, a.bc_episodes, a.seed, a.control, smoothing=a.bc_smoothing)         if a.bc_episodes > 0 else dict(skipped=True)
     best = None
 
     def checkpoint(step):
@@ -297,6 +302,8 @@ def main():
     t.add_argument("--bc-episodes", type=int, default=30)
     t.add_argument("--teacher", choices=TEACHERS, default="shortest_finish")
     t.add_argument("--control", choices=CONTROL, default="offload")
+    t.add_argument("--ent-coef", type=float, default=0.001)
+    t.add_argument("--bc-smoothing", type=float, default=0.0)
     e = sub.add_parser("evaluate")
     e.add_argument("--runs", nargs="+", required=True)
     e.add_argument("--out", required=True)
