@@ -281,7 +281,7 @@ public final class MecSimulator {
         var candidates = new ArrayList<Policies.ReadyView>();
         for (var s : c.ready) candidates.add(readyView(s, false));
         if (c.running != null) candidates.add(readyView(c.running, true));
-        long id = policy.scheduler().choose(candidates, now, c.speed);
+        long id = policy.schedulerFor(c.node).choose(candidates, now, c.speed);
         if (c.running != null && c.running.t.id() == id) return;
         TaskState chosen = null;
         for (var s : c.ready) if (s.t.id() == id) chosen = s;

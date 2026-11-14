@@ -30,7 +30,15 @@ public final class Policies {
     @FunctionalInterface
     public interface Scheduler { long choose(List<ReadyView> candidates, double now, double speedGcps); }
 
-    public record Policy(String name, OffloadPolicy offload, Scheduler scheduler, Admission admission) { }
+    /** uavScheduler, when set, replaces scheduler on the UAV CPU only (learned UAV scheduling, H5b). */
+    public record Policy(String name, OffloadPolicy offload, Scheduler scheduler, Admission admission, Scheduler uavScheduler) {
+        public Policy(String name, OffloadPolicy offload, Scheduler scheduler, Admission admission) {
+            this(name, offload, scheduler, admission, null);
+        }
+        public Scheduler schedulerFor(int node) {
+            return node == MecSimulator.UAV && uavScheduler != null ? uavScheduler : scheduler;
+        }
+    }
 
     // ---------------------------------------------------------------- offloading baselines
 
