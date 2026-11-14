@@ -157,11 +157,17 @@ def train(a):
     teacher = TEACHERS[a.teacher]
     log = dict(args=vars(a), started=time.strftime("%Y-%m-%d %H:%M:%S"), validation=[])
     vec = SubprocVecEnv([make_env(r, a.seed, a.energy_weight, a.control) for r in range(a.envs)])
-    model = CONTROL[a.control][1]("MlpPolicy", vec, seed=a.seed, learning_rate=a.lr, n_steps=a.n_steps, batch_size=1024, n_epochs=5,
+    if a.init_from:  # continue a finished run: same hyperparameters, no new cloning, step 0 = the starting policy
+        model = CONTROL[a.control][1].load(a.init_from, env=vec, device="cpu", learning_rate=a.lr, ent_coef=a.ent_coef)
+        log["init_from"] = a.init_from
+    else:
+        model = CONTROL[a.control][1]("MlpPolicy", vec, seed=a.seed, learning_rate=a.lr, n_steps=a.n_steps, batch_size=1024, n_epochs=5,
                 gamma=0.99, gae_lambda=0.95, clip_range=0.1, ent_coef=a.ent_coef, policy_kwargs=dict(net_arch=[128, 128]),
                 device="cpu", verbose=0)
     log["teacher_validation"] = evaluate_on(lambda o, i, e: teacher(i), VAL_SUBSET, a.control)
-    log["behaviour_cloning"] = behaviour_clone(model, teacher, a.bc_episodes, a.seed, a.control, smoothing=a.bc_smoothing)         if a.bc_episodes > 0 else dict(skipped=True)
+    log["behaviour_cloning"] = dict(skipped="continued from " + a.init_from) if a.init_from else (
+        behaviour_clone(model, teacher, a.bc_episodes, a.seed, a.control, smoothing=a.bc_smoothing)
+        if a.bc_episodes > 0 else dict(skipped=True))
     best = None
 
     def checkpoint(step):
@@ -304,6 +310,7 @@ def main():
     t.add_argument("--control", choices=CONTROL, default="offload")
     t.add_argument("--ent-coef", type=float, default=0.001)
     t.add_argument("--bc-smoothing", type=float, default=0.0)
+    t.add_argument("--init-from", help="checkpoint .zip of a finished run to continue training from")
     e = sub.add_parser("evaluate")
     e.add_argument("--runs", nargs="+", required=True)
     e.add_argument("--out", required=True)

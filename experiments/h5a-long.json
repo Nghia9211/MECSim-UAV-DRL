@@ -1,0 +1,7 @@
+{
+  "name": "h5a-long",
+  "hypothesis": "H5a policies were still improving at 2M steps (best checkpoint = last step in 9/10 runs). Continuing each energy-weight-4 seed for 2M more PPO steps lowers DVR further.",
+  "threshold": "Per seed the checkpoint is chosen on the 20-episode validation subset, where step 0 is the H5a policy, so a seed can keep its old policy. Report evaluation-v21 paired vs SHORTEST_FINISH+EDF+NONE and vs the H5a result; contribution criterion as PLAN_HUONG_2_3.md 7.4.",
+  "args": {"control": "offload", "energy_weight": 4, "seeds": [0, 1, 2, 3, 4], "extra_steps": 2000000,
+           "init_from": "target/rl/h5a/w4-s{seed}/<best_checkpoint>"}
+}
