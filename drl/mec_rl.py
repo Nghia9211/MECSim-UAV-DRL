@@ -186,19 +186,30 @@ def train(a):
     print("best checkpoint", best[2].name, flush=True)
 
 
-def merged_model():
-    base = json.loads((ROOT / MODEL_FILE).read_text(encoding="utf-8"))
+def deep_merge(base, patch):
+    """Same rules as uav.mec.Json.merge: objects merge recursively, null deletes, anything else replaces."""
     out = copy.deepcopy(base)
-    for k, v in PATCH.items():
-        out[k] = v
+    for k, v in patch.items():
+        if v is None:
+            out.pop(k, None)
+        elif isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = deep_merge(out[k], v)
+        else:
+            out[k] = copy.deepcopy(v)
     return out
+
+
+def merged_model(extra=None):
+    base = json.loads((ROOT / MODEL_FILE).read_text(encoding="utf-8"))
+    return deep_merge(deep_merge(base, PATCH), extra or {})
 
 
 def evaluate(a):
     out = Path(a.out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     (out / "models").mkdir()
-    (out / "models" / f"{a.variant}.json").write_text(json.dumps(merged_model(), indent=2), encoding="utf-8")
+    extra = json.loads(a.model_patch) if a.model_patch else {}
+    (out / "models" / f"{a.variant}.json").write_text(json.dumps(merged_model(extra), indent=2), encoding="utf-8")
     rows, header = [], None
     if a.with_baselines:  # heuristic rows of the same variant and seeds, for paired comparison and hash checks
         with open(Path(a.with_baselines) / "episodes.csv", newline="", encoding="utf-8") as f:
@@ -214,7 +225,9 @@ def evaluate(a):
                 else f"SHORTEST_FINISH+RL_MPPO_w{log['args']['energy_weight']:g}_s{log['args']['seed']}+NONE")
         policies.append(name)
         model = CONTROL[control][1].load(Path(run) / log["best_checkpoint"], device="cpu")
-        env = CONTROL[control][0](trace=True, **env_kwargs(control))
+        kw = env_kwargs(control)
+        kw["model"] = deep_merge(kw["model"], extra)  # robustness variants: the trained policy is unchanged
+        env = CONTROL[control][0](trace=True, **kw)
         try:
             for k, (layout, task) in enumerate(EVAL):
                 t0 = time.perf_counter()
@@ -289,6 +302,7 @@ def main():
     e.add_argument("--out", required=True)
     e.add_argument("--variant", default="e0-pre-circle")
     e.add_argument("--with-baselines")
+    e.add_argument("--model-patch", help="JSON patch on top of the training model, e.g. estimate error 0.4")
     sl = sub.add_parser("select")
     sl.add_argument("--runs", nargs="+", required=True)
     sl.add_argument("--out", required=True)
