@@ -15,7 +15,10 @@ Seed: huấn luyện layout 1000–1999 × task seed 10⁶–2·10⁶ (rút ng�
    (−1,21 đến −1,84 điểm so với heuristic tốt nhất của chính biến thể đó, kèm −6,6 đến −7,1% năng lượng).
 3. **RL lấy được khoảng một nửa khoảng trống.** Oracle biết trước tương lai đạt DVR 0,06% trên 10 episode evaluation, so với 4,74%
    của `SHORTEST_FINISH` trên cùng 10 episode.
-4. **RL cho scheduling trên CPU UAV (H5b) chưa có kết quả dương.** Lần 1 hỏng do thiết lập (mục 4). Lần 2: (điền sau khi chạy xong).
+4. **RL chọn task cho CPU UAV (H5b) không vượt EDF.** Lần 1 hỏng do thiết lập (mục 4). Lần 2 sửa thiết lập: chênh DVR trên
+   evaluation bằng 0 ở 4/5 seed; seed còn lại +0,005 điểm (khoảng tin cậy chứa 0). Không đạt tiêu chí đóng góp.
+   Điều này phù hợp với lý thuyết: trên một CPU có preemption, EDF tối ưu về việc đáp ứng deadline mỗi khi tập task còn khả thi.
+   Vì vậy không làm H5c (kết hợp hai policy học được).
 
 ## 1. Mốc so sánh H4 (evaluation v2.1)
 
@@ -102,7 +105,22 @@ bằng 1,000 ở mọi trạng thái, PPO không còn khám phá. Cả 5 seed ch
 Không coi đây là kết quả âm.
 
 **Lần 2** ([experiments/h5b-v2-sched.json](../../experiments/h5b-v2-sched.json), đăng ký trước): label smoothing 0,3 khi bắt chước,
-hệ số entropy 0,01. (điền sau khi chạy xong)
+hệ số entropy 0,01. Kết quả (`target/mec/h5b2-rl-eval21`, verifier PASS, 150 nhóm cùng workload):
+
+| Seed | Checkpoint chọn | DVR validation đầy đủ | DVR evaluation | Chênh DVR ghép cặp [KTC] | Chênh J biên [KTC] |
+|---|---|---:|---:|---|---|
+| 0 | bước 0 (= EDF) | 4,727% | 6,119% | 0 | 0 |
+| 1 | bước 0 (= EDF) | 4,727% | 6,119% | 0 | 0 |
+| 2 | 1,4 triệu | 4,727% | 6,119% | 0 | −0,00% |
+| 3 | 1,2 triệu | 4,727% | 6,119% | 0 | −0,00% |
+| 4 | 2 triệu | 4,755% | 6,124% | +0,005 [−0,019; +0,028] | −0,13% [−0,17; −0,10] |
+
+`SHORTEST_FINISH+EDF` trên cùng seed: DVR 6,119%, 19,56 J. Chẩn đoán trên 400 trạng thái validation: sau 400.000 bước, xác suất chọn
+ứng viên EDF giảm từ 0,78 xuống 0,63 (policy có thay đổi) nhưng hành động có xác suất cao nhất vẫn luôn là EDF; khi policy bắt đầu
+lệch khỏi EDF (sau 1,6–1,8 triệu bước, seed 0, 1, 3) thì DVR validation tăng (4,92–5,02%).
+
+**Kết luận H5b:** trong `v2.1-main`, chọn thứ tự task trên CPU UAV bằng RL không cải thiện EDF có preemption. Không có bằng chứng
+cho việc học scheduling; khoảng trống của bài toán nằm ở quyết định offloading. Dữ liệu: `data/h5b2-*`.
 
 ## 5. Giới hạn
 

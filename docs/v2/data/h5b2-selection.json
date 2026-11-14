@@ -1,0 +1,33 @@
+{
+  "chosen": {
+    "control": "schedule",
+    "energy_weight": 4.0,
+    "runs": [
+      "target/rl/h5b2/w4-s0/",
+      "target/rl/h5b2/w4-s1/",
+      "target/rl/h5b2/w4-s2/",
+      "target/rl/h5b2/w4-s3/",
+      "target/rl/h5b2/w4-s4/"
+    ],
+    "seeds": 5,
+    "mean_dvr": 0.047329137084081034,
+    "mean_j": 19.010565613095462
+  },
+  "groups": [
+    {
+      "control": "schedule",
+      "energy_weight": 4.0,
+      "runs": [
+        "target/rl/h5b2/w4-s0/",
+        "target/rl/h5b2/w4-s1/",
+        "target/rl/h5b2/w4-s2/",
+        "target/rl/h5b2/w4-s3/",
+        "target/rl/h5b2/w4-s4/"
+      ],
+      "seeds": 5,
+      "mean_dvr": 0.047329137084081034,
+      "mean_j": 19.010565613095462
+    }
+  ],
+  "skipped": []
+}
