@@ -242,6 +242,33 @@ def evaluate(a):
     (out / "config.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
+def select(a):
+    """Full validation (150 episodes) of each run's best checkpoint; picks the energy weight with the lowest mean DVR,
+    then the lowest pooled marginal J per on-time task. Unfinished runs are reported and skipped."""
+    from collections import defaultdict
+    groups, skipped = defaultdict(list), []
+    for run in a.runs:
+        path = Path(run) / "train.json"
+        log = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        if "finished" not in log:
+            skipped.append(str(run)); continue
+        control = log["args"].get("control", "offload")
+        if "validation_full" not in log:
+            model = CONTROL[control][1].load(Path(run) / log["best_checkpoint"], device="cpu")
+            log["validation_full"] = evaluate_on(model, VAL, control)
+            path.write_text(json.dumps(log, indent=2), encoding="utf-8")
+        groups[(control, log["args"]["energy_weight"])].append(dict(run=str(run), **log["validation_full"]))
+        print(run, "full validation DVR %.3f%% J/on %.3f" % (100 * log["validation_full"]["dvr"], log["validation_full"]["j_per_on_time"]), flush=True)
+    summary = []
+    for (control, w), rs in groups.items():
+        summary.append(dict(control=control, energy_weight=w, runs=[r["run"] for r in rs], seeds=len(rs),
+                            mean_dvr=float(np.mean([r["dvr"] for r in rs])), mean_j=float(np.mean([r["j_per_on_time"] for r in rs]))))
+    summary.sort(key=lambda g: (g["mean_dvr"], g["mean_j"]))
+    out = dict(chosen=summary[0] if summary else None, groups=summary, skipped=skipped)
+    Path(a.out).write_text(json.dumps(out, indent=2), encoding="utf-8")
+    print(json.dumps(out["chosen"], indent=2))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -262,8 +289,11 @@ def main():
     e.add_argument("--out", required=True)
     e.add_argument("--variant", default="e0-pre-circle")
     e.add_argument("--with-baselines")
+    sl = sub.add_parser("select")
+    sl.add_argument("--runs", nargs="+", required=True)
+    sl.add_argument("--out", required=True)
     a = p.parse_args()
-    train(a) if a.cmd == "train" else evaluate(a)
+    {"train": train, "evaluate": evaluate, "select": select}[a.cmd](a)
 
 
 if __name__ == "__main__":
