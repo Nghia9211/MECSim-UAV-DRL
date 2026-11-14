@@ -1,0 +1,26 @@
+{
+  "gate": "G6",
+  "cells": {
+    "np": {
+      "episodes": 10,
+      "base": "SHORTEST_FINISH+EDF+NONE",
+      "dvr_base": 0.17560970105315,
+      "dvr_oracle": 0.050652380881755256,
+      "dvr_gap_points": 12.495732017139474,
+      "j_per_on_time_base": 21.71042954560635,
+      "j_per_on_time_oracle": 19.239357544483777,
+      "energy_gap_relative": 0.1138195813183556
+    },
+    "pre": {
+      "episodes": 10,
+      "base": "SHORTEST_FINISH+EDF+NONE",
+      "dvr_base": 0.0473892804723499,
+      "dvr_oracle": 0.0005887339397950165,
+      "dvr_gap_points": 4.680054653255489,
+      "j_per_on_time_base": 19.059570901581317,
+      "j_per_on_time_oracle": 16.697519046460915,
+      "energy_gap_relative": 0.12392995977283149
+    }
+  },
+  "passed": true
+}

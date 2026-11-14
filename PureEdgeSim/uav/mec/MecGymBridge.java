@@ -19,7 +19,8 @@ import java.util.Map;
  * Scheduler and admission stay fixed Java baselines. One decision = one step; the observation is built only
  * from the policy view of MODEL.md §6, so a learned policy sees exactly what the baselines see.
  *
- * in:  {"cmd":"reset","model_file":..,"model":{patch},"layout_seed":..,"task_seed":..,"scheduler":"EDF","admission":"NONE"}
+ * in:  {"cmd":"reset","model_file":..,"model":{patch},"layout_seed":..,"task_seed":..,"scheduler":"EDF","admission":"NONE",
+ *       "trace":false}   {"cmd":"save","path":DIR} (after an episode with trace=true)
  *      {"cmd":"step","action":0|1}  (0 = LOCAL, 1 = UAV)       {"cmd":"close"}
  * out: {"ready":true,...}  {"observation":[..],"done":false,"info":{..}}  {"observation":null,"done":true,"info":{metrics}}
  */
@@ -98,6 +99,14 @@ public final class MecGymBridge {
         send(Map.of("ready", true, "protocol", "mec-v2-1", "features", FEATURES));
         JsonNode c = read();
         while (!c.path("cmd").asText().equals("close")) {
+            if (c.path("cmd").asText().equals("save")) { // full trace of the last finished episode (scripts/verify_mec.py)
+                try {
+                    if (sim == null || !sim.done()) throw new IllegalStateException("save needs a finished episode");
+                    MecTrace.write(Path.of(c.get("path").asText()), sim.result());
+                    send(Map.of("saved", true));
+                } catch (Exception e) { send(Map.of("error", e.toString())); }
+                c = read(); continue;
+            }
             if (!c.path("cmd").asText().equals("reset")) { send(Map.of("error", "reset required")); c = read(); continue; }
             try {
                 ObjectNode model = json.createObjectNode();
@@ -111,12 +120,13 @@ public final class MecGymBridge {
                 Policies.OffloadPolicy offload = c.has("java_offload")
                         ? Policies.offload(c.get("java_offload").asText(), MecRunner.policySeed(layout, seed)) : v -> decide(v, m);
                 var policy = new Policies.Policy("PYTHON+" + c.path("scheduler").asText("EDF"), offload, base.scheduler(), base.admission());
-                sim = new MecSimulator(sc, policy, false);
+                sim = new MecSimulator(sc, policy, c.path("trace").asBoolean(false));
                 while (!sim.done()) sim.advanceTo(sim.nextEventTime());
                 var done = new LinkedHashMap<String, Object>();
                 done.put("observation", null); done.put("done", true);
                 var i = new LinkedHashMap<String, Object>(info(null));
                 i.put("metrics", MecMetrics.of(sim.result())); i.put("workload_sha256", sc.hash());
+                i.put("model_version", m.version());
                 done.put("info", i);
                 send(done);
                 c = read();

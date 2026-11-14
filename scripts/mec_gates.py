@@ -149,9 +149,9 @@ def g6(run):
     for r in rows(run / "episodes.csv"):
         oracle_rows[(r["variant"], r["layout"], r["seed"])].append(r)
     for (variant, policy), v in s.items():
-        if not policy.startswith("ORACLE:"):
-            continue
-        base = policy[len("ORACLE:"):]
+        if not (policy.startswith("ORACLE") and ":" in policy) or policy.startswith("ORACLE_BEST"):
+            continue  # ORACLE: and ORACLE_ITER: share their base policy's name after the colon
+        base = policy.split(":", 1)[1]
         # compare on exactly the episodes the oracle ran
         keys = [(k, g) for k, g in oracle_rows.items() if k[0] == variant and any(r["policy"] == policy for r in g)]
         pick = lambda p, f: [num(r[f]) for _, g in keys for r in g if r["policy"] == p]

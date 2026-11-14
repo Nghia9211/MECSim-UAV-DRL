@@ -23,9 +23,9 @@ class MecEnv(gym.Env):
     metadata = {"render_modes": []}
 
     def __init__(self, model_file="experiments/base-model.json", model=None, scheduler="EDF", admission="NONE",
-                 layout_seed=0, energy_weight=0.0):
+                 layout_seed=0, energy_weight=0.0, trace=False):
         self.model_file, self.model, self.scheduler, self.admission = model_file, model or {}, scheduler, admission
-        self.layout_seed, self.energy_weight = layout_seed, energy_weight
+        self.layout_seed, self.energy_weight, self.trace = layout_seed, energy_weight, trace
         self.action_space = gym.spaces.Discrete(2)
         self.observation_space = gym.spaces.Box(0.0, 1.0, shape=(len(FEATURES),), dtype=np.float32)
         self._proc = None
@@ -56,7 +56,12 @@ class MecEnv(gym.Env):
 
     def _reset_command(self, task_seed, **extra):
         return dict(cmd="reset", model_file=self.model_file, model=self.model, layout_seed=self.layout_seed,
-                    task_seed=task_seed, scheduler=self.scheduler, admission=self.admission, **extra)
+                    task_seed=task_seed, scheduler=self.scheduler, admission=self.admission, trace=self.trace, **extra)
+
+    def save_trace(self, path):
+        """Full trace of the last finished episode (needs trace=True), in uav.mec run format."""
+        self._send(dict(cmd="save", path=str(path)))
+        self._receive()
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -108,6 +113,13 @@ class MecEnv(gym.Env):
                 except Exception:
                     pass
             self._proc = None
+
+
+def shortest_finish(info):
+    """Python copy of Policies SHORTEST_FINISH (teacher and parity check)."""
+    if not info["uav_alive"]:
+        return 0
+    return 1 if info["uav_finish"] < info["local_finish"] else 0
 
 
 def deadline_energy(info):
