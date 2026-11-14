@@ -2,7 +2,7 @@
   "name": "v21-gates-dev",
   "hypothesis": "In the v2 model the scheduler changes DVR, offloading has a real local/UAV trade-off and energy depends on the policy.",
   "threshold": "G2, G3, G4 as pre-registered in docs/v2/CALIBRATION.md",
-  "model_file": "experiments/v21-main-model.json",
+  "model_file": "experiments/v21-2mhz-model.json",
   "axes": {
     "load": [{"name": "light", "model": {"rho_uav": 0.5}}, {"name": "medium", "model": {"rho_uav": 0.9}},
              {"name": "overload", "model": {"rho_uav": 1.3}}],

@@ -2,7 +2,7 @@
   "name": "v21b-gates-dev",
   "hypothesis": "Diagnostic after v2.1-main failed G2/G3: same gate structure with 5 MHz uplink (L2a), plus the R2-L2a+L6a load.",
   "threshold": "G2, G3, G4 as pre-registered in docs/v2/CALIBRATION.md",
-  "model_file": "experiments/v21-main-model.json",
+  "model_file": "experiments/v21-2mhz-model.json",
   "axes": {
     "load": [
       {

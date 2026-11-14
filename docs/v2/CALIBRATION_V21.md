@@ -113,7 +113,7 @@ Người dùng chọn phương án 1: bỏ điều kiện G7, lấy **R1-L2b** l
 Kết quả "vị trí UAV không ảnh hưởng đáng kể" được giữ như một phát hiện âm. Không có vòng 3.
 
 `v2.1-main` = v2.0 + băng thông uplink 2 MHz (downlink 1 MHz), tải ρ_UAV = 1,3, quỹ đạo CIRCLE R = 200 m:
-[experiments/v21-main-model.json](../../experiments/v21-main-model.json).
+[experiments/v21-2mhz-model.json](../../experiments/v21-2mhz-model.json) (đổi tên ngày 15/11, xem mục 5).
 Không có ô phụ cho kiểm tra độ bền vì không còn ứng viên nào khác thỏa quy tắc 2 khi đã bỏ G7 (R2-L2a+L6a có 2 đòn bẩy,
 được dùng làm ô phụ ở H4 theo đúng thứ tự quy tắc 2).
 
@@ -141,3 +141,26 @@ Số liệu: `data/v21-*-gates-*.json`, `data/v21b-gates-dev-gates-g234.json`.
 
 Theo thứ tự quy tắc 2 (khi đã bỏ G7), ứng viên kế tiếp sau R1-L2b là **R2-L2a+L6a** (5 MHz + ρ_sys = 0,8):
 G6 qua (4,10 điểm DVR / 11,3% năng lượng), G8 qua (DVR 5,63%). Chờ người dùng quyết định có đổi `v2.1-main` hay không.
+
+## 5. `v2.1-main` mới: 5 MHz + ρ_sys = 0,8 (15/11/2026)
+
+Người dùng đồng ý phương án đề xuất: thay R1-L2b bằng ứng viên kế tiếp theo quy tắc 2, **R2-L2a+L6a**.
+File cấu hình 2 MHz cũ đổi tên thành `experiments/v21-2mhz-model.json`; các run 2 MHz giữ nguyên.
+
+`v2.1-main` = v2.0 + uplink 5 MHz (downlink 2,5 MHz) + tải ρ_sys = 0,8, quỹ đạo CIRCLE R = 200 m:
+[experiments/v21-main-model.json](../../experiments/v21-main-model.json), SHA-256
+`9c1da31ecae0699ba86330476beba68061303251ea606915a6bf8e2d5f408f08`. **Khóa từ đây.**
+
+| Cổng | Kết quả | Run |
+|---|---|---|
+| G1 | qua: DVR `ALL_UAV+EDF` 47,85 / 20,81 / 10,67% ở CPU 2 / 4 / 8 Gc/s (tải đến cố định), giảm đơn điệu, chênh 37,2 điểm | `v21main-g1-cpu` |
+| G2 | qua: chênh DVR giữa scheduler tới 32,9 điểm; FIFO/EDF/SRPT khác nhau ở 60,0% lần dispatch (tái dựng 11.716/11.716) | `v21b-gates-dev` (5 MHz) |
+| G3 | qua: `DEADLINE_ENERGY` thắng cả hai cực ở mọi mức tải; `ALL_UAV` thắng `ALL_LOCAL` ở light/medium/overload | `v21b-gates-dev` |
+| G4 | qua: J biên max/min 1,66–2,77× | `v21b-gates-dev` |
+| G5 | qua: 0,30–1,55% | `v21-g5-queue-theory` |
+| G6 | qua: 4,10 điểm DVR / **11,3%** J biên (qua nhờ năng lượng) | `h3-r2-oracle` |
+| G8 | qua: DVR heuristic tốt nhất (`SHORTEST_FINISH+EDF`, có preemption) = 5,63% | `h3-r2-heuristics` |
+| G7 | không qua (0,09 điểm): vị trí UAV không ảnh hưởng, đã chấp nhận bỏ H6 | `h3-r2-heuristics` |
+
+G2–G4 lấy từ run chẩn đoán `v21b-gates-dev`: cùng cấu trúc cổng với băng thông 5 MHz, có thêm mức tải ρ_sys = 0,8.
+Mọi run trên đều được verifier PASS.

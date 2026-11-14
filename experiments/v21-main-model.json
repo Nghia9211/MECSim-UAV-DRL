@@ -71,8 +71,8 @@
   },
   "radio": {
     "mode": "SHANNON",
-    "uplink_hz": 2000000.0,
-    "downlink_hz": 1000000.0,
+    "uplink_hz": 5000000.0,
+    "downlink_hz": 2500000.0,
     "device_radiated_w": 0.1,
     "uav_radiated_w": 1.0,
     "beta0_db": -50,
@@ -82,7 +82,6 @@
   },
   "preemptive": false,
   "arrival_window_s": 600,
-  "rho_uav": 1.3,
   "estimate_error": 0,
   "classes": [
     {
@@ -148,5 +147,6 @@
         "max": 90
       }
     }
-  ]
+  ],
+  "rho_system": 0.8
 }
