@@ -1,0 +1,75 @@
+{
+  "name": "h4-baselines-eval21",
+  "hypothesis": "H4: baselines of v2.1-main on the never-opened v2.1 evaluation seeds; the fixed reference for every RL result.",
+  "threshold": "Descriptive; paired bootstrap CI vs the best heuristic (docs/v2/MODEL.md section 7)",
+  "axes": {
+    "err": [
+      {
+        "name": "e0"
+      },
+      {
+        "name": "e40",
+        "model": {
+          "estimate_error": 0.4
+        }
+      }
+    ],
+    "cpu": [
+      {
+        "name": "np"
+      },
+      {
+        "name": "pre",
+        "model": {
+          "preemptive": true
+        }
+      }
+    ],
+    "traj": [
+      {
+        "name": "circle"
+      },
+      {
+        "name": "static-centre",
+        "model": {
+          "trajectory": {
+            "type": "STATIC"
+          }
+        }
+      },
+      {
+        "name": "static-quarter",
+        "model": {
+          "trajectory": {
+            "type": "STATIC",
+            "x_m": 150,
+            "y_m": 150
+          }
+        }
+      }
+    ]
+  },
+  "policies": [
+    "ALL_LOCAL+EDF+NONE",
+    "ALL_UAV+EDF+NONE",
+    "RANDOM+EDF+NONE",
+    "SHORTEST_FINISH+EDF+NONE",
+    "DEADLINE_ENERGY+EDF+NONE",
+    "THRESHOLD_5+EDF+NONE",
+    "DEADLINE_ENERGY+FIFO+NONE",
+    "DEADLINE_ENERGY+SRPT+NONE",
+    "DEADLINE_ENERGY+LLF+NONE",
+    "DEADLINE_ENERGY+PRIORITY_EDF+NONE",
+    "DEADLINE_ENERGY+FIFO+DROP_INFEASIBLE",
+    "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE",
+    "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE",
+    "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE",
+    "DEADLINE_ENERGY+PRIORITY_EDF+DROP_INFEASIBLE"
+  ],
+  "partition": "evaluation-v21",
+  "model_file": "experiments/v21-main-model.json",
+  "trace_tasks": 1,
+  "trace_layouts": 1,
+  "engine": "loop",
+  "threads": 16
+}

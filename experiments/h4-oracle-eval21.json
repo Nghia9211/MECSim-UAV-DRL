@@ -1,0 +1,33 @@
+{
+  "name": "h4-oracle-eval21",
+  "hypothesis": "H4 G6 on v2.1 evaluation seeds: ORACLE_ITER of the best development heuristic.",
+  "threshold": "G6 thresholds (CALIBRATION.md), reported only",
+  "axes": {
+    "cpu": [
+      {
+        "name": "np"
+      },
+      {
+        "name": "pre",
+        "model": {
+          "preemptive": true
+        }
+      }
+    ]
+  },
+  "policies": [
+    "SHORTEST_FINISH+EDF+NONE",
+    "DEADLINE_ENERGY+EDF+NONE",
+    "ORACLE_ITER:SHORTEST_FINISH+EDF+NONE"
+  ],
+  "partition": "evaluation-v21",
+  "oracle_limit": {
+    "layouts": 5,
+    "tasks": 2
+  },
+  "model_file": "experiments/v21-main-model.json",
+  "trace_tasks": 1,
+  "trace_layouts": 1,
+  "engine": "loop",
+  "threads": 16
+}

@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  *
  * Config fields: name, hypothesis, threshold (required text); model_file and/or model (patch);
  * axes {axis: [{name, model}]} (cartesian product of model patches); policies ["OFFLOAD+SCHED+ADMISSION" or
- * an oracle name, see RolloutOracle]; partition development|evaluation or seeds {layouts, tasks};
+ * an oracle name, see RolloutOracle]; partition development|evaluation|validation-v21|evaluation-v21 or seeds {layouts, tasks};
  * trace_tasks / trace_layouts (full traces for the first k task seeds of the first j layouts); engine pureedgesim|loop; threads (loop engine only);
  * oracle_limit {layouts, tasks}.
  */
@@ -26,6 +26,9 @@ public final class MecRunner {
     private static final ObjectMapper JSON = new ObjectMapper();
     public static final List<Long> DEV_LAYOUTS = range(0, 5), DEV_TASKS = range(0, 30);
     public static final List<Long> EVAL_LAYOUTS = range(100, 5), EVAL_TASKS = range(1000, 30);
+    /** v2.1 partitions (CALIBRATION_V21.md 1, PLAN_HUONG_2_3.md 3.4). */
+    public static final List<Long> VAL21_LAYOUTS = range(50, 5), VAL21_TASKS = range(500, 30);
+    public static final List<Long> EVAL21_LAYOUTS = range(200, 5), EVAL21_TASKS = range(2000, 30);
 
     record Variant(String name, MecModel model, JsonNode json) { }
     record Job(int index, Variant variant, long layout, long seed, String policy, boolean trace) { }
@@ -92,9 +95,13 @@ public final class MecRunner {
             for (JsonNode x : c.get("seeds").get("layouts")) layouts.add(x.asLong());
             for (JsonNode x : c.get("seeds").get("tasks")) tasks.add(x.asLong());
         } else {
-            boolean eval = Json.text(c, "partition", "config").equals("evaluation");
-            if (!eval && !Json.text(c, "partition", "config").equals("development")) throw new IllegalArgumentException("partition");
-            layouts = eval ? EVAL_LAYOUTS : DEV_LAYOUTS; tasks = eval ? EVAL_TASKS : DEV_TASKS;
+            switch (Json.text(c, "partition", "config")) {
+                case "development" -> { layouts = DEV_LAYOUTS; tasks = DEV_TASKS; }
+                case "evaluation" -> { layouts = EVAL_LAYOUTS; tasks = EVAL_TASKS; }
+                case "validation-v21" -> { layouts = VAL21_LAYOUTS; tasks = VAL21_TASKS; }
+                case "evaluation-v21" -> { layouts = EVAL21_LAYOUTS; tasks = EVAL21_TASKS; }
+                default -> throw new IllegalArgumentException("partition development|evaluation|validation-v21|evaluation-v21");
+            }
         }
         if (smoke) { layouts = layouts.subList(0, 1); tasks = tasks.subList(0, Math.min(2, tasks.size())); }
         int traceTasks = c.has("trace_tasks") ? c.get("trace_tasks").asInt() : 1;
