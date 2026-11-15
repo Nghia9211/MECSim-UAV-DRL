@@ -1,0 +1,17 @@
+{
+  "name": "h5d-offload-ext",
+  "registered": "2026-11-16, before any H5d run",
+  "context": "Scheduling RL (H5b) cannot beat preemptive EDF; the user chose to extend the offloading agent instead (v2.1-main, preemptive EDF, exact estimates, CIRCLE).",
+  "energy_metric": "marginal J per OFFERED task (marginal_j / offered). Marginal J per on-time task can be lowered by rejecting expensive tasks, so it is not used to compare policies that may reject.",
+  "H5d-1 reject": {
+    "hypothesis": "Adding a REJECT action at arrival (task dropped immediately, counted as a violation, no energy spent) lets the agent shed tasks that would miss anyway and free CPU and uplink for others, lowering DVR or energy.",
+    "gate": "On development seeds (layouts 0-2 x task seeds 0-1, v2.1-main preemptive), ORACLE_ITER_R (rollout + local search over LOCAL/UAV/REJECT) vs ORACLE_ITER (LOCAL/UAV), both from SHORTEST_FINISH+EDF+NONE. Train the reject agent only if the reject oracle improves DVR by >= 0.5 points or marginal J per offered task by >= 3%.",
+    "training": "5 seeds, energy weight 4, 3 actions, behaviour cloning of SHORTEST_FINISH with label smoothing 0.1, entropy 0.005, 4M PPO steps (same total budget as H5a-long), checkpoint on validation.",
+    "contribution": "evaluation-v21, paired vs H5a-long (same seed) and vs SHORTEST_FINISH+EDF+NONE: 95% CI of DVR or of marginal J per offered task excludes 0 in favour of the reject agent for >= 4/5 seeds."
+  },
+  "H5d-2 energy trade-off": {
+    "hypothesis": "Sweeping the energy weight traces an RL trade-off front (DVR vs marginal J per offered task) that dominates the heuristic family of H4.",
+    "training": "energy weights 0, 16, 64; seeds 0-2; warm start from the H5a-long final checkpoint of the same seed; 2M PPO steps; checkpoint on validation with the same rule as before (lowest DVR, then lowest energy). Existing points: weight 4 = H5a-long (5 seeds).",
+    "comparison": "evaluation-v21, main variant. A heuristic point is dominated if some RL weight has mean DVR <= and mean marginal J per offered task <= with at least one strict. Report every heuristic of H4 (15 policies) and the fraction dominated; no claim of statistical significance for the front."
+  }
+}
