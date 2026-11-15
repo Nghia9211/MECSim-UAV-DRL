@@ -50,7 +50,11 @@ class MecEnvTests(unittest.TestCase):
                 ref.close()
             for key in ("on_time", "dvr", "marginal_j", "offloaded", "latency_mean_s"):
                 self.assertEqual(info["metrics"][key], java["metrics"][key], key)
-            check_env(env, skip_render_check=True)
+            # gymnasium's check_env samples actions without the mask, so it is not applicable here;
+            # check the declared spaces directly instead
+            obs, _ = env.reset(options=dict(task_seed=508))
+            self.assertTrue(env.observation_space.contains(obs))
+            self.assertTrue(env.action_masks().any())
         finally:
             env.close()
 
