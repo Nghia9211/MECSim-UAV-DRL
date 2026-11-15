@@ -1,0 +1,33 @@
+{
+  "chosen": {
+    "control": "offload",
+    "energy_weight": 4.0,
+    "runs": [
+      "target/rl/h5a-long/w4-s0/",
+      "target/rl/h5a-long/w4-s1/",
+      "target/rl/h5a-long/w4-s2/",
+      "target/rl/h5a-long/w4-s3/",
+      "target/rl/h5a-long/w4-s4/"
+    ],
+    "seeds": 5,
+    "mean_dvr": 0.022600746657547598,
+    "mean_j": 19.0973990751688
+  },
+  "groups": [
+    {
+      "control": "offload",
+      "energy_weight": 4.0,
+      "runs": [
+        "target/rl/h5a-long/w4-s0/",
+        "target/rl/h5a-long/w4-s1/",
+        "target/rl/h5a-long/w4-s2/",
+        "target/rl/h5a-long/w4-s3/",
+        "target/rl/h5a-long/w4-s4/"
+      ],
+      "seeds": 5,
+      "mean_dvr": 0.022600746657547598,
+      "mean_j": 19.0973990751688
+    }
+  ],
+  "skipped": []
+}

@@ -11,11 +11,15 @@ Seed: huấn luyện layout 1000–1999 × task seed 10⁶–2·10⁶ (rút ng�
    của `SHORTEST_FINISH+EDF`. Chênh ghép cặp −2,27 đến −2,90 điểm, khoảng tin cậy 95% không chứa 0, mỗi seed thắng 150/150 cặp episode.
    Năng lượng biên/task đúng hạn thấp hơn 1,4–2,0%, latency trung bình và P95 cũng thấp hơn.
    Tiêu chí đóng góp của plan (≥ 4/5 seed có khoảng tin cậy không chứa 0) đạt **5/5**.
-2. **Ưu thế giữ nguyên khi đổi điều kiện mà policy chưa từng thấy:** ước lượng sai ±40% (−2,14 đến −2,74 điểm) và UAV đứng yên
+2. **Ưu thế của policy H5a giữ nguyên khi đổi điều kiện mà policy chưa từng thấy:** ước lượng sai ±40% (−2,14 đến −2,74 điểm) và UAV đứng yên
    (−1,21 đến −1,84 điểm so với heuristic tốt nhất của chính biến thể đó, kèm −6,6 đến −7,1% năng lượng).
-3. **RL lấy được khoảng một nửa khoảng trống.** Oracle biết trước tương lai đạt DVR 0,06% trên 10 episode evaluation, so với 4,74%
+3. **Huấn luyện thêm 2 triệu bước (H5a-long, đăng ký trước) giảm DVR thêm:** 2,59–3,00% trên evaluation, chênh −3,11 đến −3,53 điểm
+   so với heuristic (KTC không chứa 0, 5/5 seed); DVR lớp DETECT 1,1–1,7% so với 6,3%. **Đổi lại**, ưu thế năng lượng gần như mất
+   (chỉ 2/5 seed còn chênh có ý nghĩa: −1,27% và −0,81%) và latency P95 nhỉnh hơn heuristic ở 3/5 seed. Chọn trên validation
+   (H5a-long 2,02–2,54% so với H5a 2,31–2,85%), **H5a-long là policy cuối**; cả hai được báo cáo (mục 2b).
+4. **RL lấy được khoảng một nửa đến ba phần tư khoảng trống** (ước lượng thô: oracle chỉ chạy trên 10 episode). Oracle biết trước tương lai đạt DVR 0,06% trên 10 episode evaluation, so với 4,74%
    của `SHORTEST_FINISH` trên cùng 10 episode.
-4. **RL chọn task cho CPU UAV (H5b) không vượt EDF.** Lần 1 hỏng do thiết lập (mục 4). Lần 2 sửa thiết lập: chênh DVR trên
+5. **RL chọn task cho CPU UAV (H5b) không vượt EDF.** Lần 1 hỏng do thiết lập (mục 4). Lần 2 sửa thiết lập: chênh DVR trên
    evaluation bằng 0 ở 4/5 seed; seed còn lại +0,005 điểm (khoảng tin cậy chứa 0). Không đạt tiêu chí đóng góp.
    Điều này phù hợp với lý thuyết: trên một CPU có preemption, EDF tối ưu về việc đáp ứng deadline mỗi khi tập task còn khả thi.
    Vì vậy không làm H5c (kết hợp hai policy học được).
@@ -75,7 +79,28 @@ RL offload nhiều hơn heuristic (36–43% task so với 23%).
 Lifetime UAV: 150/150 episode còn pin tới horizon, chỉ có cận dưới (censored).
 Dữ liệu: [data/h5-eval21-summary.csv](data/h5-eval21-summary.csv), [data/h5-eval21-paired.csv](data/h5-eval21-paired.csv).
 
+### 2b. H5a-long: huấn luyện tiếp 2 triệu bước ([experiments/h5a-long.json](../../experiments/h5a-long.json))
+
+Mỗi seed tiếp tục từ checkpoint H5a đã chọn, cùng siêu tham số, không bắt chước lại. Checkpoint chọn trên 20 episode validation,
+trong đó bước 0 chính là policy H5a. Validation đầy đủ: 2,523 / 2,016 / 2,537 / 2,051 / 2,172% (seed 0–4), tốt hơn H5a ở cả 5 seed.
+Evaluation (`target/mec/h5a-long-eval21`, verifier PASS, 150 nhóm cùng workload):
+
+| Seed | Checkpoint | DVR % [KTC] | (H5a) | Chênh DVR vs heuristic [KTC] | Thắng/thua | J biên/task | Chênh J [KTC] | Latency TB / P95 |
+|---|---|---|---:|---|---|---:|---|---|
+| 0 | 1,6 triệu | 2,97 [2,78; 3,16] | 3,85 | −3,15 [−3,46; −2,82] | 134/15 | 19,62 | +0,28% [−0,17; +0,75] | 6,47 / 27,59 |
+| 1 | 1,0 triệu | **2,59** [2,40; 2,77] | 3,22 | −3,53 [−3,80; −3,26] | 150/0 | 19,31 | −1,27% [−1,63; −0,88] | 5,96 / 23,93 |
+| 2 | 1,2 triệu | 3,00 [2,83; 3,19] | 3,46 | −3,11 [−3,45; −2,77] | 133/14 | 19,58 | +0,09% [−0,37; +0,57] | 6,50 / 27,91 |
+| 3 | 1,0 triệu | 2,67 [2,48; 2,87] | 3,75 | −3,45 [−3,70; −3,19] | 150/0 | 19,40 | −0,81% [−1,19; −0,41] | 6,00 / 24,05 |
+| 4 | 1,2 triệu | 2,70 [2,52; 2,88] | 3,60 | −3,42 [−3,73; −3,12] | 145/4 | 19,48 | −0,43% [−0,86; +0,01] | 6,18 / 25,40 |
+
+Heuristic `SHORTEST_FINISH+EDF`: 6,12%, 19,56 J, 6,11 / 24,23 s. Policy học thêm chủ yếu giảm vi phạm của lớp DETECT
+(1,09–1,70% so với 6,34%) bằng cách chấp nhận tốn thêm năng lượng và kéo dài latency của task khác.
+**Lưu ý minh bạch:** evaluation đã được mở cho cả H5a và H5a-long (mỗi policy một lần); việc chọn H5a-long làm policy cuối dựa trên
+validation, không dựa trên evaluation. Dữ liệu: `data/h5a-long-*`.
+
 ### Độ bền (không dùng để chọn gì; policy giữ nguyên)
+
+Thực hiện trên policy H5a (trước H5a-long).
 
 | Biến thể | Heuristic tốt nhất của biến thể | Chênh DVR của 5 seed RL (điểm) | Thắng/thua | Chênh J biên |
 |---|---|---|---|---|
@@ -139,4 +164,5 @@ mvn -o -q exec:java "-Dexec.mainClass=uav.mec.MecRunner" "-Dexec.args=experiment
 bash scripts/h5_pipeline.sh        # H5a + H5b lần 1 + đánh giá + verifier + báo cáo
 bash scripts/h5_robustness.sh      # độ bền
 bash scripts/h5b_v2.sh             # H5b lần 2
+bash scripts/h5a_long.sh           # H5a-long
 ```
