@@ -86,8 +86,14 @@ def score(infos):
     """Mean episode DVR and pooled marginal J per on-time task."""
     m = [i["metrics"] for i in infos]
     on = sum(x["on_time"] for x in m)
-    return dict(dvr=float(np.mean([x["dvr"] for x in m])), j_per_on_time=sum(x["marginal_j"] for x in m) / on if on else math.nan,
-                on_time=on, episodes=len(m))
+    offered, marginal = sum(x["offered"] for x in m), sum(x["marginal_j"] for x in m)
+    return dict(dvr=float(np.mean([x["dvr"] for x in m])), j_per_on_time=marginal / on if on else math.nan,
+                on_time=on, episodes=len(m), offered=offered, marginal_j=marginal, j_per_offered=marginal / offered)
+
+
+def objective(s, energy_weight):
+    """Per-task value of the training reward on a validation score: (on - violations)/offered - w * (J/offered)/100."""
+    return (2 * s["on_time"] - s["offered"]) / s["offered"] - energy_weight * s["j_per_offered"] / 100
 
 
 def policy_chooser(model):
@@ -177,7 +183,8 @@ def train(a):
         log["validation"].append(s)
         path = out / f"ckpt-{step:08d}.zip"
         model.save(path)
-        key = (round(s["dvr"], 12), s["j_per_on_time"])
+        s["objective"] = objective(s, a.energy_weight)
+        key = (-s["objective"],) if a.select_rule == "objective" else (round(s["dvr"], 12), s["j_per_on_time"])
         if best is None or key < best[0]:  # lower DVR first, then lower energy; ties keep the earlier checkpoint
             best = (key, step, path)
         (out / "train.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
@@ -311,6 +318,8 @@ def main():
     t.add_argument("--ent-coef", type=float, default=0.001)
     t.add_argument("--bc-smoothing", type=float, default=0.0)
     t.add_argument("--init-from", help="checkpoint .zip of a finished run to continue training from")
+    t.add_argument("--select-rule", choices=["dvr", "objective"], default="dvr",
+                   help="checkpoint choice: lowest DVR then energy (default), or highest training objective (H5d-2)")
     e = sub.add_parser("evaluate")
     e.add_argument("--runs", nargs="+", required=True)
     e.add_argument("--out", required=True)
