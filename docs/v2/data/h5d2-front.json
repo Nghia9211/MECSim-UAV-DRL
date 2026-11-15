@@ -1,0 +1,210 @@
+{
+  "variant": "e0-pre-circle",
+  "rl_front": {
+    "0.0": {
+      "seeds": 3,
+      "dvr": 2.7072573714179033,
+      "dvr_min": 2.510129149048977,
+      "dvr_max": 2.9424123792676347,
+      "j_per_offered": 18.800116236089526,
+      "j_min": 18.709304189784604,
+      "j_max": 18.87531635624821
+    },
+    "4.0": {
+      "seeds": 5,
+      "dvr": 2.785157359388709,
+      "dvr_min": 2.588712983569264,
+      "dvr_max": 3.004634685033546,
+      "j_per_offered": 18.939102150762515,
+      "j_min": 18.818889499774336,
+      "j_max": 19.035843541481213
+    },
+    "16.0": {
+      "seeds": 3,
+      "dvr": 2.88388573346454,
+      "dvr_min": 2.296271095805206,
+      "dvr_max": 3.277812660898577,
+      "j_per_offered": 18.816560555223873,
+      "j_min": 18.725935334061354,
+      "j_max": 18.869831013835736
+    },
+    "64.0": {
+      "seeds": 3,
+      "dvr": 2.9441282441092285,
+      "dvr_min": 2.625245828595359,
+      "dvr_max": 3.104340624066887,
+      "j_per_offered": 18.869147618169734,
+      "j_min": 18.77420216051998,
+      "j_max": 18.927391062232072
+    }
+  },
+  "heuristics": {
+    "ALL_LOCAL+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 32.23274391971347,
+      "j_per_offered": 9.374535520189541,
+      "j_per_on_time": 13.770175489844467
+    },
+    "ALL_UAV+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 51.2674221966627,
+      "j_per_offered": 25.75595763172381,
+      "j_per_on_time": 53.18777330701566
+    },
+    "RANDOM+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 11.041128323426179,
+      "j_per_offered": 18.92468806093471,
+      "j_per_on_time": 21.252668508204266
+    },
+    "SHORTEST_FINISH+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 6.118944340908477,
+      "j_per_offered": 18.389048080699144,
+      "j_per_on_time": 19.561270890816925
+    },
+    "DEADLINE_ENERGY+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 7.11521272272103,
+      "j_per_offered": 19.680583823607385,
+      "j_per_on_time": 21.197361825268572
+    },
+    "THRESHOLD_5+EDF+NONE": {
+      "episodes": 150,
+      "dvr": 6.807255550747051,
+      "j_per_offered": 19.82185196100758,
+      "j_per_on_time": 21.258813247040415
+    },
+    "DEADLINE_ENERGY+FIFO+NONE": {
+      "episodes": 150,
+      "dvr": 20.124275501996042,
+      "j_per_offered": 19.096682558220024,
+      "j_per_on_time": 23.898884476138402
+    },
+    "DEADLINE_ENERGY+SRPT+NONE": {
+      "episodes": 150,
+      "dvr": 8.067380285788087,
+      "j_per_offered": 19.19135706980015,
+      "j_per_on_time": 20.882432936007433
+    },
+    "DEADLINE_ENERGY+LLF+NONE": {
+      "episodes": 150,
+      "dvr": 7.901124170165372,
+      "j_per_offered": 19.619719554157005,
+      "j_per_on_time": 21.308670912134858
+    },
+    "DEADLINE_ENERGY+PRIORITY_EDF+NONE": {
+      "episodes": 150,
+      "dvr": 7.409871568777276,
+      "j_per_offered": 19.64643500469502,
+      "j_per_on_time": 21.227075947101408
+    },
+    "DEADLINE_ENERGY+FIFO+DROP_INFEASIBLE": {
+      "episodes": 150,
+      "dvr": 19.623711875002734,
+      "j_per_offered": 18.944906831048726,
+      "j_per_on_time": 23.561587431262414
+    },
+    "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": {
+      "episodes": 150,
+      "dvr": 6.87671884268862,
+      "j_per_offered": 19.555547248345054,
+      "j_per_on_time": 21.009557603678726
+    },
+    "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE": {
+      "episodes": 150,
+      "dvr": 7.222451672146681,
+      "j_per_offered": 18.681350407479627,
+      "j_per_on_time": 20.13990632367962
+    },
+    "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE": {
+      "episodes": 150,
+      "dvr": 7.521220007627024,
+      "j_per_offered": 19.483663897914873,
+      "j_per_on_time": 21.07537965323487
+    },
+    "DEADLINE_ENERGY+PRIORITY_EDF+DROP_INFEASIBLE": {
+      "episodes": 150,
+      "dvr": 7.200899311019642,
+      "j_per_offered": 19.507779059369778,
+      "j_per_on_time": 21.030570020543077
+    }
+  },
+  "dominated_by": {
+    "ALL_LOCAL+EDF+NONE": [],
+    "ALL_UAV+EDF+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "RANDOM+EDF+NONE": [
+      0.0,
+      16.0,
+      64.0
+    ],
+    "SHORTEST_FINISH+EDF+NONE": [],
+    "DEADLINE_ENERGY+EDF+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "THRESHOLD_5+EDF+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+FIFO+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+SRPT+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+LLF+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+PRIORITY_EDF+NONE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+FIFO+DROP_INFEASIBLE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+EDF+DROP_INFEASIBLE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE": [],
+    "DEADLINE_ENERGY+LLF+DROP_INFEASIBLE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ],
+    "DEADLINE_ENERGY+PRIORITY_EDF+DROP_INFEASIBLE": [
+      0.0,
+      4.0,
+      16.0,
+      64.0
+    ]
+  },
+  "dominated_share": 0.8
+}

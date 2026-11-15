@@ -23,6 +23,9 @@ Seed: huấn luyện layout 1000–1999 × task seed 10⁶–2·10⁶ (rút ng�
    evaluation bằng 0 ở 4/5 seed; seed còn lại +0,005 điểm (khoảng tin cậy chứa 0). Không đạt tiêu chí đóng góp.
    Điều này phù hợp với lý thuyết: trên một CPU có preemption, EDF tối ưu về việc đáp ứng deadline mỗi khi tập task còn khả thi.
    Vì vậy không làm H5c (kết hợp hai policy học được).
+6. **Mở rộng offloading (H5d, mục 4b) không cho kết quả dương.** Hành động REJECT không qua gate, vì ngay cả oracle cũng chỉ lợi −0,04% năng lượng.
+   Quét trọng số năng lượng 0/16/64 không tạo được trade-off front: policy gần như không đổi so với warm start, dù DVR vẫn thấp hơn heuristic
+   ở 9/9 run. Tính trên mỗi task được gửi đến, mọi policy RL tốn năng lượng hơn `SHORTEST_FINISH` 1,7–3,0%, vì chúng hoàn thành đúng hạn nhiều task hơn.
 
 ## 1. Mốc so sánh H4 (evaluation v2.1)
 
@@ -147,6 +150,51 @@ lệch khỏi EDF (sau 1,6–1,8 triệu bước, seed 0, 1, 3) thì DVR validat
 **Kết luận H5b:** trong `v2.1-main`, chọn thứ tự task trên CPU UAV bằng RL không cải thiện EDF có preemption. Không có bằng chứng
 cho việc học scheduling; khoảng trống của bài toán nằm ở quyết định offloading. Dữ liệu: `data/h5b2-*`.
 
+## 4b. H5d: mở rộng agent offloading ([experiments/h5d-offload-ext.json](../../experiments/h5d-offload-ext.json))
+
+Ở phần này năng lượng được đo bằng **J biên trên mỗi task được gửi đến** (marginal J / offered). Không dùng J trên mỗi task đúng hạn, vì một policy
+có thể hạ chỉ số đó bằng cách bỏ task tốn kém.
+
+**Lưu ý về H5a-long khi đo theo task được gửi đến.** RL trọng số 4 tốn 18,94 J/task, còn `SHORTEST_FINISH+EDF` tốn 18,39 J/task, tức RL
+tốn hơn khoảng 3%. Lý do là RL hoàn thành đúng hạn nhiều task hơn (DVR 2,79% so với 6,12%), và mỗi task hoàn thành đều tiêu năng lượng.
+Vì vậy câu "RL tiết kiệm năng lượng" chỉ đúng khi tính trên mỗi task đúng hạn (mục 2b), không đúng khi tính trên mỗi task được gửi đến.
+
+**H5d-1: thêm hành động REJECT lúc task đến. Gate không đạt, không huấn luyện.** Gate dùng oracle biết trước tương lai, trên 6 episode
+phát triển. `ORACLE_ITER_R` (được phép reject) đạt 0,011% DVR và 16,689 J/task; `ORACLE_ITER` (không được reject) đạt 0,011% và 16,696 J/task.
+Chênh 0 điểm DVR và −0,04% năng lượng, dưới ngưỡng đăng ký trước (0,5 điểm hoặc 3%). Ngay cả khi biết trước tương lai, quyền reject
+gần như vô dụng trong kịch bản này, nên không đáng huấn luyện agent có hành động REJECT.
+
+**H5d-2: quét trọng số năng lượng 0 / 16 / 64. Giả thuyết không được ủng hộ.** Mỗi trọng số 3 seed, warm start từ H5a-long, 2 triệu bước.
+Checkpoint chọn theo objective của chính trọng số đó trên validation (sửa đổi đã đăng ký trước khi chạy). Chạy trên brev-h100 (CPU),
+evaluation `target/mec/h5d2-front-eval21`, verifier PASS (0 lỗi).
+
+| Trọng số | Seed | DVR % | J/task gửi đến | Chênh DVR vs heuristic [KTC] | Thắng/thua | Chênh J/task đúng hạn [KTC] |
+|---|---|---:|---:|---|---|---|
+| 0 | 0 | 2,67 | 18,82 | −3,45 [−3,75; −3,13] | 142/7 | −1,19% [−1,60; −0,75] |
+| 0 | 1 | 2,51 | 18,88 | −3,61 [−3,89; −3,31] | 147/1 | −1,05% [−1,44; −0,60] |
+| 0 | 2 | 2,94 | 18,71 | −3,18 [−3,49; −2,85] | 140/10 | −1,47% [−1,93; −1,00] |
+| 16 | 0 | 3,28 | 18,85 | −2,84 [−3,16; −2,52] | 127/21 | −0,36% [−0,84; +0,11] |
+| 16 | 1 | 2,30 | 18,73 | −3,82 [−4,12; −3,53] | 150/0 | −2,04% [−2,44; −1,62] |
+| 16 | 2 | 3,08 | 18,87 | −3,04 [−3,35; −2,73] | 132/17 | −0,48% [−0,96; −0,02] |
+| 64 | 0 | 3,10 | 18,93 | −3,02 [−3,33; −2,71] | 137/13 | −0,16% [−0,61; +0,32] |
+| 64 | 1 | 2,63 | 18,77 | −3,49 [−3,75; −3,23] | 150/0 | −1,47% [−1,85; −1,07] |
+| 64 | 2 | 3,10 | 18,91 | −3,01 [−3,34; −2,68] | 134/14 | −0,27% [−0,71; +0,18] |
+
+Trung bình theo trọng số: w0 2,71% / 18,80 J; w4 (H5a-long) 2,79% / 18,94 J; w16 2,88% / 18,82 J; w64 2,94% / 18,87 J.
+Heuristic `SHORTEST_FINISH+EDF`: 6,12% / 18,39 J. Có 12/15 heuristic (80%) bị ít nhất một trọng số RL trội. Ba heuristic không bị trội:
+`SHORTEST_FINISH+EDF+NONE` (18,39 J), `DEADLINE_ENERGY+SRPT+DROP_INFEASIBLE` (7,22%, 18,68 J) và `ALL_LOCAL+EDF+NONE` (32,2%, 9,38 J).
+Cả ba đều tốn ít năng lượng hơn mọi điểm RL. Dữ liệu: `data/h5d2-front.json`.
+
+**Vì sao không có front:** trọng số gần như không làm thay đổi policy. Trên validation, J/task gửi đến của w64 chỉ đi từ 18,65 xuống 18,54
+sau 2 triệu bước (<1%), và DVR chỉ dao động trong khoảng 1,8–2,3%. Nếu tối ưu đúng objective của w64 thì policy phải chuyển nhiều task về xử lý
+local (ALL_LOCAL chỉ tốn 9,4 J/task): phạt năng lượng khoảng 12 đơn vị/task, lớn hơn nhiều so với thưởng ±1 cho mỗi task đúng hạn.
+Vì vậy đây là **thất bại tối ưu**, không phải bằng chứng rằng front không tồn tại. Các nguyên nhân khả dĩ (chưa kiểm chứng): warm start từ
+policy w4 (critic khớp với thang thưởng cũ), PPO clipping làm policy chỉ nhích từng bước nhỏ, và 2 triệu bước là ít so với mức thay đổi
+hành vi cần có. Muốn có front thật thì phải chạy một thí nghiệm mới, đăng ký trước, không warm start, hoặc warm start nhưng có giai đoạn
+huấn luyện lại critic.
+**Kết luận dùng được:** ở mọi trọng số đã thử, RL vẫn giữ ưu thế DVR so với heuristic (9/9 run, KTC không chứa 0). Tuy nhiên luận văn
+không thể khẳng định RL tạo ra một trade-off front giữa deadline và năng lượng.
+
 ## 5. Giới hạn
 
 - Một kịch bản chính (`v2.1-main`), tham số loại G chưa đo thực tế; xem [MODEL_V21.md](MODEL_V21.md).
@@ -165,4 +213,6 @@ bash scripts/h5_pipeline.sh        # H5a + H5b lần 1 + đánh giá + verifier 
 bash scripts/h5_robustness.sh      # độ bền
 bash scripts/h5b_v2.sh             # H5b lần 2
 bash scripts/h5a_long.sh           # H5a-long
+PY=python bash scripts/h5d2_server.sh   # H5d-2 (Linux; 9 run, ~25 phút trên 5 tiến trình)
+python scripts/h5d_front.py docs/v2/data/h5d2-front.json target/mec/h4-baselines-eval21 target/mec/h5a-long-eval21 target/mec/h5d2-front-eval21
 ```
