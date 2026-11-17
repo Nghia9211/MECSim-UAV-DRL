@@ -3,8 +3,28 @@
   "hypothesis": "H5d-1 gate: letting the clairvoyant oracle also reject tasks at arrival improves on the route-only oracle.",
   "threshold": "Train the reject agent only if ORACLE_ITER_R beats ORACLE_ITER by >= 0.5 DVR points or >= 3% marginal J per offered task (experiments/h5d-offload-ext.json)",
   "model_file": "experiments/v21-main-model.json",
-  "model": {"preemptive": true},
-  "policies": ["SHORTEST_FINISH+EDF+NONE", "ORACLE_ITER:SHORTEST_FINISH+EDF+NONE", "ORACLE_ITER_R:SHORTEST_FINISH+EDF+NONE"],
-  "seeds": {"layouts": [0, 1, 2], "tasks": [0, 1]},
-  "trace_tasks": 1, "trace_layouts": 1, "engine": "loop", "threads": 16
+  "model": {
+    "preemptive": true
+  },
+  "policies": [
+    "SHORTEST_FINISH+EDF+NONE",
+    "ORACLE_ITER:SHORTEST_FINISH+EDF+NONE",
+    "ORACLE_ITER_R:SHORTEST_FINISH+EDF+NONE"
+  ],
+  "seeds": {
+    "layouts": [
+      0,
+      1,
+      2
+    ],
+    "tasks": [
+      0,
+      1
+    ]
+  },
+  "trace_tasks": 1,
+  "trace_layouts": 1,
+  "engine": "loop",
+  "threads": 16,
+  "removed_code": "Negative result: the code this config needs was removed from the branch on 2026-11-16. Reproduce with: git checkout v2-h5-full. Result: docs/v2/RESULTS_V21_RL.md and README.md."
 }

@@ -15,9 +15,30 @@ Từ 12/11/2026 phần offloading/scheduling được làm lại trong package `
 (nhánh `feat/mec-v2`). Lý do: [chẩn đoán v1](docs/v1-diagnosis/README.md) cho thấy CPU và hàng đợi
 gần như không phải nút thắt trong kernel cũ. Đặc tả, hiệu chuẩn và kết quả v2 nằm ở [docs/v2/](docs/v2/).
 
-Trạng thái 12/11/2026: P0–P5 xong. Cổng G1–G5 qua không cần chỉnh tham số; `DEADLINE_ENERGY` + EDF có preemption là
-baseline mạnh nhất; **G6 không qua** (oracle chỉ hơn ≤ 1,6 điểm DVR), nên cần chọn hướng trước khi làm RL.
-Đọc [RESULTS_BASELINES.md](docs/v2/RESULTS_BASELINES.md), [CALIBRATION.md](docs/v2/CALIBRATION.md), [MODEL.md](docs/v2/MODEL.md).
+Trạng thái 16/11/2026. Kịch bản chính là `v2.1-main` (5 MHz, ρ_sys = 0,8, EDF có preemption):
+[CALIBRATION_V21.md](docs/v2/CALIBRATION_V21.md), [MODEL_V21.md](docs/v2/MODEL_V21.md).
+**Kết quả chính:** RL quyết định offloading (PPO, khởi tạo bằng bắt chước `SHORTEST_FINISH`, trọng số năng lượng 4) đạt DVR
+2,6–3,0% trên evaluation, so với 6,1% của heuristic tốt nhất. Thắng ở 5/5 seed, khoảng tin cậy 95% ghép cặp không chứa 0.
+Chi tiết: [RESULTS_V21_RL.md](docs/v2/RESULTS_V21_RL.md). Các mốc trước: [RESULTS_BASELINES.md](docs/v2/RESULTS_BASELINES.md),
+[CALIBRATION.md](docs/v2/CALIBRATION.md), [MODEL.md](docs/v2/MODEL.md).
+
+Code v2 trên nhánh chỉ còn những phần dẫn tới kết quả dùng được: kernel `uav.mec`, các heuristic, oracle `ORACLE`,
+`ORACLE_ITER` và `ORACLE_BEST`, cầu Gym điều khiển offloading (`drl/mec_env.py`, `drl/mec_rl.py`) và verifier.
+
+### Kết quả âm tính (code đã gỡ khỏi nhánh, giữ tại tag `v2-h5-full`)
+
+Ngày 16/11/2026 code của các thí nghiệm dưới đây đã được gỡ. Kết quả, cấu hình đăng ký trước (`experiments/*.json`) và số liệu
+(`docs/v2/data/`) vẫn giữ nguyên. Muốn chạy lại thì dùng `git checkout v2-h5-full`.
+
+| Thí nghiệm | Code đã gỡ | Kết quả |
+|---|---|---|
+| H5b: RL chọn task cho CPU UAV ([h5b-v2-sched.json](experiments/h5b-v2-sched.json)) | `MecSchedEnv`, `--control schedule`, teacher `edf`, `--bc-smoothing`; bước `schedule` của `MecGymBridge` (K = 5 ứng viên theo thứ tự EDF, có mask); `Policy.uavScheduler`; `scripts/h5b_v2.sh`; bước H5b trong `h5_pipeline.sh` | Không vượt EDF có preemption: chênh DVR bằng 0 ở 4/5 seed, seed còn lại +0,005 điểm (khoảng tin cậy chứa 0). Phù hợp lý thuyết: EDF tối ưu trên một CPU có preemption khi tập task còn khả thi. |
+| H5d-1: hành động REJECT lúc task đến ([h5d-gate-reject.json](experiments/h5d-gate-reject.json)) | oracle `ORACLE_ITER_R` | Gate không qua: oracle được phép reject chỉ lợi 0 điểm DVR và −0,04% năng lượng (ngưỡng: 0,5 điểm hoặc 3%). Không huấn luyện agent. |
+| H5d-2: quét trọng số năng lượng 0/16/64 để có trade-off front ([h5d-offload-ext.json](experiments/h5d-offload-ext.json)) | `--select-rule objective`, `scripts/h5d2_front.sh`, `scripts/h5d2_server.sh`, `scripts/h5d_front.py` | Không tạo được front: policy gần như không đổi so với warm start (J/task thay đổi < 1%), dù DVR vẫn thắng heuristic ở 9/9 run. Đây là thất bại tối ưu, không chứng minh front không tồn tại. |
+
+Lưu ý khi viết về năng lượng: tính trên mỗi task được gửi đến, RL tốn hơn `SHORTEST_FINISH` 1,7–3,0%, vì nó hoàn thành
+đúng hạn nhiều task hơn. RL chỉ tiết kiệm năng lượng khi tính trên mỗi task đúng hạn
+([RESULTS_V21_RL.md](docs/v2/RESULTS_V21_RL.md) mục 4b).
 
 ```powershell
 mvn -o -q compile exec:java "-Dexec.mainClass=uav.mec.MecRunner" "-Dexec.args=experiments/smoke.json --smoke"

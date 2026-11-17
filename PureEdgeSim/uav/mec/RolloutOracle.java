@@ -15,7 +15,6 @@ import uav.mec.Policies.Policy;
  *                    if the episode strictly improves) until a pass changes nothing or MAX_PASSES is reached.
  *                    Never worse than ORACLE:base on the same episode by construction.
  * ORACLE_BEST:OFFLOAD  best ORACLE_ITER over every scheduler x admission for that offloading base.
- * ORACLE_ITER_R:base ORACLE_ITER where every task may also be REJECTED at arrival (H5d gate).
  */
 public final class RolloutOracle {
     public static final int MAX_PASSES = 5;
@@ -28,12 +27,8 @@ public final class RolloutOracle {
         boolean better(Score o) { return onTime > o.onTime || (onTime == o.onTime && energy < o.energy); }
     }
 
-    private static final Decision[] ROUTE = {Decision.LOCAL, Decision.UAV};
-    private static final Decision[] ROUTE_OR_REJECT = {Decision.LOCAL, Decision.UAV, Decision.REJECT};
-
     public static boolean isOracle(String policy) {
-        return policy.startsWith("ORACLE:") || policy.startsWith("ORACLE_ITER:") || policy.startsWith("ORACLE_BEST:")
-                || policy.startsWith("ORACLE_ITER_R:");
+        return policy.startsWith("ORACLE:") || policy.startsWith("ORACLE_ITER:") || policy.startsWith("ORACLE_BEST:");
     }
 
     /** The concrete baseline policy names an oracle name depends on (for early validation). */
@@ -45,28 +40,26 @@ public final class RolloutOracle {
 
     public static MecSimulator.Result run(Scenario sc, String policy, long policySeed, boolean trace) {
         String rest = policy.substring(policy.indexOf(':') + 1);
-        if (policy.startsWith("ORACLE:")) return replay(sc, rollout(sc, rest, policySeed, ROUTE), policy, rest, policySeed, trace);
-        if (policy.startsWith("ORACLE_ITER:")) return replay(sc, iterate(sc, rest, policySeed, ROUTE), policy, rest, policySeed, trace);
-        if (policy.startsWith("ORACLE_ITER_R:"))
-            return replay(sc, iterate(sc, rest, policySeed, ROUTE_OR_REJECT), policy, rest, policySeed, trace);
+        if (policy.startsWith("ORACLE:")) return replay(sc, rollout(sc, rest, policySeed), policy, rest, policySeed, trace);
+        if (policy.startsWith("ORACLE_ITER:")) return replay(sc, iterate(sc, rest, policySeed), policy, rest, policySeed, trace);
         if (!policy.startsWith("ORACLE_BEST:")) throw new IllegalArgumentException("not an oracle policy: " + policy);
         Map<Long, Decision> best = null;
         String bestBase = null;
         Score bestScore = null;
         for (String base : basePolicies(policy)) {
-            var fixed = iterate(sc, base, policySeed, ROUTE);
+            var fixed = iterate(sc, base, policySeed);
             Score s = score(sc, fixed, base, policySeed);
             if (bestScore == null || s.better(bestScore)) { best = fixed; bestBase = base; bestScore = s; }
         }
         return replay(sc, best, policy + "=" + bestBase, bestBase, policySeed, trace);
     }
 
-    private static Map<Long, Decision> rollout(Scenario sc, String base, long policySeed, Decision[] choices) {
+    private static Map<Long, Decision> rollout(Scenario sc, String base, long policySeed) {
         Map<Long, Decision> fixed = new HashMap<>();
         for (var t : sc.tasks()) {
             Decision best = null;
             Score bestScore = null;
-            for (Decision d : choices) {
+            for (Decision d : new Decision[]{Decision.LOCAL, Decision.UAV}) {
                 fixed.put(t.id(), d);
                 Score s = score(sc, fixed, base, policySeed);
                 if (bestScore == null || s.better(bestScore)) { best = d; bestScore = s; }
@@ -76,20 +69,17 @@ public final class RolloutOracle {
         return fixed;
     }
 
-    private static Map<Long, Decision> iterate(Scenario sc, String base, long policySeed, Decision[] choices) {
-        Map<Long, Decision> fixed = rollout(sc, base, policySeed, choices);
+    private static Map<Long, Decision> iterate(Scenario sc, String base, long policySeed) {
+        Map<Long, Decision> fixed = rollout(sc, base, policySeed);
         Score current = score(sc, fixed, base, policySeed);
         for (int pass = 0; pass < MAX_PASSES; pass++) {
             boolean changed = false;
             for (var t : sc.tasks()) {
-                Decision old = fixed.get(t.id()), keep = old;
-                for (Decision alt : choices) {
-                    if (alt == old) continue;
-                    fixed.put(t.id(), alt);
-                    Score s = score(sc, fixed, base, policySeed);
-                    if (s.better(current)) { current = s; keep = alt; changed = true; }
-                }
-                fixed.put(t.id(), keep);
+                Decision old = fixed.get(t.id());
+                fixed.put(t.id(), old == Decision.LOCAL ? Decision.UAV : Decision.LOCAL);
+                Score s = score(sc, fixed, base, policySeed);
+                if (s.better(current)) { current = s; changed = true; }
+                else fixed.put(t.id(), old);
             }
             if (!changed) break;
         }

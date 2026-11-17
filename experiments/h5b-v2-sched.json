@@ -2,7 +2,21 @@
   "name": "h5b-v2-sched",
   "hypothesis": "H5b first attempt never moved off EDF: behaviour cloning on a constant action (accuracy 1.0) removed PPO exploration, so every checkpoint equalled EDF. With label smoothing 0.3 over valid candidates and entropy coefficient 0.01, PPO can explore and a learned UAV scheduler (offloading SHORTEST_FINISH, energy weight 4) may beat EDF.",
   "threshold": "Contribution (PLAN_HUONG_2_3.md 7.4): paired 95% CI of the DVR or marginal-energy difference vs SHORTEST_FINISH+EDF+NONE excludes 0 for the pooled seeds and for >= 4/5 seeds on evaluation-v21. Checkpoints chosen on validation only.",
-  "args": {"control": "schedule", "teacher": "edf", "energy_weight": 4, "seeds": [0, 1, 2, 3, 4], "steps": 2000000,
-           "bc_smoothing": 0.3, "ent_coef": 0.01},
-  "note": "First attempt kept in target/rl/h5b and reported as a failed setup, not as a negative result."
+  "args": {
+    "control": "schedule",
+    "teacher": "edf",
+    "energy_weight": 4,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "steps": 2000000,
+    "bc_smoothing": 0.3,
+    "ent_coef": 0.01
+  },
+  "note": "First attempt kept in target/rl/h5b and reported as a failed setup, not as a negative result.",
+  "removed_code": "Negative result: the code this config needs was removed from the branch on 2026-11-16. Reproduce with: git checkout v2-h5-full. Result: docs/v2/RESULTS_V21_RL.md and README.md."
 }

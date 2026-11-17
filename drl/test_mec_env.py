@@ -3,7 +3,7 @@ import unittest
 
 from gymnasium.utils.env_checker import check_env
 
-from .mec_env import MecEnv, MecSchedEnv, deadline_energy, shortest_finish
+from .mec_env import MecEnv, deadline_energy, shortest_finish
 
 SMALL = {"arrival_window_s": 60}
 
@@ -26,35 +26,6 @@ class MecEnvTests(unittest.TestCase):
                 info, _, _ = play(env, 503, chooser)
                 ref = env.java_reference(name, 503)
                 self.assertEqual(info["metrics"], ref["metrics"] | {"decision_ns_mean": info["metrics"]["decision_ns_mean"]}, name)
-        finally:
-            env.close()
-
-    def test_schedule_control_edf_matches_java(self):
-        # always picking candidate 0 (EDF order) must reproduce SHORTEST_FINISH+EDF exactly
-        model = {"preemptive": True, "arrival_window_s": 60}
-        env = MecSchedEnv(model_file="experiments/v21-main-model.json", model=model, layout_seed=52)
-        try:
-            obs, info = env.reset(options=dict(task_seed=507))
-            steps = 0
-            while True:
-                self.assertTrue(env.action_masks()[0])
-                obs, _, done, _, info = env.step(0)
-                steps += 1
-                if done:
-                    break
-            self.assertGreater(steps, 10)
-            ref = MecEnv(model_file="experiments/v21-main-model.json", model=model, layout_seed=52)
-            try:
-                java = ref.java_reference("SHORTEST_FINISH", 507)
-            finally:
-                ref.close()
-            for key in ("on_time", "dvr", "marginal_j", "offloaded", "latency_mean_s"):
-                self.assertEqual(info["metrics"][key], java["metrics"][key], key)
-            # gymnasium's check_env samples actions without the mask, so it is not applicable here;
-            # check the declared spaces directly instead
-            obs, _ = env.reset(options=dict(task_seed=508))
-            self.assertTrue(env.observation_space.contains(obs))
-            self.assertTrue(env.action_masks().any())
         finally:
             env.close()
 

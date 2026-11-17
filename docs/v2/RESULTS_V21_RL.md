@@ -209,10 +209,11 @@ không thể khẳng định RL tạo ra một trade-off front giữa deadline v
 ```powershell
 mvn -o -q compile exec:java "-Dexec.mainClass=uav.mec.MecRunner" "-Dexec.args=experiments/h4-baselines-eval21.json"
 mvn -o -q exec:java "-Dexec.mainClass=uav.mec.MecRunner" "-Dexec.args=experiments/h4-oracle-eval21.json"
-bash scripts/h5_pipeline.sh        # H5a + H5b lần 1 + đánh giá + verifier + báo cáo
+bash scripts/h5_pipeline.sh        # H5a + đánh giá + verifier + báo cáo
 bash scripts/h5_robustness.sh      # độ bền
-bash scripts/h5b_v2.sh             # H5b lần 2
 bash scripts/h5a_long.sh           # H5a-long
-PY=python bash scripts/h5d2_server.sh   # H5d-2 (Linux; 9 run, ~25 phút trên 5 tiến trình)
-python scripts/h5d_front.py docs/v2/data/h5d2-front.json target/mec/h4-baselines-eval21 target/mec/h5a-long-eval21 target/mec/h5d2-front-eval21
 ```
+
+Code của các kết quả âm tính (H5b, H5d-1, H5d-2) đã được gỡ khỏi nhánh ngày 16/11/2026 (xem README). Để chạy lại:
+`git checkout v2-h5-full`, rồi `bash scripts/h5_pipeline.sh` (bản có H5b lần 1), `bash scripts/h5b_v2.sh`,
+`MecRunner experiments/h5d-gate-reject.json`, `PY=python bash scripts/h5d2_server.sh` và `scripts/h5d_front.py`.

@@ -19,11 +19,10 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from sb3_contrib import MaskablePPO
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
-from .mec_env import FEATURES, MecEnv, MecSchedEnv, deadline_energy, shortest_finish
+from .mec_env import FEATURES, MecEnv, deadline_energy, shortest_finish
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_FILE = "experiments/v21-main-model.json"
@@ -32,22 +31,21 @@ TRAIN_LAYOUTS, TRAIN_TASKS = (1000, 2000), (1_000_000, 2_000_000)
 VAL = [(l, t) for l in range(50, 55) for t in range(500, 530)]
 VAL_SUBSET = [(l, t) for l in range(50, 55) for t in range(500, 504)]
 EVAL = [(l, t) for l in range(200, 205) for t in range(2000, 2030)]
-TEACHERS = {"shortest_finish": shortest_finish, "deadline_energy": deadline_energy,
-            "edf": lambda info: 0}  # schedule control: candidate 0 is the EDF choice
-CONTROL = {"offload": (MecEnv, PPO), "schedule": (MecSchedEnv, MaskablePPO)}
+TEACHERS = {"shortest_finish": shortest_finish, "deadline_energy": deadline_energy}
 
 
-def env_kwargs(control):
-    kw = dict(model_file=MODEL_FILE, model=PATCH, scheduler="EDF", admission="NONE")
-    if control == "schedule":
-        kw["offload"] = "SHORTEST_FINISH"
-    return kw
+def env_kwargs():
+    return dict(model_file=MODEL_FILE, model=PATCH, scheduler="EDF", admission="NONE")
 
 
-def train_env_class(control):
-    base = CONTROL[control][0]
+def offload_run(log):
+    """Only offloading runs are supported; learned UAV scheduling (H5b) was removed, see README."""
+    if log["args"].get("control", "offload") != "offload":
+        raise SystemExit("this run used --control schedule (H5b), removed after tag v2-h5-full")
 
-    class TrainEnv(base):
+
+def train_env_class():
+    class TrainEnv(MecEnv):
         """Draws a fresh training layout and task seed at every reset."""
 
         def reset(self, *, seed=None, options=None):
@@ -66,9 +64,9 @@ def gym_reset(env, seed):
     gym.Env.reset(env, seed=seed)
 
 
-def make_env(rank, seed, energy_weight, control):
+def make_env(rank, seed, energy_weight):
     def thunk():
-        env = train_env_class(control)(energy_weight=energy_weight, **env_kwargs(control))
+        env = train_env_class()(energy_weight=energy_weight, **env_kwargs())
         env.reset(seed=seed * 1000 + rank)
         return env
     return thunk
@@ -91,21 +89,14 @@ def score(infos):
                 on_time=on, episodes=len(m), offered=offered, marginal_j=marginal, j_per_offered=marginal / offered)
 
 
-def objective(s, energy_weight):
-    """Per-task value of the training reward on a validation score: (on - violations)/offered - w * (J/offered)/100."""
-    return (2 * s["on_time"] - s["offered"]) / s["offered"] - energy_weight * s["j_per_offered"] / 100
-
-
 def policy_chooser(model):
     def choose(obs, info, env):
-        if isinstance(env, MecSchedEnv):
-            return int(model.predict(obs, deterministic=True, action_masks=env.action_masks())[0])
         return int(model.predict(obs, deterministic=True)[0])
     return choose
 
 
-def evaluate_on(model_or_choose, pairs, control="offload", energy_weight=0.0):
-    env = CONTROL[control][0](energy_weight=energy_weight, **env_kwargs(control))
+def evaluate_on(model_or_choose, pairs, energy_weight=0.0):
+    env = MecEnv(energy_weight=energy_weight, **env_kwargs())
     choose = model_or_choose if callable(model_or_choose) else policy_chooser(model_or_choose)
     try:
         return score([run_episode(env, choose, l, t) for l, t in pairs])
@@ -113,17 +104,16 @@ def evaluate_on(model_or_choose, pairs, control="offload", energy_weight=0.0):
         env.close()
 
 
-def behaviour_clone(model, teacher, episodes, seed, control="offload", epochs=40, smoothing=0.0):
-    env = train_env_class(control)(**env_kwargs(control))
+def behaviour_clone(model, teacher, episodes, seed, epochs=40):
+    env = train_env_class()(**env_kwargs())
     env.reset(seed=seed + 77)
-    X, Y, M = [], [], []
+    X, Y = [], []
     try:
         for _ in range(episodes):
             obs, info = env.reset()
             while True:
                 a = teacher(info)
                 X.append(obs); Y.append(a)
-                M.append(env.action_masks() if control == "schedule" else np.ones(2, dtype=bool))
                 obs, _, done, _, info = env.step(a)
                 if done:
                     break
@@ -131,26 +121,17 @@ def behaviour_clone(model, teacher, episodes, seed, control="offload", epochs=40
         env.close()
     X = torch.as_tensor(np.array(X), dtype=torch.float32)
     Y = torch.as_tensor(np.array(Y), dtype=torch.long)
-    M = np.array(M)
     policy = model.policy
-    dist_of = (lambda x, idx: policy.get_distribution(x, action_masks=M[idx])) if control == "schedule" \
-        else (lambda x, idx: policy.get_distribution(x))
     opt = torch.optim.Adam(policy.parameters(), lr=1e-3)
     g = torch.Generator().manual_seed(seed)
     for _ in range(epochs):
         perm = torch.randperm(len(X), generator=g)
         for i in range(0, len(X), 512):
             idx = perm[i:i + 512]
-            dist = dist_of(X[idx], idx.numpy())
-            loss = -dist.log_prob(Y[idx]).mean()
-            if smoothing > 0:  # label smoothing over the valid actions keeps exploration alive for PPO
-                logp = torch.log(dist.distribution.probs.clamp_min(1e-12))
-                valid = torch.as_tensor(M[idx.numpy()], dtype=torch.float32)
-                spread = -(logp * valid).sum(1) / valid.sum(1)
-                loss = (1 - smoothing) * loss + smoothing * spread.mean()
+            loss = -policy.get_distribution(X[idx]).log_prob(Y[idx]).mean()
             opt.zero_grad(); loss.backward(); opt.step()
     with torch.no_grad():
-        probs = dist_of(X, np.arange(len(X))).distribution.probs
+        probs = policy.get_distribution(X).distribution.probs
         acc = float((probs.argmax(1) == Y).float().mean())
     return dict(samples=len(X), accuracy=acc, uav_share=float(Y.float().mean()))
 
@@ -162,29 +143,28 @@ def train(a):
     torch.set_num_threads(1)
     teacher = TEACHERS[a.teacher]
     log = dict(args=vars(a), started=time.strftime("%Y-%m-%d %H:%M:%S"), validation=[])
-    vec = SubprocVecEnv([make_env(r, a.seed, a.energy_weight, a.control) for r in range(a.envs)])
+    vec = SubprocVecEnv([make_env(r, a.seed, a.energy_weight) for r in range(a.envs)])
     if a.init_from:  # continue a finished run: same hyperparameters, no new cloning, step 0 = the starting policy
-        model = CONTROL[a.control][1].load(a.init_from, env=vec, device="cpu", learning_rate=a.lr, ent_coef=a.ent_coef)
+        model = PPO.load(a.init_from, env=vec, device="cpu", learning_rate=a.lr, ent_coef=a.ent_coef)
         log["init_from"] = a.init_from
     else:
-        model = CONTROL[a.control][1]("MlpPolicy", vec, seed=a.seed, learning_rate=a.lr, n_steps=a.n_steps, batch_size=1024, n_epochs=5,
+        model = PPO("MlpPolicy", vec, seed=a.seed, learning_rate=a.lr, n_steps=a.n_steps, batch_size=1024, n_epochs=5,
                 gamma=0.99, gae_lambda=0.95, clip_range=0.1, ent_coef=a.ent_coef, policy_kwargs=dict(net_arch=[128, 128]),
                 device="cpu", verbose=0)
-    log["teacher_validation"] = evaluate_on(lambda o, i, e: teacher(i), VAL_SUBSET, a.control)
+    log["teacher_validation"] = evaluate_on(lambda o, i, e: teacher(i), VAL_SUBSET)
     log["behaviour_cloning"] = dict(skipped="continued from " + a.init_from) if a.init_from else (
-        behaviour_clone(model, teacher, a.bc_episodes, a.seed, a.control, smoothing=a.bc_smoothing)
+        behaviour_clone(model, teacher, a.bc_episodes, a.seed)
         if a.bc_episodes > 0 else dict(skipped=True))
     best = None
 
     def checkpoint(step):
         nonlocal best
-        s = evaluate_on(model, VAL_SUBSET, a.control)
+        s = evaluate_on(model, VAL_SUBSET)
         s["steps"] = step
         log["validation"].append(s)
         path = out / f"ckpt-{step:08d}.zip"
         model.save(path)
-        s["objective"] = objective(s, a.energy_weight)
-        key = (-s["objective"],) if a.select_rule == "objective" else (round(s["dvr"], 12), s["j_per_on_time"])
+        key = (round(s["dvr"], 12), s["j_per_on_time"])
         if best is None or key < best[0]:  # lower DVR first, then lower energy; ties keep the earlier checkpoint
             best = (key, step, path)
         (out / "train.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
@@ -238,14 +218,13 @@ def evaluate(a):
     policies = []
     for run in a.runs:
         log = json.loads((Path(run) / "train.json").read_text(encoding="utf-8"))
-        control = log["args"].get("control", "offload")
-        name = (f"RL_PPO_w{log['args']['energy_weight']:g}_s{log['args']['seed']}+EDF+NONE" if control == "offload"
-                else f"SHORTEST_FINISH+RL_MPPO_w{log['args']['energy_weight']:g}_s{log['args']['seed']}+NONE")
+        offload_run(log)
+        name = f"RL_PPO_w{log['args']['energy_weight']:g}_s{log['args']['seed']}+EDF+NONE"
         policies.append(name)
-        model = CONTROL[control][1].load(Path(run) / log["best_checkpoint"], device="cpu")
-        kw = env_kwargs(control)
+        model = PPO.load(Path(run) / log["best_checkpoint"], device="cpu")
+        kw = env_kwargs()
         kw["model"] = deep_merge(kw["model"], extra)  # robustness variants: the trained policy is unchanged
-        env = CONTROL[control][0](trace=True, **kw)
+        env = MecEnv(trace=True, **kw)
         try:
             for k, (layout, task) in enumerate(EVAL):
                 t0 = time.perf_counter()
@@ -283,16 +262,16 @@ def select(a):
         log = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
         if "finished" not in log:
             skipped.append(str(run)); continue
-        control = log["args"].get("control", "offload")
+        offload_run(log)
         if "validation_full" not in log:
-            model = CONTROL[control][1].load(Path(run) / log["best_checkpoint"], device="cpu")
-            log["validation_full"] = evaluate_on(model, VAL, control)
+            model = PPO.load(Path(run) / log["best_checkpoint"], device="cpu")
+            log["validation_full"] = evaluate_on(model, VAL)
             path.write_text(json.dumps(log, indent=2), encoding="utf-8")
-        groups[(control, log["args"]["energy_weight"])].append(dict(run=str(run), **log["validation_full"]))
+        groups[log["args"]["energy_weight"]].append(dict(run=str(run), **log["validation_full"]))
         print(run, "full validation DVR %.3f%% J/on %.3f" % (100 * log["validation_full"]["dvr"], log["validation_full"]["j_per_on_time"]), flush=True)
     summary = []
-    for (control, w), rs in groups.items():
-        summary.append(dict(control=control, energy_weight=w, runs=[r["run"] for r in rs], seeds=len(rs),
+    for w, rs in groups.items():
+        summary.append(dict(energy_weight=w, runs=[r["run"] for r in rs], seeds=len(rs),
                             mean_dvr=float(np.mean([r["dvr"] for r in rs])), mean_j=float(np.mean([r["j_per_on_time"] for r in rs]))))
     summary.sort(key=lambda g: (g["mean_dvr"], g["mean_j"]))
     out = dict(chosen=summary[0] if summary else None, groups=summary, skipped=skipped)
@@ -314,12 +293,8 @@ def main():
     t.add_argument("--lr", type=float, default=1e-4)
     t.add_argument("--bc-episodes", type=int, default=30)
     t.add_argument("--teacher", choices=TEACHERS, default="shortest_finish")
-    t.add_argument("--control", choices=CONTROL, default="offload")
     t.add_argument("--ent-coef", type=float, default=0.001)
-    t.add_argument("--bc-smoothing", type=float, default=0.0)
     t.add_argument("--init-from", help="checkpoint .zip of a finished run to continue training from")
-    t.add_argument("--select-rule", choices=["dvr", "objective"], default="dvr",
-                   help="checkpoint choice: lowest DVR then energy (default), or highest training objective (H5d-2)")
     e = sub.add_parser("evaluate")
     e.add_argument("--runs", nargs="+", required=True)
     e.add_argument("--out", required=True)

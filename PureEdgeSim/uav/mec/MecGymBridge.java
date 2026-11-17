@@ -26,11 +26,6 @@ import java.util.Map;
  */
 public final class MecGymBridge {
     public static final int FEATURES = 19;
-    /** Learned UAV scheduling (H5b): the K earliest-deadline candidates, 9 features each, plus 2 global features. */
-    public static final int SCHED_K = 5, SCHED_PER = 9, SCHED_FEATURES = SCHED_K * SCHED_PER + 2;
-    private static final java.util.Comparator<Policies.ReadyView> EDF_ORDER =
-            java.util.Comparator.comparingDouble(Policies.ReadyView::deadline).thenComparingDouble(Policies.ReadyView::ready)
-                    .thenComparingDouble(Policies.ReadyView::arrival).thenComparingLong(Policies.ReadyView::id);
     private final ObjectMapper json = new ObjectMapper();
     private final BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     private final PrintStream out = System.out;
@@ -87,7 +82,7 @@ public final class MecGymBridge {
 
     private Policies.Decision decide(Policies.OffloadView v, MecModel m) {
         var obs = new LinkedHashMap<String, Object>();
-        obs.put("kind", "offload"); obs.put("observation", features(v, m)); obs.put("done", false); obs.put("info", info(v));
+        obs.put("observation", features(v, m)); obs.put("done", false); obs.put("info", info(v));
         send(obs);
         while (true) {
             var c = read();
@@ -99,49 +94,9 @@ public final class MecGymBridge {
         }
     }
 
-    /** Candidate features in EDF order; index 0 is always the EDF choice. Clipped to [0,1]. */
-    static double[] scheduleFeatures(List<Policies.ReadyView> sorted, double now, double speed, double horizon) {
-        double[] x = new double[SCHED_FEATURES];
-        for (int k = 0; k < Math.min(SCHED_K, sorted.size()); k++) {
-            var r = sorted.get(k);
-            double slack = r.deadline() - now, service = r.estRemainingGc() / speed;
-            double[] f = {slack / 90, r.estRemainingGc() / 20, r.priority() / 3.0, (now - r.ready()) / 60, r.running() ? 1 : 0,
-                    0.5 + (slack - service) / 180, r.cls().equals("DETECT") ? 1 : 0, r.cls().equals("SEGMENT") ? 1 : 0,
-                    r.cls().equals("MAP") ? 1 : 0};
-            System.arraycopy(f, 0, x, k * SCHED_PER, SCHED_PER);
-        }
-        x[SCHED_K * SCHED_PER] = sorted.size() / 50.0;
-        x[SCHED_K * SCHED_PER + 1] = now / horizon;
-        for (int i = 0; i < x.length; i++) x[i] = Double.isFinite(x[i]) ? Math.max(0, Math.min(1, x[i])) : 1;
-        return x;
-    }
-
-    private long schedule(List<Policies.ReadyView> candidates, double now, double speed, double horizon) {
-        if (candidates.size() == 1) return candidates.get(0).id(); // no choice: not a learning step
-        var sorted = candidates.stream().sorted(EDF_ORDER).toList();
-        int k = Math.min(SCHED_K, sorted.size());
-        var mask = new boolean[SCHED_K];
-        for (int i = 0; i < k; i++) mask[i] = true;
-        var obs = new LinkedHashMap<String, Object>();
-        var i = new LinkedHashMap<String, Object>(info(null));
-        i.put("candidates", candidates.size());
-        obs.put("kind", "schedule"); obs.put("observation", scheduleFeatures(sorted, now, speed, horizon));
-        obs.put("mask", mask); obs.put("done", false); obs.put("info", i);
-        send(obs);
-        while (true) {
-            var c = read();
-            String cmd = c.path("cmd").asText();
-            if (cmd.equals("reset") || cmd.equals("close")) throw new Control(c);
-            if (cmd.equals("step") && c.path("action").canConvertToInt() && c.get("action").asInt() >= 0 && c.get("action").asInt() < k)
-                return sorted.get(c.get("action").asInt()).id();
-            send(Map.of("error", "expected step with a valid candidate index 0.." + (k - 1) + ", reset or close"));
-        }
-    }
-
     private void run() throws Exception {
         System.setOut(System.err); // keep any library output off the protocol stream
-        send(Map.of("ready", true, "protocol", "mec-v2-1", "features", FEATURES, "schedule_features", SCHED_FEATURES,
-                "schedule_k", SCHED_K));
+        send(Map.of("ready", true, "protocol", "mec-v2-1", "features", FEATURES));
         JsonNode c = read();
         while (!c.path("cmd").asText().equals("close")) {
             if (c.path("cmd").asText().equals("save")) { // full trace of the last finished episode (scripts/verify_mec.py)
@@ -161,18 +116,10 @@ public final class MecGymBridge {
                 long layout = c.path("layout_seed").asLong(0), seed = c.path("task_seed").asLong(0);
                 var sc = Scenario.generate(m, layout, seed);
                 var base = Policies.parse("ALL_LOCAL+" + c.path("scheduler").asText("EDF") + "+" + c.path("admission").asText("NONE"), 0);
-                // control "offload" (default): Python decides offloading; "schedule": Python picks UAV tasks while the
-                // Java policy "java_offload" decides offloading. "java_offload" alone (control offload) runs a Java
-                // baseline with no steps (reference for parity tests).
-                boolean learnSchedule = c.path("control").asText("offload").equals("schedule");
-                if (!List.of("offload", "schedule").contains(c.path("control").asText("offload")))
-                    throw new IllegalArgumentException("control must be offload or schedule");
+                // "java_offload": run a Java baseline instead (reference for parity tests); no steps are requested.
                 Policies.OffloadPolicy offload = c.has("java_offload")
                         ? Policies.offload(c.get("java_offload").asText(), MecRunner.policySeed(layout, seed)) : v -> decide(v, m);
-                if (learnSchedule && !c.has("java_offload")) throw new IllegalArgumentException("control schedule needs java_offload");
-                Policies.Scheduler uav = learnSchedule ? (cands, now, speed) -> schedule(cands, now, speed, m.horizonS()) : null;
-                var policy = new Policies.Policy("PYTHON+" + c.path("scheduler").asText("EDF"), offload, base.scheduler(),
-                        base.admission(), uav);
+                var policy = new Policies.Policy("PYTHON+" + c.path("scheduler").asText("EDF"), offload, base.scheduler(), base.admission());
                 sim = new MecSimulator(sc, policy, c.path("trace").asBoolean(false));
                 while (!sim.done()) sim.advanceTo(sim.nextEventTime());
                 var done = new LinkedHashMap<String, Object>();
