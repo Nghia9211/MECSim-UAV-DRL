@@ -44,10 +44,37 @@ def calculate(jobs, outcomes, energies, horizon):
                 image_dvr=1-on(images)/len(images) if images else None,
                 background_dvr=1-on(bg)/len(bg) if bg else None,
                 total_energy_j=energy, uav_energy_j=sum(float(uav[k]) for k in ('idle_j','compute_j','tx_j')),
+                # Raw UAV rows: idle_j is propulsion (flight + hover) before the mobile split below.
+                uav_propulsion_j=float(uav['idle_j']), uav_compute_j=float(uav['compute_j']), uav_tx_j=float(uav['tx_j']),
+                # Absolute UAV energy budget = energy drawn + energy left in the battery.
+                uav_budget_j=sum(float(uav[k]) for k in ('idle_j','compute_j','tx_j'))+float(uav['remaining_j']),
                 # Whole system energy / useful image completions; background energy included.
                 j_per_ontime_image=energy/on(images) if on(images) else None,
                 image_mean_latency_s=mean(latency), image_p95_latency_s=p95(latency),
                 uav_observed_time_s=alive, uav_death_observed=int(observed), horizon_s=horizon)
+
+
+def uav_energy_breakdown(v):
+    """UAV energy split for the deadline + UAV-energy objective.
+
+    Hover is treated as a fixed mission cost. Controllable energy = flight + compute + TX,
+    i.e. what routing/scheduling/mobility choices can change. Fixed (non-mobile) runs have no
+    flight, so propulsion is all hover. Mobile runs take flight/hover from the episode row.
+    """
+    flight = v.get('flight_j', 0.0)
+    hover = v['uav_propulsion_j'] - flight if 'flight_j' not in v else v['hover_j']
+    controllable = flight + v['uav_compute_j'] + v['uav_tx_j']
+    on = v['image_ontime']; delivered = v.get('delivered_ontime_images')
+    ratio = lambda num, den: num/den if den else None   # zero successes -> NA, never 0
+    out = dict(uav_flight_j=flight, uav_hover_j=hover, uav_controllable_j=controllable,
+               uav_budget_used_frac=ratio(v['uav_energy_j'], v['uav_budget_j']),
+               uav_budget_exhausted=v['uav_death_observed'],
+               uav_j_per_ontime_image=ratio(v['uav_energy_j'], on),
+               uav_controllable_j_per_ontime_image=ratio(controllable, on))
+    if delivered is not None:
+        out.update(uav_j_per_delivered_ontime_image=ratio(v['uav_energy_j'], delivered),
+                   uav_controllable_j_per_delivered_ontime_image=ratio(controllable, delivered))
+    return out
 
 
 def export(root):
@@ -99,6 +126,7 @@ def export(root):
                 reserved_images=len(reserved),reserved_uploaded_images=sum(float(outcomes[k]['uploaded_s'])>0 for k in reserved),
                 reserved_delivered_ontime_images=sum(k in delivered and outcomes[k]['status']=='COMPLETED_ON_TIME' for k in reserved),
                 actual_contact_wait_s=actual_wait)
+        values.update(uav_energy_breakdown(values))
         results.append(dict(scenario=r['scenario'], seed=r['seed'], policy=r['policy'],
                             workload_sha256=r['workload_sha256'], **values))
     write_csv(root/'core-metrics-episodes.csv', results)
@@ -132,7 +160,14 @@ def summarize(rows, out):
                 mean_total_j=mean([r['total_energy_j'] for r in g]), mean_uav_j=mean([r['uav_energy_j'] for r in g]),
                 mean_restricted_uav_lifetime_s=mean([r['uav_observed_time_s'] for r in g]),
                 deaths_observed=sum(r['uav_death_observed'] for r in g),
-                censored_cases=sum(1-r['uav_death_observed'] for r in g)))
+                censored_cases=sum(1-r['uav_death_observed'] for r in g),
+                mean_uav_flight_j=mean([r['uav_flight_j'] for r in g]), mean_uav_hover_j=mean([r['uav_hover_j'] for r in g]),
+                mean_uav_compute_j=mean([r['uav_compute_j'] for r in g]), mean_uav_controllable_j=mean([r['uav_controllable_j'] for r in g]),
+                mean_uav_budget_j=mean([r['uav_budget_j'] for r in g]), mean_uav_budget_used_frac=mean([r['uav_budget_used_frac'] for r in g]),
+                uav_budget_exhausted_cases=sum(r['uav_budget_exhausted'] for r in g),
+                # Ratios of sums, like J/image above. NA when no image succeeds.
+                uav_j_per_ontime_image=sum(r['uav_energy_j'] for r in g)/on if on else None,
+                uav_controllable_j_per_ontime_image=sum(r['uav_controllable_j'] for r in g)/on if on else None))
             if 'delivered_ontime_images' in g[0]:
                 delivered = sum(r['delivered_ontime_images'] for r in g)
                 summary[-1].update(delivered_image_dvr=mean([r['delivered_image_dvr'] for r in g]),
@@ -142,6 +177,8 @@ def summarize(rows, out):
                     mean_offloaded_images=mean([r['offloaded_images'] for r in g]),
                     mean_flight_j=mean([r['flight_j'] for r in g]),mean_hover_j=mean([r['hover_j'] for r in g]),
                     mean_travelled_m=mean([r['travelled_m'] for r in g]))
+                summary[-1].update(uav_j_per_delivered_ontime_image=sum(r['uav_energy_j'] for r in g)/delivered if delivered else None,
+                    uav_controllable_j_per_delivered_ontime_image=sum(r['uav_controllable_j'] for r in g)/delivered if delivered else None)
                 summary[-1].update(mean_delivered_latency_s=mean([r['delivered_mean_latency_s'] for r in g]),
                     mean_delivered_episode_p95_s=mean([r['delivered_p95_latency_s'] for r in g]),
                     delivered_latency_cases=sum(r['delivered_completed_images']>0 for r in g))
@@ -190,6 +227,20 @@ def summarize(rows, out):
                 vals=[r[k] for k in ['mean_offload_eligible_images','mean_reserved_images','mean_reserved_uploaded_images',
                     'mean_reserved_delivered_ontime_images','mean_actual_contact_wait_s']]
                 lines.append('| '+r['policy']+' | '+' | '.join(map(fmt,vals))+' |')
+    lines += ['', '## UAV energy and budget', '',
+        'Hover is a fixed mission cost. Controllable = flight + compute + TX. J/image columns are sums over cases / on-time images; NA means no success, not 0. Budget = energy drawn + energy left; exhausted = battery depleted before the horizon.',
+        'Rows are per scenario because different budgets must not be averaged together.', '',
+        '| Scenario | Policy | Image DVR % | UAV kJ | Flight kJ | Hover kJ | Compute kJ | Controllable kJ | Budget used % | Exhausted/total | Controllable J/on-time image |',
+        '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+    kj = lambda x: None if x is None else x/1000
+    for r in summary:
+        if r['scenario'] == 'ALL' and len({s['scenario'] for s in summary}) > 2:
+            continue
+        pct = lambda x: None if x is None else 100*x
+        vals = [pct(r['image_dvr']), kj(r['mean_uav_j']), kj(r['mean_uav_flight_j']), kj(r['mean_uav_hover_j']),
+                kj(r['mean_uav_compute_j']), kj(r['mean_uav_controllable_j']), pct(r['mean_uav_budget_used_frac'])]
+        lines.append(f"| {r['scenario']} | {r['policy']} | " + ' | '.join(map(fmt, vals)) +
+                     f" | {r['uav_budget_exhausted_cases']}/{r['cases']} | {fmt(r['uav_controllable_j_per_ontime_image'])} |")
     (out/'CORE_METRICS.md').write_text('\n'.join(lines)+'\n', encoding='utf8')
 
 

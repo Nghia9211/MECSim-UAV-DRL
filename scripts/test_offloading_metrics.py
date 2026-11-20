@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import csv
 import hashlib
-from offloading_metrics import calculate, p95, compare, export, read
+from offloading_metrics import calculate, p95, compare, export, read, uav_energy_breakdown
 
 
 class MetricsTests(unittest.TestCase):
@@ -40,6 +40,29 @@ class MetricsTests(unittest.TestCase):
             self.assertEqual(r['delivered_p95_latency_s'],1)
             self.assertEqual(r['flight_j'],100)
             self.assertEqual(len(read(root/'core-metrics-episodes.csv')),1)
+            # UAV energy: hover fixed, controllable = flight + compute + TX; budget = drawn + remaining.
+            self.assertEqual((r['uav_flight_j'],r['uav_hover_j'],r['uav_compute_j']),(100,100,20))
+            self.assertEqual(r['uav_controllable_j'],120)
+            self.assertEqual(r['uav_budget_j'],1000)
+            self.assertAlmostEqual(r['uav_budget_used_frac'],.22)
+            self.assertEqual(r['uav_budget_exhausted'],0)
+            self.assertEqual(r['uav_j_per_ontime_image'],110)
+            self.assertEqual(r['uav_controllable_j_per_ontime_image'],60)
+            self.assertEqual(r['uav_controllable_j_per_delivered_ontime_image'],120)
+            md=(root/'CORE_METRICS.md').read_text()
+            self.assertIn('## UAV energy and budget',md)
+
+    def test_fixed_uav_has_no_flight_and_exhausted_budget_zero_success_is_na(self):
+        energy=[dict(device='-1',idle_j='80',compute_j='20',tx_j='0',powered_s='5',remaining_j='0')]
+        v=calculate({'1':dict(source='RESCUENET',arrival_s='0')},
+            {'1':dict(status='DROPPED_UAV_BATTERY',resolved_s='5')},energy,20)
+        b=uav_energy_breakdown(v)
+        self.assertEqual((b['uav_flight_j'],b['uav_hover_j'],b['uav_controllable_j']),(0,80,20))
+        self.assertEqual(v['uav_budget_j'],100)
+        self.assertEqual(b['uav_budget_used_frac'],1)
+        self.assertEqual(b['uav_budget_exhausted'],1)
+        self.assertIsNone(b['uav_j_per_ontime_image'])
+        self.assertIsNone(b['uav_controllable_j_per_ontime_image'])
 
     def test_comparison_rejects_changed_protocol(self):
         with tempfile.TemporaryDirectory() as tmp:
