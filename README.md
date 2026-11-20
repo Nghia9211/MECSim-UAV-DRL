@@ -55,6 +55,7 @@ không mặc định mọi campaign mới đã xuất hiện trong UI.
 | Kernel offloading + scheduling | [OFFLOADING_SCHEDULING.md](PureEdgeSim/uav/OFFLOADING_SCHEDULING.md) |
 | UAV di chuyển và chọn điểm phục vụ | [ADAPTED_PAPER_SERVICE.md](PureEdgeSim/uav/ADAPTED_PAPER_SERVICE.md) |
 | Contact PPO đã chạy trên workload cũ | [CONTACT_PPO_RESULTS.md](PureEdgeSim/uav/CONTACT_PPO_RESULTS.md) |
+| Kịch bản deadline × ngân sách năng lượng UAV | [UAV_ENERGY_BUDGET_SCENARIO.md](PureEdgeSim/uav/UAV_ENERGY_BUDGET_SCENARIO.md) |
 | Đối chiếu paper | [PAPER_ALIGNMENT.md](PureEdgeSim/uav/PAPER_ALIGNMENT.md) |
 | Tài liệu các giai đoạn trước | [docs/history/README.md](docs/history/README.md) |
 | Source prototype đã nghỉ | [legacy/README.md](legacy/README.md) |
