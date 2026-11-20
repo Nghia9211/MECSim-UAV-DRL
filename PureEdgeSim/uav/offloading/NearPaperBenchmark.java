@@ -97,8 +97,7 @@ public final class NearPaperBenchmark {
         var layout=PaperSimulation.layout(p.path("layoutSeed").asLong(),0,p.get("connectedDevices").asInt());
         var devices=layout.stream().map(NearPaperBenchmark::device).toList();
         var sites=layout.stream().map(d->new MobileService.Site(d.x(),d.y(),d.connected())).toList();
-        var cpu=new OffloadingSimulation.Config(val(p,"horizonSeconds"),val(p,"uavBytesPerSecond")/BYTES_PER_MI,
-            val(p,"uavCpuWatts"),PaperParameters.HOVER_W,PaperParameters.UAV_BATTERY_J,devices);
+        var cpuByScenario=new LinkedHashMap<String,OffloadingSimulation.Config>();
         var motion=new MobileService.Config(PaperParameters.AREA_M,0,0,PaperParameters.ALTITUDE_M,PaperParameters.SPEED_MPS,
             PaperParameters.RANGE_M,val(p,"dwellSeconds"),PaperParameters.FLIGHT_W,sites,p.get("allowContactWait").asBoolean());
         List<AlibabaWorkload.Row> pool=List.of();
@@ -112,6 +111,12 @@ public final class NearPaperBenchmark {
             for(String key:List.of("criticalDeadlineSeconds","imageDeadlineSeconds"))
                 if(val(load,key)<=0||val(p,"arrivalWindowSeconds")+val(load,key)>val(p,"horizonSeconds"))
                     throw new IllegalArgumentException("Deadline must fit horizon");
+            // Optional absolute UAV energy budget (J) for this scenario; default is the paper battery.
+            double budget=load.has("uavBatteryJ")?val(load,"uavBatteryJ"):PaperParameters.UAV_BATTERY_J;
+            if(budget<=0)throw new IllegalArgumentException("uavBatteryJ must be positive");
+            var cpu=new OffloadingSimulation.Config(val(p,"horizonSeconds"),val(p,"uavBytesPerSecond")/BYTES_PER_MI,
+                val(p,"uavCpuWatts"),PaperParameters.HOVER_W,budget,devices);
+            cpuByScenario.put(name,cpu);
             var cfg=new LinkedHashMap<String,Object>();
             cfg.put("horizonSeconds",cpu.horizonSeconds());cfg.put("uavMips",cpu.uavMips());cfg.put("uavCpuWatts",cpu.uavCpuWatts());
             cfg.put("hoverWatts",cpu.hoverWatts());cfg.put("uavBatteryJ",cpu.uavBatteryJ());
@@ -162,7 +167,7 @@ public final class NearPaperBenchmark {
             for(int k=0;k<policies.size();k++) {
                 String name=policies.get((n+k)%policies.size());var parts=name.split("__");
                 long start=System.nanoTime();
-                var moved=OffloadingSimulation.runMobile(jobs,cpu,OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf(parts[1])),
+                var moved=OffloadingSimulation.runMobile(jobs,cpuByScenario.get(scenario),OffloadingPolicy.baseline(OffloadingPolicy.Baseline.valueOf(parts[1])),
                     OffloadingBenchmark.scheduler(parts[2],.75),motion,DeviceSelectionPolicy.baseline(DeviceSelectionPolicy.Baseline.valueOf(parts[0])));
                 double ms=(System.nanoTime()-start)/1e6;var r=moved.execution();var met=r.metrics(null);
                 MobileServiceBenchmark.save(dir,name,moved);

@@ -121,8 +121,10 @@ def verify(root):
     for scenario,cfg in m['configs'].items():
         close(cfg['horizonSeconds'],p['horizonSeconds'],'Horizon')
         for key,value in [('uavMips',p['uavBytesPerSecond']/1000),('uavCpuWatts',p['uavCpuWatts']),
-                          ('hoverWatts',80),('uavBatteryJ',1600000),('startX',0),('startY',0)]:
+                          ('hoverWatts',80),('startX',0),('startY',0)]:
             close(cfg[key],value,'CPU/config '+key)
+        # Absolute UAV energy budget: per-scenario value, paper battery when unspecified.
+        close(cfg['uavBatteryJ'],next(x for x in p['loads'] if x['name']==scenario).get('uavBatteryJ',1600000),'UAV energy budget')
         check(cfg['allowContactWait']==p['allowContactWait'],'Wait config')
         check(cfg['load']==next(x for x in p['loads'] if x['name']==scenario),'Scenario load')
         check(len(cfg['sites'])==len(cfg['devices'])==12,'Device count')
